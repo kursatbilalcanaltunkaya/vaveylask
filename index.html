@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaveyla Spor Kulübü Voleybol Turnuvası 2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #8B0000 0%, #4a0000 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #8B0000 0%, #6B0000 100%);
+            color: #FFD700;
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .admin-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #FFD700;
+            color: #8B0000;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .admin-link:hover {
+            background: #FFC700;
+            transform: translateY(-2px);
+        }
+
+        nav {
+            background: #FFD700;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            padding: 20px 30px;
+            color: #8B0000;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        nav button:hover {
+            background: rgba(139,0,0,0.1);
+        }
+
+        nav button.active {
+            background: rgba(139,0,0,0.15);
+            border-bottom: 3px solid #8B0000;
+        }
+
+        .content {
+            padding: 40px 20px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        h2 {
+            color: #8B0000;
+            font-size: 2em;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #FFD700;
+        }
+
+        .groups-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .group {
+            background: #f9f9f9;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .group h3 {
+            color: #8B0000;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #FFD700;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #8B0000;
+            color: #FFD700;
+            padding: 15px 10px;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .rank-1 {
+            background: rgba(255, 215, 0, 0.2) !important;
+        }
+
+        .rank-2 {
+            background: rgba(192, 192, 192, 0.2) !important;
+        }
+
+        .match {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .match-date {
+            background: #FFD700;
+            color: #8B0000;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .match-teams {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .team {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .score {
+            background: #8B0000;
+            color: #FFD700;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .team-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #FFD700;
+        }
+
+        .team-card h4 {
+            color: #8B0000;
+        }
+
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .admin-link {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin-top: 10px;
+            }
+            
+            .match-teams {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="admin.html" class="admin-link">🔐 Admin Paneli</a>
+            <h1>🏐 Vaveyla Spor Kulübü</h1>
+            <p class="subtitle">Voleybol Turnuvası 2026</p>
+        </header>
+
+        <nav>
+            <button class="active" onclick="showSection('takimlar')">Takımlar</button>
+            <button onclick="showSection('puan-durumu')">Puan Durumu</button>
+            <button onclick="showSection('fikstur')">Fikstür</button>
+            <button onclick="showSection('sonuclar')">Maç Sonuçları</button>
+        </nav>
+
+        <div class="content">
+            <div id="takimlar" class="section active">
+                <h2>Katılımcı Takımlar</h2>
+                <div id="teams-container"></div>
+            </div>
+
+            <div id="puan-durumu" class="section">
+                <h2>Puan Durumu</h2>
+                <div id="standings-container"></div>
+            </div>
+
+            <div id="fikstur" class="section">
+                <h2>Fikstür</h2>
+                <div id="fixtures-container"></div>
+            </div>
+
+            <div id="sonuclar" class="section">
+                <h2>Maç Sonuçları</h2>
+                <div id="results-container"></div>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 Vaveyla Spor Kulübü - Tüm Hakları Saklıdır</p>
+        </footer>
+    </div>
+
+    <script src="tournament.js"></script>
+    <script>
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        window.onload = () => loadAllData();
+    </script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        // ===== FIREBASE CONFIGURATION =====
+        // BURAYA KOPYALADIĞINIZ CONFİG'İ YAPIŞTIRIN!
+        const firebaseConfig = {
+            apiKey: "AIzaSyDUXWJ2Q1ywTh90ewPfD_BuH5Rsjqu00Y4",
+            authDomain: "vaveylask-862c2.firebaseapp.com",
+            databaseURL: "https://vaveylask-862c2-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "vaveylask-862c2",
+            storageBucket: "vaveylask-862c2.firebasestorage.app",
+            messagingSenderId: "539195972878",
+            appId: "1:539195972878:web:27c776639df321ec670b5f"
+        };
+
+        // Firebase'i başlat
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        console.log('🔥 Firebase başlatıldı!');
+    </script>
+</body>
+</html>
