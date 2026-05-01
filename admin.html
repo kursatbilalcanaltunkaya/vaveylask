@@ -1136,6 +1136,9 @@
             }
 
             const data = loadYoklamaData();
+            
+            if (!data.attendances) data.attendances = {};
+            
             const attendanceKey = `${group}_${date}`;
             
             if (!data.attendances[attendanceKey]) {
