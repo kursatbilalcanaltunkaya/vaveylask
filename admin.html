@@ -915,6 +915,7 @@
 
                 // Mevcut yoklamayı yükle ve currentAttendance'a aktar
                 const attendanceKey = `${group}_${date}`;
+                if (!data.attendances) data.attendances = {};
                 const existing = data.attendances[attendanceKey] || {};
                 currentYoklamaAttendance = {...existing}; // Mevcut yoklamayı kopyala
 
