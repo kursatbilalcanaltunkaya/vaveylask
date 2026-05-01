@@ -974,6 +974,8 @@
             const container = document.getElementById('yoklama-date-view-section');
             const data = loadYoklamaData();
             
+            if (!data.attendances) data.attendances = {};
+            
             if (!data.athletes[group] || data.athletes[group].length === 0) {
                 container.innerHTML = '';
                 return;
