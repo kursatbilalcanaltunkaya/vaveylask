@@ -855,6 +855,11 @@
 
         // Yoklama verilerini kaydet (Firebase + localStorage)
         function saveYoklamaData(data) {
+            // Güvenli veri yapısı
+       if (!data.athletes) data.athletes = {};
+       if (!data.attendances) data.attendances = {};
+
+            
             // LocalStorage'a kaydet (hemen)
             localStorage.setItem(YOKLAMA_KEY, JSON.stringify(data));
             
