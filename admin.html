@@ -1146,8 +1146,9 @@
             }
 
             // Tüm işaretlemeleri kaydet
-            Object.assign(data.attendances[attendanceKey], currentYoklamaAttendance);
-            saveYoklamaData(data);
+            if (currentYoklamaAttendance && Object.keys(currentYoklamaAttendance).length > 0) {
+    Object.assign(data.attendances[attendanceKey], currentYoklamaAttendance);
+}
 
             // Kaç kişi geldi/gelmedi
             let present = 0, absent = 0;
