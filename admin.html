@@ -1150,6 +1150,9 @@
     Object.assign(data.attendances[attendanceKey], currentYoklamaAttendance);
 }
 
+            // VERİYİ KAYDET!
+            saveYoklamaData(data);
+            
             // Kaç kişi geldi/gelmedi
             let present = 0, absent = 0;
             Object.values(currentYoklamaAttendance).forEach(status => {
