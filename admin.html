@@ -680,7 +680,12 @@
         }
 
         currentYoklamaGroup = group;
+        currentYoklamaAttendance = {};
         document.getElementById('yoklama-athletes-container').innerHTML = '<div class="loading">⏳ Yükleniyor...</div>';
+        // Grup değişince eski tarih görünümünü ve istatistikleri temizle
+        document.getElementById('yoklama-date-view-section').innerHTML = '';
+        document.getElementById('yoklama-stats-section').innerHTML = '';
+        document.getElementById('yoklama-manage-section').innerHTML = '';
 
         loadYoklamaData().then(data => {
             if (!data.athletes[group]) data.athletes[group] = [];
