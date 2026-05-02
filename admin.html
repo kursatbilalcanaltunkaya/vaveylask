@@ -728,20 +728,39 @@
         const group = document.getElementById('yoklama-group').value;
         const date = document.getElementById('yoklama-date').value;
         if (!group || !date) { alert('⚠️ Grup ve tarih seçin!'); return; }
-        if (Object.keys(currentYoklamaAttendance).length === 0) { alert('⚠️ Henüz yoklama işaretlemediniz!'); return; }
+        if (!currentYoklamaAttendance || Object.keys(currentYoklamaAttendance).length === 0) {
+            alert('⚠️ Henüz yoklama işaretlemediniz!'); return;
+        }
 
         loadYoklamaData().then(data => {
+            // Güvenli null kontrolleri
+            if (!data) data = {};
+            if (!data.athletes) data.athletes = {};
             if (!data.attendances) data.attendances = {};
+
             const key = `${group}_${date}`;
-            if (!data.attendances[key]) data.attendances[key] = {};
-            Object.assign(data.attendances[key], currentYoklamaAttendance);
+            if (!data.attendances[key] || typeof data.attendances[key] !== 'object') {
+                data.attendances[key] = {};
+            }
+
+            // Her kaydı tek tek ata (Object.assign yerine)
+            Object.keys(currentYoklamaAttendance).forEach(id => {
+                data.attendances[key][id] = currentYoklamaAttendance[id];
+            });
+
             return saveYoklamaData(data);
         }).then(() => {
             let present = 0, absent = 0;
-            Object.values(currentYoklamaAttendance).forEach(s => { if (s === true) present++; else if (s === false) absent++; });
+            Object.values(currentYoklamaAttendance).forEach(s => {
+                if (s === true) present++;
+                else if (s === false) absent++;
+            });
             alert(`✅ Yoklama kaydedildi!\n\n✓ Geldi: ${present} kişi\n✗ Gelmedi: ${absent} kişi`);
             loadYoklamaDateView(group, date);
             loadYoklamaStats(group);
+        }).catch(err => {
+            console.error('Kaydetme hatası:', err);
+            alert('⚠️ Kaydetme sırasında hata oluştu! Konsolu kontrol edin.');
         });
     }
 
