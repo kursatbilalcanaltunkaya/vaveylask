@@ -327,7 +327,42 @@
     console.log('🔥 Firebase başlatıldı!');
 </script>
 
-<script src="tournament.js"></script>
+<script>
+    // ─── TURNUVA VERİ FONKSİYONLARI (Firebase) ───────────────────────────────
+    const DEFAULT_TEAMS = {
+        groupA: ["Anadolu Yıldızları","İstanbul Fırtınası","Ankara Şampiyonları","Ege Aslanları","Marmara Gücü"],
+        groupB: ["Karadeniz Kartalları","Akdeniz Dalgası","Trakya Pars","Boğaziçi United","Avrupa Yakası SK"]
+    };
+
+    function loadData() {
+        return database.ref('turnuva').once('value').then(snapshot => {
+            const data = snapshot.val();
+            if (!data) {
+                const initial = { teams: DEFAULT_TEAMS, matches: [] };
+                database.ref('turnuva').set(initial);
+                return initial;
+            }
+            if (data.matches && !Array.isArray(data.matches)) {
+                data.matches = Object.values(data.matches);
+            } else if (!data.matches) {
+                data.matches = [];
+            }
+            if (!data.teams) data.teams = DEFAULT_TEAMS;
+            if (!data.teams.groupA) data.teams.groupA = [];
+            if (!data.teams.groupB) data.teams.groupB = [];
+            return data;
+        });
+    }
+
+    function saveData(data) {
+        if (Array.isArray(data.matches)) {
+            data.matches = data.matches.filter(m => m != null);
+        }
+        return database.ref('turnuva').set(data)
+            .then(() => console.log('✅ Turnuva verisi kaydedildi'))
+            .catch(err => console.error('❌ Kaydetme hatası:', err));
+    }
+</script>
 
 <script>
     // ─── GİRİŞ ───────────────────────────────────────────────────────────────
@@ -788,31 +823,101 @@
 
             const dateObj = new Date(date);
             const formatted = dateObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
-            const present = [], absent = [];
 
+            // Sporcu listesi ile birlikte göster (düzenlenebilir)
+            let rows = '';
             data.athletes[group].forEach(athlete => {
-                const name = athlete.fullname;
-                const s = dayAtt[athlete.id];
-                if (s === true) present.push(name);
-                else if (s === false) absent.push(name);
+                const id = athlete.id;
+                const s = dayAtt[id];
+                if (s === undefined) return; // işaretlenmemiş, gösterme
+                const isPresent = s === true;
+                rows += `
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f0;">
+                        <span style="font-weight:500;">${athlete.fullname}</span>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <span style="color:${isPresent ? '#28a745' : '#dc3545'};font-weight:600;">
+                                ${isPresent ? '✓ Geldi' : '✗ Gelmedi'}
+                            </span>
+                            <button onclick="toggleSingleAttendance('${group}','${date}','${id}')"
+                                style="padding:5px 10px;font-size:0.8em;background:#FFD700;color:#8B0000;border:none;border-radius:5px;cursor:pointer;font-weight:bold;">
+                                Değiştir
+                            </button>
+                            <button onclick="removeSingleAttendance('${group}','${date}','${id}')"
+                                style="padding:5px 10px;font-size:0.8em;background:#dc3545;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:bold;">
+                                Sil
+                            </button>
+                        </div>
+                    </div>`;
             });
 
-            if (!present.length && !absent.length) { container.innerHTML = ''; return; }
+            if (!rows) { container.innerHTML = ''; return; }
 
             container.innerHTML = `
                 <div style="background:#f9f9f9;padding:20px;border-radius:10px;">
-                    <h3 style="color:#8B0000;margin-bottom:15px;">📅 ${formatted} Antrenmanı</h3>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-                        <div style="background:white;padding:20px;border-radius:10px;border-left:4px solid #28a745;">
-                            <h4 style="color:#28a745;margin-bottom:15px;">✓ GELENLER (${present.length})</h4>
-                            ${present.length ? present.map(n => `<div style="padding:8px 0;border-bottom:1px solid #f0f0f0;">• ${n}</div>`).join('') : '<p style="color:#999;">Kimse gelmedi</p>'}
-                        </div>
-                        <div style="background:white;padding:20px;border-radius:10px;border-left:4px solid #dc3545;">
-                            <h4 style="color:#dc3545;margin-bottom:15px;">✗ GELMEYENLER (${absent.length})</h4>
-                            ${absent.length ? absent.map(n => `<div style="padding:8px 0;border-bottom:1px solid #f0f0f0;">• ${n}</div>`).join('') : '<p style="color:#999;">Herkes geldi! 🎉</p>'}
-                        </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;flex-wrap:wrap;gap:10px;">
+                        <h3 style="color:#8B0000;">📅 ${formatted} Antrenmanı</h3>
+                        <button onclick="deleteWholeDay('${group}','${date}')"
+                            style="padding:8px 15px;background:#dc3545;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;font-size:0.9em;">
+                            🗑️ Bu günü tamamen sil
+                        </button>
+                    </div>
+                    <div style="background:white;padding:15px;border-radius:10px;">
+                        ${rows}
                     </div>
                 </div>`;
+        });
+    }
+
+    // Tek kişinin işaretini değiştir (geldi↔gelmedi)
+    function toggleSingleAttendance(group, date, athleteId) {
+        loadYoklamaData().then(data => {
+            const key = `${group}_${date}`;
+            if (!data.attendances[key]) return;
+            data.attendances[key][athleteId] = !data.attendances[key][athleteId];
+            return saveYoklamaData(data);
+        }).then(() => {
+            loadYoklamaDateView(group, date);
+            loadYoklamaStats(group);
+        });
+    }
+
+    // Tek kişinin kaydını sil
+    function removeSingleAttendance(group, date, athleteId) {
+        if (!confirm('Bu kişinin bu güne ait kaydı silinecek. Emin misiniz?')) return;
+        loadYoklamaData().then(data => {
+            const key = `${group}_${date}`;
+            if (!data.attendances[key]) return;
+            delete data.attendances[key][athleteId];
+            // Gün tamamen boşaldıysa günü de sil
+            if (Object.keys(data.attendances[key]).length === 0) {
+                delete data.attendances[key];
+            }
+            return saveYoklamaData(data);
+        }).then(() => {
+            loadYoklamaDateView(group, date);
+            loadYoklamaStats(group);
+            // currentYoklamaAttendance'dan da kaldır
+            delete currentYoklamaAttendance[athleteId];
+        });
+    }
+
+    // Tüm günü sil
+    function deleteWholeDay(group, date) {
+        const dateObj = new Date(date);
+        const formatted = dateObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+        if (!confirm(`${formatted} tarihine ait TÜM yoklama silinecek. Emin misiniz?`)) return;
+        loadYoklamaData().then(data => {
+            const key = `${group}_${date}`;
+            if (data.attendances && data.attendances[key]) {
+                delete data.attendances[key];
+            }
+            return saveYoklamaData(data);
+        }).then(() => {
+            currentYoklamaAttendance = {};
+            loadYoklamaDateView(group, date);
+            loadYoklamaStats(group);
+            loadYoklamaAthletes();
+            alert('✅ Yoklama silindi!');
         });
     }
 
