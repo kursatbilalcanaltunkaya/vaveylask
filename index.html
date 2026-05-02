@@ -249,10 +249,110 @@
         console.log('🔥 Firebase başlatıldı!');
     </script>
 
-    <!-- tournament.js ÖNCE yüklenmeli, sonra listener başlatılmalı -->
-    <script src="tournament.js"></script>
-
     <script>
+        // ─── VERİ FONKSİYONLARI ──────────────────────────────────────────────
+        const DEFAULT_TEAMS = {
+            groupA: ["Anadolu Yıldızları","İstanbul Fırtınası","Ankara Şampiyonları","Ege Aslanları","Marmara Gücü"],
+            groupB: ["Karadeniz Kartalları","Akdeniz Dalgası","Trakya Pars","Boğaziçi United","Avrupa Yakası SK"]
+        };
+
+        function calculatePoints(score1, score2) {
+            if (score1 == null || score2 == null) return { team1: 0, team2: 0 };
+            const s1 = parseInt(score1), s2 = parseInt(score2);
+            const diff = Math.abs(s1 - s2);
+            if (s1 > s2) return diff === 2 ? { team1: 3, team2: 0 } : { team1: 2, team2: 1 };
+            else return diff === 2 ? { team1: 0, team2: 3 } : { team1: 1, team2: 2 };
+        }
+
+        function calculateStandings(group, data) {
+            const teams = group === 'A' ? data.teams.groupA : data.teams.groupB;
+            const standings = {};
+            teams.forEach(t => { standings[t] = { played:0, won:0, lost:0, setsWon:0, setsLost:0, points:0 }; });
+            data.matches.filter(m => m.group === group && m.played).forEach(match => {
+                if (!standings[match.team1] || !standings[match.team2]) return;
+                const pts = calculatePoints(match.score1, match.score2);
+                standings[match.team1].played++; standings[match.team2].played++;
+                standings[match.team1].setsWon += parseInt(match.score1);
+                standings[match.team1].setsLost += parseInt(match.score2);
+                standings[match.team2].setsWon += parseInt(match.score2);
+                standings[match.team2].setsLost += parseInt(match.score1);
+                standings[match.team1].points += pts.team1;
+                standings[match.team2].points += pts.team2;
+                if (parseInt(match.score1) > parseInt(match.score2)) { standings[match.team1].won++; standings[match.team2].lost++; }
+                else { standings[match.team2].won++; standings[match.team1].lost++; }
+            });
+            return Object.entries(standings)
+                .map(([team, s]) => ({ team, ...s, setAverage: s.setsWon - s.setsLost }))
+                .sort((a, b) => b.points !== a.points ? b.points - a.points : b.setAverage - a.setAverage);
+        }
+
+        function renderData(data) {
+            if (!data.matches) data.matches = [];
+            if (!data.teams) data.teams = DEFAULT_TEAMS;
+
+            // Takımlar
+            let teamsHtml = '<div class="groups-container">';
+            ['A','B'].forEach(g => {
+                const teams = g === 'A' ? data.teams.groupA : data.teams.groupB;
+                teamsHtml += `<div class="group"><h3>${g} Grubu</h3>`;
+                (teams||[]).forEach(t => { teamsHtml += `<div class="team-card"><h4>${t}</h4><p>Karma Takım</p></div>`; });
+                teamsHtml += '</div>';
+            });
+            teamsHtml += '</div>';
+            document.getElementById('teams-container').innerHTML = teamsHtml;
+
+            // Puan durumu
+            let standHtml = '<div class="groups-container">';
+            ['A','B'].forEach(g => {
+                const standings = calculateStandings(g, data);
+                standHtml += `<div class="group"><h3>${g} Grubu</h3><table><thead><tr><th>#</th><th>Takım</th><th>O</th><th>G</th><th>M</th><th>S</th><th>P</th></tr></thead><tbody>`;
+                standings.forEach((t,i) => {
+                    const cls = i===0?'rank-1':i===1?'rank-2':'';
+                    standHtml += `<tr class="${cls}"><td>${i+1}</td><td><strong>${t.team}</strong></td><td>${t.played}</td><td>${t.won}</td><td>${t.lost}</td><td>${t.setAverage>0?'+':''}${t.setAverage}</td><td><strong>${t.points}</strong></td></tr>`;
+                });
+                standHtml += `</tbody></table><small style="color:#666">O: Oynanan, G: Galibiyet, M: Mağlubiyet, S: Set Averajı, P: Puan</small></div>`;
+            });
+            standHtml += '</div>';
+            document.getElementById('standings-container').innerHTML = standHtml;
+
+            // Fikstür
+            if (!data.matches.length) {
+                document.getElementById('fixtures-container').innerHTML = '<p style="text-align:center;color:#666;padding:30px;">Henüz maç eklenmemiş.</p>';
+            } else {
+                let fixHtml = '<div class="groups-container">';
+                ['A','B'].forEach(g => {
+                    const ms = data.matches.filter(m => m.group === g);
+                    if (!ms.length) return;
+                    fixHtml += `<div class="group"><h3>${g} Grubu</h3>`;
+                    ms.forEach(m => {
+                        fixHtml += `<div class="match"><div class="match-date">${m.date}</div><div class="match-teams"><span class="team">${m.team1}</span><span class="score">${m.played ? m.score1+' - '+m.score2 : 'vs'}</span><span class="team">${m.team2}</span></div>${m.sets?`<div style="color:#666;font-size:0.9em;margin-top:5px;">${m.sets}</div>`:''}</div>`;
+                    });
+                    fixHtml += '</div>';
+                });
+                fixHtml += '</div>';
+                document.getElementById('fixtures-container').innerHTML = fixHtml;
+            }
+
+            // Sonuçlar
+            const played = data.matches.filter(m => m.played);
+            if (!played.length) {
+                document.getElementById('results-container').innerHTML = '<p style="text-align:center;color:#666;padding:30px;">Henüz oynanmış maç bulunmamaktadır.</p>';
+            } else {
+                let resHtml = '<div class="groups-container">';
+                ['A','B'].forEach(g => {
+                    const ms = played.filter(m => m.group === g);
+                    if (!ms.length) return;
+                    resHtml += `<div class="group"><h3>${g} Grubu Sonuçları</h3>`;
+                    ms.forEach(m => {
+                        resHtml += `<div class="match"><div class="match-date">${m.date}</div><div class="match-teams"><span class="team">${m.team1}</span><span class="score">${m.score1} - ${m.score2}</span><span class="team">${m.team2}</span></div>${m.sets?`<div style="color:#666;font-size:0.9em;margin-top:5px;">${m.sets}</div>`:''}</div>`;
+                    });
+                    resHtml += '</div>';
+                });
+                resHtml += '</div>';
+                document.getElementById('results-container').innerHTML = resHtml;
+            }
+        }
+
         function showSection(sectionId, btn) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
@@ -260,12 +360,15 @@
             if (btn) btn.classList.add('active');
         }
 
-        // Firebase hazır olunca realtime listener başlat
+        // Firebase realtime listener — tüm değişiklikler anında yansır
         window.addEventListener('load', () => {
-            // Firebase SDK'nın tam yüklenmesi için kısa bekle
-            setTimeout(() => {
-                startRealtimeListener();
-            }, 300);
+            database.ref('turnuva').on('value', snapshot => {
+                const data = snapshot.val();
+                if (!data) return;
+                if (data.matches && !Array.isArray(data.matches)) data.matches = Object.values(data.matches);
+                else if (!data.matches) data.matches = [];
+                renderData(data);
+            });
         });
     </script>
 </body>
