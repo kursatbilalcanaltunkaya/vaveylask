@@ -599,22 +599,34 @@
 
     // Yoklama verisini Firebase'den çek
     function loadYoklamaData() {
-        return database.ref('yoklama').once('value').then(snap => {
-            const d = snap.val();
-            if (!d) return { athletes: {}, attendances: {} };
-            if (!d.athletes) d.athletes = {};
-            if (!d.attendances) d.attendances = {};
+        return database.ref("yoklama").once("value").then(snap => {
+            const d = snap.val() || {};
+            if (!d.athletes || typeof d.athletes !== "object") d.athletes = {};
+            // "null" string veya bozuk veri kontrolü
+            if (!d.attendances || typeof d.attendances !== "object" || d.attendances === "null") {
+                d.attendances = {};
+            }
+            Object.keys(d.attendances).forEach(k => {
+                if (!d.attendances[k] || typeof d.attendances[k] !== "object") {
+                    d.attendances[k] = {};
+                }
+            });
             return d;
         });
     }
 
     // Yoklama verisini Firebase'e yaz
+    // Yoklama verisini Firebase'e yaz
     function saveYoklamaData(data) {
-        if (!data.athletes) data.athletes = {};
-        if (!data.attendances) data.attendances = {};
-        return database.ref('yoklama').set(data)
-            .then(() => console.log('💾 Yoklama Firebase\'e kaydedildi'))
-            .catch(err => console.error('❌ Yoklama kaydetme hatası:', err));
+        if (!data.athletes || typeof data.athletes !== "object") data.athletes = {};
+        if (!data.attendances || typeof data.attendances !== "object" || data.attendances === "null") data.attendances = {};
+        // Her attendance kaydı obje olmalı
+        Object.keys(data.attendances).forEach(k => {
+            if (!data.attendances[k] || typeof data.attendances[k] !== "object") data.attendances[k] = {};
+        });
+        return database.ref("yoklama").set(data)
+            .then(() => console.log("💾 Yoklama Firebase'e kaydedildi"))
+            .catch(err => console.error("❌ Yoklama kaydetme hatası:", err));
     }
 
     function setYoklamaTodayDate() {
