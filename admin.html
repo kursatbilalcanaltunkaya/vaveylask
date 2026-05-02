@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Paneli - Vaveyla Turnuva</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -26,18 +22,9 @@
             border-radius: 15px;
             box-shadow: 0 10px 50px rgba(0,0,0,0.3);
         }
+        .login-container h2 { color: #8B0000; text-align: center; margin-bottom: 30px; }
 
-        .login-container h2 {
-            color: #8B0000;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .admin-container {
-            display: none;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+        .admin-container { display: none; max-width: 1200px; margin: 0 auto; }
 
         .admin-header {
             background: white;
@@ -48,28 +35,12 @@
             justify-content: space-between;
             align-items: center;
         }
+        .admin-header h1 { color: #8B0000; }
 
-        .admin-header h1 {
-            color: #8B0000;
-        }
+        .admin-content { background: white; padding: 30px; border-radius: 15px; }
 
-        .admin-content {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            color: #333;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
+        .form-group { margin-bottom: 20px; }
+        label { display: block; color: #333; font-weight: 600; margin-bottom: 8px; }
         input, select, textarea {
             width: 100%;
             padding: 12px;
@@ -77,11 +48,7 @@
             border-radius: 8px;
             font-size: 1em;
         }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #8B0000;
-        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #8B0000; }
 
         button {
             width: 100%;
@@ -93,28 +60,15 @@
             font-size: 1.1em;
             font-weight: bold;
             cursor: pointer;
+            transition: background 0.2s;
         }
+        button:hover { background: #6B0000; }
 
-        button:hover {
-            background: #6B0000;
-        }
-
-        .btn-small {
-            width: auto;
-            padding: 8px 15px;
-            font-size: 0.9em;
-            display: inline-block;
-            margin: 5px;
-        }
-
-        .btn-secondary {
-            background: #FFD700;
-            color: #8B0000;
-        }
-
-        .btn-danger {
-            background: #dc3545;
-        }
+        .btn-small { width: auto; padding: 8px 15px; font-size: 0.9em; display: inline-block; margin: 5px; }
+        .btn-secondary { background: #FFD700; color: #8B0000; }
+        .btn-secondary:hover { background: #e6c200; }
+        .btn-danger { background: #dc3545; }
+        .btn-danger:hover { background: #b02a37; }
 
         .match-item {
             background: #f9f9f9;
@@ -125,147 +79,23 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-        }
-
-        .success {
-            background: #28a745;
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .error {
-            color: #dc3545;
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        .back-link {
-            color: #FFD700;
-            text-decoration: none;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .tabs button {
-            flex: 1;
-            background: #ddd;
-            color: #333;
-        }
-
-        .tabs button.active {
-            background: #8B0000;
-            color: white;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .athlete-item {
-            background: white;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .attendance-item {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .attendance-toggle {
-            display: flex;
             gap: 10px;
         }
 
-        .attendance-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: 3px solid #ddd;
-            background: white;
-            font-size: 1.5em;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
+        .success { background: #28a745; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+        .error { color: #dc3545; text-align: center; margin-top: 10px; }
+        .back-link { color: #FFD700; text-decoration: none; }
 
-        .attendance-btn.present {
-            border-color: #28a745;
-            background: #28a745;
-            color: white;
-        }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tabs button { flex: 1; background: #ddd; color: #333; min-width: 80px; }
+        .tabs button.active { background: #8B0000; color: white; }
 
-        .attendance-btn.absent {
-            border-color: #dc3545;
-            background: #dc3545;
-            color: white;
-        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
 
-        .stat-card {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
-        .stat-number {
-            font-size: 2em;
-            font-weight: bold;
-            color: #8B0000;
-        }
-
-        .history-card {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-
-        .history-card h4 {
-            color: #8B0000;
-            margin-bottom: 10px;
-        }
-
-        .progress-bar {
-            background: #eee;
-            height: 20px;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 5px;
-        }
-
-        .progress-fill {
-            background: #28a745;
-            height: 100%;
-            transition: width 0.3s;
-        }
-
-        /* Yoklama Mobil Stiller */
+        /* Yoklama stilleri */
         .yoklama-athlete-card {
             background: white;
             padding: 20px;
@@ -273,7 +103,6 @@
             margin-bottom: 15px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-
         .yoklama-athlete-header {
             display: flex;
             justify-content: space-between;
@@ -281,18 +110,8 @@
             flex-wrap: wrap;
             gap: 15px;
         }
-
-        .yoklama-athlete-name {
-            font-size: 1.2em;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .yoklama-buttons {
-            display: flex;
-            gap: 12px;
-        }
-
+        .yoklama-athlete-name { font-size: 1.2em; font-weight: 600; color: #333; }
+        .yoklama-buttons { display: flex; gap: 12px; }
         .yoklama-btn {
             width: 60px;
             height: 60px;
@@ -306,22 +125,9 @@
             align-items: center;
             justify-content: center;
         }
-
-        .yoklama-btn:active {
-            transform: scale(0.9);
-        }
-
-        .yoklama-btn.present {
-            border-color: #28a745;
-            background: #28a745;
-            color: white;
-        }
-
-        .yoklama-btn.absent {
-            border-color: #dc3545;
-            background: #dc3545;
-            color: white;
-        }
+        .yoklama-btn:active { transform: scale(0.9); }
+        .yoklama-btn.present { border-color: #28a745; background: #28a745; color: white; }
+        .yoklama-btn.absent { border-color: #dc3545; background: #dc3545; color: white; }
 
         .yoklama-summary {
             background: linear-gradient(135deg, #FFD700, #FFC700);
@@ -331,346 +137,286 @@
             text-align: center;
             margin-bottom: 20px;
         }
+        .yoklama-summary-number { font-size: 2.5em; font-weight: bold; }
+        .yoklama-athlete-status { margin-top: 8px; font-size: 0.95em; color: #666; }
 
-        .yoklama-summary-number {
-            font-size: 2.5em;
-            font-weight: bold;
-        }
+        .stat-card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+        .progress-bar { background: #eee; height: 20px; border-radius: 10px; overflow: hidden; margin-top: 5px; }
+        .progress-fill { background: #28a745; height: 100%; transition: width 0.3s; }
 
-        .yoklama-athlete-status {
-            margin-top: 8px;
-            font-size: 0.95em;
-            color: #666;
-        }
+        /* Yükleniyor göstergesi */
+        .loading { text-align: center; padding: 30px; color: #888; }
 
         @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            .match-item {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .yoklama-athlete-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .yoklama-buttons {
-                width: 100%;
-                justify-content: center;
-            }
-            /* Genel tablo mobil */
-            #yoklama-date-view-section > div > div {
-                grid-template-columns: 1fr !important;
-            }
+            .form-row { grid-template-columns: 1fr; }
+            .match-item { flex-direction: column; align-items: flex-start; }
+            .yoklama-athlete-header { flex-direction: column; align-items: flex-start; }
+            .yoklama-buttons { width: 100%; justify-content: center; }
         }
     </style>
 </head>
 <body>
-    <!-- Login -->
-    <div id="login-screen" class="login-container">
-        <h2>🔐 Admin Girişi</h2>
-        <form id="login-form">
-            <div class="form-group">
-                <label>Şifre</label>
-                <input type="password" id="password" required>
-            </div>
-            <button type="submit">Giriş Yap</button>
-            <div id="login-error" class="error"></div>
-        </form>
-        <a href="index.html" style="display:block;text-align:center;margin-top:20px;color:#666;">← Ana Sayfaya Dön</a>
+
+<!-- Login -->
+<div id="login-screen" class="login-container">
+    <h2>🔐 Admin Girişi</h2>
+    <form id="login-form">
+        <div class="form-group">
+            <label>Şifre</label>
+            <input type="password" id="password" required>
+        </div>
+        <button type="submit">Giriş Yap</button>
+        <div id="login-error" class="error"></div>
+    </form>
+    <a href="index.html" style="display:block;text-align:center;margin-top:20px;color:#666;">← Ana Sayfaya Dön</a>
+</div>
+
+<!-- Admin Panel -->
+<div id="admin-panel" class="admin-container">
+    <div class="admin-header">
+        <div>
+            <h1 id="panel-title">🏐 Admin Paneli</h1>
+            <a href="index.html" class="back-link">← Turnuva Sayfası</a>
+        </div>
+        <button id="logout-btn" class="btn-secondary btn-small">Çıkış</button>
     </div>
 
-    <!-- Admin Panel -->
-    <div id="admin-panel" class="admin-container">
-        <div class="admin-header">
-            <div>
-                <h1>🏐 Admin Paneli</h1>
-                <a href="index.html" class="back-link">← Turnuva Sayfası</a>
-            </div>
-            <button id="logout-btn" class="btn-secondary btn-small">Çıkış</button>
+    <div class="admin-content">
+        <div class="tabs" id="admin-tabs">
+            <button class="active" onclick="showTab('matches', this)">Maçlar</button>
+            <button onclick="showTab('add', this)">Maç Ekle</button>
+            <button onclick="showTab('teams', this)">Takımlar</button>
+            <button onclick="showTab('attendance', this)">Yoklama</button>
         </div>
 
-        <div class="admin-content">
-            <div class="tabs">
-                <button class="active" onclick="showTab('matches')">Maçlar</button>
-                <button onclick="showTab('add')">Maç Ekle</button>
-                <button onclick="showTab('teams')">Takımlar</button>
-                <button onclick="showTab('attendance')">Yoklama</button>
-            </div>
-
-            <!-- Maçlar -->
-            <div id="matches-tab" class="tab-content active">
-                <h2 style="color:#8B0000;margin-bottom:20px;">Tüm Maçlar</h2>
-                <div id="matches-list"></div>
-            </div>
-
-            <!-- Maç Ekle -->
-            <div id="add-tab" class="tab-content">
-                <h2 style="color:#8B0000;margin-bottom:20px;">Yeni Maç Ekle</h2>
-                <div id="success-msg" style="display:none;" class="success"></div>
-                
-                <form id="add-match-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Tarih</label>
-                            <input type="date" id="match-date" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Grup</label>
-                            <select id="match-group" required>
-                                <option value="">Seçiniz</option>
-                                <option value="A">A Grubu</option>
-                                <option value="B">B Grubu</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Ev Sahibi</label>
-                            <select id="team1" required></select>
-                        </div>
-                        <div class="form-group">
-                            <label>Deplasman</label>
-                            <select id="team2" required></select>
-                        </div>
-                    </div>
-                    
-                    <button type="submit">Maç Ekle</button>
-                </form>
-            </div>
-
-            <!-- Takımlar -->
-            <div id="teams-tab" class="tab-content">
-                <h2 style="color:#8B0000;margin-bottom:20px;">Takımları Yönet</h2>
-                
-                <h3 style="margin:20px 0 10px;">A Grubu</h3>
-                <div id="groupA-list"></div>
-                <form id="add-teamA-form" style="margin-top:10px;">
-                    <div style="display:flex;gap:10px;">
-                        <input type="text" id="new-teamA" placeholder="Yeni takım adı">
-                        <button type="submit" class="btn-small">Ekle</button>
-                    </div>
-                </form>
-
-                <h3 style="margin:20px 0 10px;">B Grubu</h3>
-                <div id="groupB-list"></div>
-                <form id="add-teamB-form" style="margin-top:10px;">
-                    <div style="display:flex;gap:10px;">
-                        <input type="text" id="new-teamB" placeholder="Yeni takım adı">
-                        <button type="submit" class="btn-small">Ekle</button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Yoklama -->
-            <div id="attendance-tab" class="tab-content">
-                <h2 style="color:#8B0000;margin-bottom:20px;">Yoklama Sistemi</h2>
-                
-                <!-- Grup ve Tarih Seçimi -->
-                <div style="background:#f9f9f9;padding:20px;border-radius:10px;margin-bottom:20px;">
-                    <div class="form-group">
-                        <label>👥 Grup Seçin</label>
-                        <select id="yoklama-group" onchange="loadYoklamaAthletes()" style="font-size:16px;">
-                            <option value="">Grup seçiniz...</option>
-                            <option value="kulup">Kulüp Voleybol</option>
-                            <option value="buyuk-akademi">Büyük Akademi Voleybol</option>
-                            <option value="kucuk-akademi">Küçük Akademi Voleybol</option>
-                            <option value="buyuk-soog">Büyük Voleybol S.O.O.G.</option>
-                            <option value="kucuk-soog">Küçük Voleybol S.O.O.G.</option>
-                            <option value="soor">Voleybol S.O.O.R.</option>
-                            <option value="kadin">Kadın Voleybol</option>
-                            <option value="basketbol">Basketbol</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>📅 Tarih</label>
-                        <input type="date" id="yoklama-date" onchange="loadYoklamaAthletes()" style="font-size:16px;">
-                    </div>
-                </div>
-
-                <!-- Sporcular ve Yoklama -->
-                <div id="yoklama-athletes-container"></div>
-
-                <!-- Kaydet Butonu -->
-                <div id="yoklama-save-section" style="display:none;margin-top:20px;">
-                    <button class="btn" onclick="saveYoklamaAttendance()">💾 Yoklamayı Kaydet</button>
-                </div>
-
-                <!-- Genel Tablo - Tarih Bazlı Görünüm -->
-                <div id="yoklama-date-view-section" style="margin-top:30px;"></div>
-
-                <!-- İstatistikler -->
-                <div id="yoklama-stats-section" style="margin-top:30px;"></div>
-
-                <!-- Sporcu Yönetimi -->
-                <div id="yoklama-manage-section" style="margin-top:30px;"></div>
-            </div>
-
-            <!-- Yoklama -->
-            <div id="attendance-tab" class="tab-content">
-                <h2 style="color:#8B0000;margin-bottom:20px;">Yoklama Sistemi</h2>
-                
-                <!-- Sporcu Yönetimi -->
-                <div style="background:#f9f9f9;padding:20px;border-radius:10px;margin-bottom:30px;">
-                    <h3 style="color:#8B0000;margin-bottom:15px;">Sporcular</h3>
-                    <div id="athletes-list"></div>
-                    
-                    <form id="add-athlete-form" style="margin-top:15px;">
-                        <div style="display:flex;gap:10px;">
-                            <input type="text" id="new-athlete-name" placeholder="İsim" required style="flex:1;">
-                            <input type="text" id="new-athlete-surname" placeholder="Soyisim" required style="flex:1;">
-                            <button type="submit" class="btn-small">➕ Sporcu Ekle</button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Yoklama Al -->
-                <div style="background:#f9f9f9;padding:20px;border-radius:10px;margin-bottom:30px;">
-                    <h3 style="color:#8B0000;margin-bottom:15px;">Bugünün Yoklaması</h3>
-                    
-                    <div class="form-group">
-                        <label>Tarih Seç</label>
-                        <input type="date" id="attendance-date" style="max-width:300px;">
-                    </div>
-                    
-                    <div id="attendance-list"></div>
-                    
-                    <button id="save-attendance-btn" class="btn-secondary" style="margin-top:15px;">💾 Yoklamayı Kaydet</button>
-                </div>
-
-                <!-- İstatistikler -->
-                <div style="background:#f9f9f9;padding:20px;border-radius:10px;margin-bottom:30px;">
-                    <h3 style="color:#8B0000;margin-bottom:15px;">📊 İstatistikler</h3>
-                    <div id="attendance-stats"></div>
-                </div>
-
-                <!-- Geçmiş Yoklamalar -->
-                <div style="background:#f9f9f9;padding:20px;border-radius:10px;">
-                    <h3 style="color:#8B0000;margin-bottom:15px;">📅 Geçmiş Yoklamalar</h3>
-                    <div id="attendance-history"></div>
-                </div>
-            </div>
+        <!-- MAÇLAR -->
+        <div id="matches-tab" class="tab-content active">
+            <h2 style="color:#8B0000;margin-bottom:20px;">Tüm Maçlar</h2>
+            <div id="matches-list"><div class="loading">⏳ Yükleniyor...</div></div>
         </div>
-    </div>
 
-    <!-- Modal -->
-    <div id="edit-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);padding:20px;overflow-y:auto;">
-        <div style="max-width:600px;margin:50px auto;background:white;padding:30px;border-radius:15px;">
-            <h2 style="color:#8B0000;margin-bottom:20px;">Maç Sonucu Gir</h2>
-            <form id="edit-form">
-                <input type="hidden" id="edit-index">
-                <div id="edit-title" style="font-size:1.1em;margin-bottom:20px;"></div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label id="edit-team1-label"></label>
-                        <input type="number" id="edit-score1" min="0" max="3" placeholder="Set sayısı">
-                    </div>
-                    <div class="form-group">
-                        <label id="edit-team2-label"></label>
-                        <input type="number" id="edit-score2" min="0" max="3" placeholder="Set sayısı">
-                    </div>
-                </div>
-                
+        <!-- MAÇ EKLE -->
+        <div id="add-tab" class="tab-content">
+            <h2 style="color:#8B0000;margin-bottom:20px;">Yeni Maç Ekle</h2>
+            <div id="success-msg" style="display:none;" class="success"></div>
+            <div class="form-row">
                 <div class="form-group">
-                    <label>Set Skorları (opsiyonel)</label>
-                    <input type="text" id="edit-sets" placeholder="Örn: 25-20, 23-25, 25-18">
+                    <label>Tarih</label>
+                    <input type="date" id="match-date" required>
                 </div>
-                
-                <button type="submit">Kaydet</button>
-                <button type="button" class="btn-secondary" onclick="closeModal()">İptal</button>
-            </form>
+                <div class="form-group">
+                    <label>Grup</label>
+                    <select id="match-group" required>
+                        <option value="">Seçiniz</option>
+                        <option value="A">A Grubu</option>
+                        <option value="B">B Grubu</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Ev Sahibi</label>
+                    <select id="team1" required><option value="">Önce grup seçin</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Deplasman</label>
+                    <select id="team2" required><option value="">Önce grup seçin</option></select>
+                </div>
+            </div>
+            <button id="add-match-btn">Maç Ekle</button>
+        </div>
+
+        <!-- TAKIMLAR -->
+        <div id="teams-tab" class="tab-content">
+            <h2 style="color:#8B0000;margin-bottom:20px;">Takımları Yönet</h2>
+            <h3 style="margin:20px 0 10px;">A Grubu</h3>
+            <div id="groupA-list"></div>
+            <div style="display:flex;gap:10px;margin-top:10px;">
+                <input type="text" id="new-teamA" placeholder="Yeni A grubu takım adı">
+                <button class="btn-small" id="addA-btn">Ekle</button>
+            </div>
+
+            <h3 style="margin:20px 0 10px;">B Grubu</h3>
+            <div id="groupB-list"></div>
+            <div style="display:flex;gap:10px;margin-top:10px;">
+                <input type="text" id="new-teamB" placeholder="Yeni B grubu takım adı">
+                <button class="btn-small" id="addB-btn">Ekle</button>
+            </div>
+        </div>
+
+        <!-- YOKLAMA -->
+        <div id="attendance-tab" class="tab-content">
+            <h2 style="color:#8B0000;margin-bottom:20px;">Yoklama Sistemi</h2>
+
+            <div style="background:#f9f9f9;padding:20px;border-radius:10px;margin-bottom:20px;">
+                <div class="form-group">
+                    <label>👥 Grup Seçin</label>
+                    <select id="yoklama-group" onchange="loadYoklamaAthletes()" style="font-size:16px;">
+                        <option value="">Grup seçiniz...</option>
+                        <option value="kulup">Kulüp Voleybol</option>
+                        <option value="buyuk-akademi">Büyük Akademi Voleybol</option>
+                        <option value="kucuk-akademi">Küçük Akademi Voleybol</option>
+                        <option value="buyuk-soog">Büyük Voleybol S.O.O.G.</option>
+                        <option value="kucuk-soog">Küçük Voleybol S.O.O.G.</option>
+                        <option value="soor">Voleybol S.O.O.R.</option>
+                        <option value="kadin">Kadın Voleybol</option>
+                        <option value="basketbol">Basketbol</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>📅 Tarih</label>
+                    <input type="date" id="yoklama-date" onchange="loadYoklamaAthletes()" style="font-size:16px;">
+                </div>
+            </div>
+
+            <div id="yoklama-athletes-container"></div>
+
+            <div id="yoklama-save-section" style="display:none;margin-top:20px;">
+                <button onclick="saveYoklamaAttendance()">💾 Yoklamayı Kaydet</button>
+            </div>
+
+            <div id="yoklama-date-view-section" style="margin-top:30px;"></div>
+            <div id="yoklama-stats-section" style="margin-top:30px;"></div>
+            <div id="yoklama-manage-section" style="margin-top:30px;"></div>
         </div>
     </div>
+</div>
 
-    <script src="tournament.js"></script>
-    <script>
-        const ADMIN_PASS = 'vaveyla2026'; // Admin şifresi
-        const COACH_PASS = 'hoca2026'; // Hoca şifresi
-        let userRole = ''; // 'admin' veya 'coach'
-        
-        // Login
-        document.getElementById('login-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const password = document.getElementById('password').value;
-            
-            if (password === ADMIN_PASS) {
-                userRole = 'admin';
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('admin-panel').style.display = 'block';
-                loadAdmin();
-                showAdminView();
-            } else if (password === COACH_PASS) {
-                userRole = 'coach';
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('admin-panel').style.display = 'block';
-                loadAdmin();
-                showCoachView();
+<!-- Maç Sonucu Modal -->
+<div id="edit-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);padding:20px;overflow-y:auto;z-index:1000;">
+    <div style="max-width:600px;margin:50px auto;background:white;padding:30px;border-radius:15px;">
+        <h2 style="color:#8B0000;margin-bottom:20px;">Maç Sonucu Gir</h2>
+        <div id="edit-title" style="font-size:1.1em;margin-bottom:20px;font-weight:600;"></div>
+        <div class="form-row">
+            <div class="form-group">
+                <label id="edit-team1-label"></label>
+                <input type="number" id="edit-score1" min="0" max="3" placeholder="Set sayısı (0-3)">
+            </div>
+            <div class="form-group">
+                <label id="edit-team2-label"></label>
+                <input type="number" id="edit-score2" min="0" max="3" placeholder="Set sayısı (0-3)">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Set Skorları (opsiyonel)</label>
+            <input type="text" id="edit-sets" placeholder="Örn: 25-20, 23-25, 25-18">
+        </div>
+        <button id="edit-save-btn">Kaydet</button>
+        <button class="btn-secondary" style="margin-top:10px;" onclick="closeModal()">İptal</button>
+    </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDUXWJ2Q1ywTh90ewPfD_BuH5Rsjqu00Y4",
+        authDomain: "vaveylask-862c2.firebaseapp.com",
+        databaseURL: "https://vaveylask-862c2-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "vaveylask-862c2",
+        storageBucket: "vaveylask-862c2.firebasestorage.app",
+        messagingSenderId: "539195972878",
+        appId: "1:539195972878:web:27c776639df321ec670b5f"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
+    console.log('🔥 Firebase başlatıldı!');
+</script>
+
+<script src="tournament.js"></script>
+
+<script>
+    // ─── GİRİŞ ───────────────────────────────────────────────────────────────
+    const ADMIN_PASS = 'vaveyla2026';
+    const COACH_PASS = 'hoca2026';
+    let userRole = '';
+    // Düzenlenen maçın Firebase key'ini sakla
+    let editingMatchKey = null;
+
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const pw = document.getElementById('password').value;
+        if (pw === ADMIN_PASS) {
+            userRole = 'admin';
+            showPanel();
+            showAdminView();
+        } else if (pw === COACH_PASS) {
+            userRole = 'coach';
+            showPanel();
+            showCoachView();
+        } else {
+            document.getElementById('login-error').textContent = 'Yanlış şifre!';
+        }
+    });
+
+    function showPanel() {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('admin-panel').style.display = 'block';
+        loadAdmin();
+    }
+
+    function showAdminView() {
+        document.querySelectorAll('#admin-tabs button').forEach(b => b.style.display = '');
+        document.getElementById('panel-title').textContent = '🏐 Admin Paneli';
+    }
+
+    function showCoachView() {
+        document.querySelectorAll('#admin-tabs button').forEach(b => {
+            if (b.textContent.includes('Yoklama')) {
+                b.style.display = '';
+                b.click();
             } else {
-                document.getElementById('login-error').textContent = 'Yanlış şifre!';
+                b.style.display = 'none';
             }
         });
+        document.getElementById('panel-title').textContent = '📋 Yoklama Paneli';
+    }
 
-        // Admin görünümü
-        function showAdminView() {
-            // Tüm sekmeleri göster
-            document.querySelectorAll('.tabs button').forEach(btn => btn.style.display = 'block');
-            document.querySelector('.admin-header h1').textContent = '🏐 Admin Paneli';
+    document.getElementById('logout-btn').addEventListener('click', () => {
+        document.getElementById('login-screen').style.display = 'block';
+        document.getElementById('admin-panel').style.display = 'none';
+        document.getElementById('password').value = '';
+    });
+
+    // ─── TAB ─────────────────────────────────────────────────────────────────
+    function showTab(tab, btn) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('#admin-tabs button').forEach(b => b.classList.remove('active'));
+        document.getElementById(tab + '-tab').classList.add('active');
+        if (btn) btn.classList.add('active');
+        if (tab === 'attendance') {
+            setYoklamaTodayDate();
+            const grp = document.getElementById('yoklama-group').value;
+            if (grp) loadYoklamaAthletes();
         }
+    }
 
-        // Hoca görünümü
-        function showCoachView() {
-            // Sadece yoklama sekmesini göster
-            document.querySelectorAll('.tabs button').forEach(btn => {
-                if (btn.textContent.includes('Yoklama')) {
-                    btn.style.display = 'block';
-                    btn.click(); // Yoklama sekmesini otomatik aç
-                } else {
-                    btn.style.display = 'none';
-                }
-            });
-            document.querySelector('.admin-header h1').textContent = '📋 Yoklama Paneli';
-        }
+    // ─── ADMIN YÜKLENİYOR ────────────────────────────────────────────────────
+    function loadAdmin() {
+        displayMatches();
+        displayTeamsAdmin();
+        setupMatchGroupListener();
+    }
 
-        // Logout
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            document.getElementById('login-screen').style.display = 'block';
-            document.getElementById('admin-panel').style.display = 'none';
-            document.getElementById('password').value = '';
-        });
+    // ─── MAÇLAR (Firebase'den) ────────────────────────────────────────────────
+    function displayMatches() {
+        const container = document.getElementById('matches-list');
+        container.innerHTML = '<div class="loading">⏳ Yükleniyor...</div>';
 
-        // Tab değiştir
-        function showTab(tab) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-            document.getElementById(tab + '-tab').classList.add('active');
-            event.target.classList.add('active');
-        }
-
-        // Admin yükle
-        function loadAdmin() {
-            displayMatches();
-            displayTeamsAdmin();
-            updateTeamSelects();
-        }
-
-        // Maçları göster
-        function displayMatches() {
-            const data = loadData();
-            const container = document.getElementById('matches-list');
-            
-            if (data.matches.length === 0) {
-                container.innerHTML = '<p style="text-align:center;color:#666;">Henüz maç yok.</p>';
+        loadData().then(data => {
+            if (!data.matches || data.matches.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:#666;padding:20px;">Henüz maç yok.</p>';
                 return;
             }
-            
+
             let html = '';
             data.matches.forEach((match, i) => {
                 const status = match.played ? '✅ Oynandı' : '⏳ Bekliyor';
-                const score = match.played ? `${match.score1}-${match.score2}` : 'vs';
+                const score = match.played ? `${match.score1} - ${match.score2}` : 'vs';
                 html += `
                     <div class="match-item">
                         <div>
@@ -685,833 +431,519 @@
                 `;
             });
             container.innerHTML = html;
-        }
+        });
+    }
 
-        // Takımları göster
-        function displayTeamsAdmin() {
-            const data = loadData();
-            
+    // ─── TAKIMLAR (Firebase'den) ──────────────────────────────────────────────
+    function displayTeamsAdmin() {
+        loadData().then(data => {
             ['A', 'B'].forEach(group => {
-                const teams = data.teams['group' + group];
+                const teams = data.teams['group' + group] || [];
                 const container = document.getElementById('group' + group + '-list');
                 let html = '';
                 teams.forEach((team, i) => {
                     html += `
                         <div class="match-item">
-                            ${team}
-                            <button class="btn-danger btn-small" onclick="deleteTeam('${group}',${i})">Sil</button>
+                            <span>${team}</span>
+                            <button class="btn-danger btn-small" onclick="deleteTeam('${group}', ${i})">Sil</button>
                         </div>
                     `;
                 });
-                container.innerHTML = html;
+                container.innerHTML = html || '<p style="color:#666;padding:10px;">Henüz takım yok.</p>';
             });
-        }
+        });
+    }
 
-        // Takım select'leri güncelle
-        function updateTeamSelects() {
-            document.getElementById('match-group').addEventListener('change', function() {
-                const data = loadData();
-                const group = this.value;
-                if (!group) return;
-                
-                const teams = data.teams['group' + group];
+    // Grup seçilince takım dropdown'ları doldur
+    function setupMatchGroupListener() {
+        document.getElementById('match-group').addEventListener('change', function () {
+            const group = this.value;
+            if (!group) return;
+            loadData().then(data => {
+                const teams = data.teams['group' + group] || [];
                 let opts = '<option value="">Seçiniz</option>';
                 teams.forEach(t => opts += `<option value="${t}">${t}</option>`);
-                
                 document.getElementById('team1').innerHTML = opts;
                 document.getElementById('team2').innerHTML = opts;
             });
-        }
+        });
+    }
 
-        // Maç ekle
-        document.getElementById('add-match-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const data = loadData();
-            
-            const date = new Date(document.getElementById('match-date').value);
-            const months = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
-            const dateStr = date.getDate() + ' ' + months[date.getMonth()] + ' ' + date.getFullYear();
-            
-            const match = {
-                date: dateStr,
-                group: document.getElementById('match-group').value,
-                team1: document.getElementById('team1').value,
-                team2: document.getElementById('team2').value,
-                score1: null,
-                score2: null,
-                sets: '',
-                played: false
-            };
-            
-            if (match.team1 === match.team2) {
-                alert('Aynı takım kendisiyle oynamaz!');
-                return;
-            }
-            
+    // ─── MAÇ EKLE ─────────────────────────────────────────────────────────────
+    document.getElementById('add-match-btn').addEventListener('click', () => {
+        const dateVal = document.getElementById('match-date').value;
+        const group = document.getElementById('match-group').value;
+        const t1 = document.getElementById('team1').value;
+        const t2 = document.getElementById('team2').value;
+
+        if (!dateVal || !group || !t1 || !t2) { alert('Tüm alanları doldurun!'); return; }
+        if (t1 === t2) { alert('Aynı takım kendisiyle oynamaz!'); return; }
+
+        const date = new Date(dateVal);
+        const months = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+        const dateStr = date.getDate() + ' ' + months[date.getMonth()] + ' ' + date.getFullYear();
+
+        const match = {
+            date: dateStr,
+            group,
+            team1: t1,
+            team2: t2,
+            score1: null,
+            score2: null,
+            sets: '',
+            played: false
+        };
+
+        loadData().then(data => {
             data.matches.push(match);
-            saveData(data);
-            
-            document.getElementById('add-match-form').reset();
-            document.getElementById('success-msg').textContent = '✅ Maç eklendi!';
-            document.getElementById('success-msg').style.display = 'block';
-            setTimeout(() => document.getElementById('success-msg').style.display = 'none', 3000);
-            
+            return saveData(data);
+        }).then(() => {
+            document.getElementById('match-date').value = '';
+            document.getElementById('match-group').value = '';
+            document.getElementById('team1').innerHTML = '<option value="">Önce grup seçin</option>';
+            document.getElementById('team2').innerHTML = '<option value="">Önce grup seçin</option>';
+            const msg = document.getElementById('success-msg');
+            msg.textContent = '✅ Maç eklendi!';
+            msg.style.display = 'block';
+            setTimeout(() => msg.style.display = 'none', 3000);
             displayMatches();
         });
+    });
 
-        // Maç düzenle
-        function editMatch(index) {
-            const data = loadData();
+    // ─── MAÇ SONUCU DÜZENLE ───────────────────────────────────────────────────
+    function editMatch(index) {
+        loadData().then(data => {
             const match = data.matches[index];
-            
-            document.getElementById('edit-index').value = index;
+            editingMatchKey = index;
             document.getElementById('edit-title').textContent = match.team1 + ' vs ' + match.team2;
             document.getElementById('edit-team1-label').textContent = match.team1;
             document.getElementById('edit-team2-label').textContent = match.team2;
-            document.getElementById('edit-score1').value = match.score1 || '';
-            document.getElementById('edit-score2').value = match.score2 || '';
+            document.getElementById('edit-score1').value = match.score1 ?? '';
+            document.getElementById('edit-score2').value = match.score2 ?? '';
             document.getElementById('edit-sets').value = match.sets || '';
             document.getElementById('edit-modal').style.display = 'block';
+        });
+    }
+
+    function closeModal() {
+        document.getElementById('edit-modal').style.display = 'none';
+        editingMatchKey = null;
+    }
+
+    document.getElementById('edit-save-btn').addEventListener('click', () => {
+        const s1 = parseInt(document.getElementById('edit-score1').value);
+        const s2 = parseInt(document.getElementById('edit-score2').value);
+
+        if (isNaN(s1) || isNaN(s2)) { alert('Skor girin!'); return; }
+        if (s1 + s2 < 3 || Math.abs(s1 - s2) > 2 || (s1 < 3 && s2 < 3)) {
+            alert('Geçersiz skor!\nGeçerli skorlar: 3-0, 3-1, 3-2 veya 0-3, 1-3, 2-3');
+            return;
         }
 
-        function closeModal() {
-            document.getElementById('edit-modal').style.display = 'none';
-        }
-
-        // Maç kaydet
-        document.getElementById('edit-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const data = loadData();
-            const index = document.getElementById('edit-index').value;
-            const s1 = parseInt(document.getElementById('edit-score1').value);
-            const s2 = parseInt(document.getElementById('edit-score2').value);
-            
-            if (Math.abs(s1-s2) > 2 || (s1<3 && s2<3)) {
-                alert('Geçersiz skor! (3-0, 3-1, 3-2 veya 2-3, 1-3, 0-3)');
-                return;
-            }
-            
-            data.matches[index].score1 = s1;
-            data.matches[index].score2 = s2;
-            data.matches[index].sets = document.getElementById('edit-sets').value;
-            data.matches[index].played = true;
-            
-            saveData(data);
+        loadData().then(data => {
+            data.matches[editingMatchKey].score1 = s1;
+            data.matches[editingMatchKey].score2 = s2;
+            data.matches[editingMatchKey].sets = document.getElementById('edit-sets').value;
+            data.matches[editingMatchKey].played = true;
+            return saveData(data);
+        }).then(() => {
             closeModal();
             displayMatches();
-            alert('✅ Sonuç kaydedildi!');
+            alert('✅ Sonuç Firebase\'e kaydedildi!');
         });
+    });
 
-        // Maç sil
-        function deleteMatch(index) {
-            if (!confirm('Bu maçı silmek istediğinize emin misiniz?')) return;
-            const data = loadData();
+    // ─── MAÇ SİL ─────────────────────────────────────────────────────────────
+    function deleteMatch(index) {
+        if (!confirm('Bu maçı silmek istediğinize emin misiniz?')) return;
+        loadData().then(data => {
             data.matches.splice(index, 1);
-            saveData(data);
-            displayMatches();
-        }
+            return saveData(data);
+        }).then(() => displayMatches());
+    }
 
-        // Takım ekle
-        ['A','B'].forEach(group => {
-            document.getElementById('add-team'+group+'-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const data = loadData();
-                const name = document.getElementById('new-team'+group).value.trim();
-                if (!name) return;
-                
-                if (data.teams['group'+group].includes(name)) {
-                    alert('Bu takım zaten var!');
-                    return;
+    // ─── TAKIM EKLE ──────────────────────────────────────────────────────────
+    ['A', 'B'].forEach(group => {
+        document.getElementById('add' + group + '-btn').addEventListener('click', () => {
+            const name = document.getElementById('new-team' + group).value.trim();
+            if (!name) return;
+            loadData().then(data => {
+                if (data.teams['group' + group].includes(name)) {
+                    alert('Bu takım zaten var!'); return;
                 }
-                
-                data.teams['group'+group].push(name);
-                saveData(data);
-                document.getElementById('new-team'+group).value = '';
+                data.teams['group' + group].push(name);
+                return saveData(data);
+            }).then(() => {
+                document.getElementById('new-team' + group).value = '';
                 displayTeamsAdmin();
             });
         });
+    });
 
-        // Takım sil
-        function deleteTeam(group, index) {
-            if (!confirm('Bu takımı silmek istediğinize emin misiniz?')) return;
-            const data = loadData();
-            data.teams['group'+group].splice(index, 1);
-            saveData(data);
-            displayTeamsAdmin();
+    // ─── TAKIM SİL ───────────────────────────────────────────────────────────
+    function deleteTeam(group, index) {
+        if (!confirm('Bu takımı silmek istediğinize emin misiniz?')) return;
+        loadData().then(data => {
+            data.teams['group' + group].splice(index, 1);
+            return saveData(data);
+        }).then(() => displayTeamsAdmin());
+    }
+
+
+    // ════════════════════════════════════════════════════════════════════════
+    // YOKLAMA SİSTEMİ (Firebase Realtime DB)
+    // ════════════════════════════════════════════════════════════════════════
+
+    let currentYoklamaAttendance = {};
+    let currentYoklamaGroup = '';
+
+    // Yoklama verisini Firebase'den çek
+    function loadYoklamaData() {
+        return database.ref('yoklama').once('value').then(snap => {
+            const d = snap.val();
+            if (!d) return { athletes: {}, attendances: {} };
+            if (!d.athletes) d.athletes = {};
+            if (!d.attendances) d.attendances = {};
+            return d;
+        });
+    }
+
+    // Yoklama verisini Firebase'e yaz
+    function saveYoklamaData(data) {
+        if (!data.athletes) data.athletes = {};
+        if (!data.attendances) data.attendances = {};
+        return database.ref('yoklama').set(data)
+            .then(() => console.log('💾 Yoklama Firebase\'e kaydedildi'))
+            .catch(err => console.error('❌ Yoklama kaydetme hatası:', err));
+    }
+
+    function setYoklamaTodayDate() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('yoklama-date').value = today;
+    }
+
+    function loadYoklamaAthletes() {
+        const group = document.getElementById('yoklama-group').value;
+        const date = document.getElementById('yoklama-date').value;
+
+        if (!group || !date) {
+            document.getElementById('yoklama-athletes-container').innerHTML = '';
+            document.getElementById('yoklama-save-section').style.display = 'none';
+            return;
         }
 
-        // ========== YOKLAMA SİSTEMİ ==========
-        
-        const YOKLAMA_KEY = 'vaveyla_yoklama_data';
-        let currentYoklamaAttendance = {};
-        let currentYoklamaGroup = '';
+        currentYoklamaGroup = group;
+        document.getElementById('yoklama-athletes-container').innerHTML = '<div class="loading">⏳ Yükleniyor...</div>';
 
-        // Yoklama verilerini yükle
-        // Yoklama verilerini yükle (Firebase + localStorage)
-        function loadYoklamaData() {
-            const saved = localStorage.getItem(YOKLAMA_KEY);
-            return saved ? JSON.parse(saved) : { athletes: {}, attendances: {} };
-        }
-
-        // Yoklama verilerini kaydet (Firebase + localStorage)
-        function saveYoklamaData(data) {
-            // Güvenli veri yapısı
-       if (!data.athletes) data.athletes = {};
-       if (!data.attendances) data.attendances = {};
-
-            
-            // LocalStorage'a kaydet (hemen)
-            localStorage.setItem(YOKLAMA_KEY, JSON.stringify(data));
-            
-            // Firebase'e kaydet (varsa)
-            if (typeof database !== 'undefined') {
-                database.ref('yoklama').set(data).then(() => {
-                    console.log('💾 Yoklama Firebase\'e kaydedildi');
-                }).catch((error) => {
-                    console.log('⚠️ Firebase kaydetme hatası:', error);
-                });
-            }
-        }
-
-        // Bugünün tarihini yoklama için set et
-        function setYoklamaTodayDate() {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('yoklama-date').value = today;
-        }
-
-        // Yoklama sporcularını yükle
-        function loadYoklamaAthletes() {
-            try {
-                const group = document.getElementById('yoklama-group').value;
-                const date = document.getElementById('yoklama-date').value;
-                
-                if (!group || !date) {
-                    document.getElementById('yoklama-athletes-container').innerHTML = '';
-                    document.getElementById('yoklama-save-section').style.display = 'none';
-                    document.getElementById('yoklama-date-view-section').innerHTML = '';
-                    return;
-                }
-
-                currentYoklamaGroup = group;
-                
-                const data = loadYoklamaData();
-                
-                // Güvenli veri kontrolü
-                if (!data.athletes) data.athletes = {};
-                if (!data.athletes[group]) data.athletes[group] = [];
-                if (!data.attendances) data.attendances = {};
-                
-                const athletes = data.athletes[group];
-                const container = document.getElementById('yoklama-athletes-container');
-                
-                if (athletes.length === 0) {
-                    container.innerHTML = `
-                        <div style="text-align:center;padding:40px 20px;background:#f9f9f9;border-radius:10px;">
-                            <div style="font-size:3em;margin-bottom:15px;">🏐</div>
-                            <p style="color:#666;">Bu grupta henüz sporcu yok.</p>
-                            <p style="color:#999;font-size:0.9em;margin-top:10px;">Aşağıdan sporcu ekleyebilirsiniz.</p>
-                        </div>
-                    `;
-                    loadYoklamaManageSection(group);
-                    document.getElementById('yoklama-save-section').style.display = 'none';
-                    document.getElementById('yoklama-date-view-section').innerHTML = '';
-                    return;
-                }
-
-                // Mevcut yoklamayı yükle ve currentAttendance'a aktar
-                const attendanceKey = `${group}_${date}`;
-                if (!data.attendances) data.attendances = {};
-                const existing = data.attendances[attendanceKey] || {};
-                currentYoklamaAttendance = {...existing}; // Mevcut yoklamayı kopyala
-
-                let html = `
-                    <div class="yoklama-summary">
-                        <div class="yoklama-summary-number">${athletes.length}</div>
-                        <div style="font-size:1.1em;margin-top:5px;">Toplam Sporcu</div>
-                    </div>
-                `;
-
-                athletes.forEach((athlete, i) => {
-                    const athleteId = athlete.id;
-                    const status = currentYoklamaAttendance[athleteId];
-                    const statusText = status === true ? '✓ Geldi' : status === false ? '✗ Gelmedi' : 'İşaretlenmedi';
-                    const statusColor = status === true ? '#28a745' : status === false ? '#dc3545' : '#999';
-                    const presentClass = status === true ? 'present' : '';
-                    const absentClass = status === false ? 'absent' : '';
-
-                    html += `
-                        <div class="yoklama-athlete-card">
-                            <div class="yoklama-athlete-header">
-                                <div>
-                                    <div class="yoklama-athlete-name">${athlete.fullname || (athlete.name + ' ' + athlete.surname)}</div>
-                                    <div class="yoklama-athlete-status" id="status-${athleteId}" style="color:${statusColor};">${statusText}</div>
-                                </div>
-                                <div class="yoklama-buttons">
-                                    <button class="yoklama-btn ${presentClass}" id="present-${athleteId}" onclick="markYoklamaPresent('${athleteId}')">✓</button>
-                                    <button class="yoklama-btn ${absentClass}" id="absent-${athleteId}" onclick="markYoklamaAbsent('${athleteId}')">✗</button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                container.innerHTML = html;
-                document.getElementById('yoklama-save-section').style.display = 'block';
-                loadYoklamaDateView(group, date);
-                loadYoklamaStats(group);
-                loadYoklamaManageSection(group);
-            } catch (error) {
-                console.error('❌ loadYoklamaAthletes hatası:', error);
-                const container = document.getElementById('yoklama-athletes-container');
-                container.innerHTML = `
-                    <div style="text-align:center;padding:40px 20px;background:#fff3cd;border-radius:10px;border:2px solid #ffc107;">
-                        <div style="font-size:2.5em;margin-bottom:15px;">⚠️</div>
-                        <p style="color:#856404;font-weight:bold;">Veri yükleme hatası!</p>
-                        <p style="color:#856404;font-size:0.9em;margin-top:10px;">Lütfen sayfayı yenileyin veya başka bir grup seçin.</p>
-                    </div>
-                `;
-                // Yine de sporcu ekleme bölümünü göster
-                loadYoklamaManageSection(document.getElementById('yoklama-group').value);
-            }
-        }
-
-        // Tarih bazlı genel tablo
-        function loadYoklamaDateView(group, date) {
-            const container = document.getElementById('yoklama-date-view-section');
-            const data = loadYoklamaData();
-            
-            if (!data.attendances) data.attendances = {};
-            
-            if (!data.athletes[group] || data.athletes[group].length === 0) {
-                container.innerHTML = '';
-                return;
-            }
-
+        loadYoklamaData().then(data => {
+            if (!data.athletes[group]) data.athletes[group] = [];
             const athletes = data.athletes[group];
+            const container = document.getElementById('yoklama-athletes-container');
+
+            if (athletes.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center;padding:40px;background:#f9f9f9;border-radius:10px;">
+                        <div style="font-size:3em;margin-bottom:15px;">🏐</div>
+                        <p style="color:#666;">Bu grupta henüz sporcu yok.</p>
+                    </div>`;
+                document.getElementById('yoklama-save-section').style.display = 'none';
+                loadYoklamaManageSection(group);
+                return;
+            }
+
             const attendanceKey = `${group}_${date}`;
-            const dayAttendance = data.attendances[attendanceKey];
-
-            if (!dayAttendance || Object.keys(dayAttendance).length === 0) {
-                container.innerHTML = '';
-                return;
-            }
-
-            // Tarihi formatla
-            const dateObj = new Date(date);
-            const formattedDate = dateObj.toLocaleDateString('tr-TR', { 
-                day: 'numeric', 
-                month: 'long', 
-                year: 'numeric'
-            });
-
-            // Gelenler ve gelmeyenleri ayır
-            const present = [];
-            const absent = [];
-
-            athletes.forEach((athlete, i) => {
-                const athleteId = athlete.id;
-                const status = dayAttendance[athleteId];
-                const name = athlete.fullname || (athlete.name + ' ' + athlete.surname);
-                
-                if (status === true) {
-                    present.push(name);
-                } else if (status === false) {
-                    absent.push(name);
-                }
-            });
-
-            if (present.length === 0 && absent.length === 0) {
-                container.innerHTML = '';
-                return;
-            }
+            const existing = (data.attendances && data.attendances[attendanceKey]) || {};
+            currentYoklamaAttendance = { ...existing };
 
             let html = `
-                <div style="background:#f9f9f9;padding:20px;border-radius:10px;">
-                    <h3 style="color:#8B0000;margin-bottom:15px;">📅 ${formattedDate} Antrenmanı</h3>
-                    
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;">
-            `;
+                <div class="yoklama-summary">
+                    <div class="yoklama-summary-number">${athletes.length}</div>
+                    <div style="font-size:1.1em;margin-top:5px;">Toplam Sporcu</div>
+                </div>`;
 
-            // Gelenler
-            html += `
-                <div style="background:white;padding:20px;border-radius:10px;border-left:4px solid #28a745;">
-                    <h4 style="color:#28a745;margin-bottom:15px;font-size:1.1em;">
-                        ✓ GELENLER (${present.length} kişi)
-                    </h4>
-            `;
+            athletes.forEach(athlete => {
+                const id = athlete.id;
+                const status = currentYoklamaAttendance[id];
+                const statusText = status === true ? '✓ Geldi' : status === false ? '✗ Gelmedi' : 'İşaretlenmedi';
+                const statusColor = status === true ? '#28a745' : status === false ? '#dc3545' : '#999';
 
-            if (present.length > 0) {
-                present.forEach(name => {
-                    html += `
-                        <div style="padding:8px 0;border-bottom:1px solid #f0f0f0;">
-                            • ${name}
+                html += `
+                    <div class="yoklama-athlete-card">
+                        <div class="yoklama-athlete-header">
+                            <div>
+                                <div class="yoklama-athlete-name">${athlete.fullname}</div>
+                                <div class="yoklama-athlete-status" id="status-${id}" style="color:${statusColor};">${statusText}</div>
+                            </div>
+                            <div class="yoklama-buttons">
+                                <button class="yoklama-btn ${status === true ? 'present' : ''}" id="present-${id}" onclick="markYoklamaPresent('${id}')">✓</button>
+                                <button class="yoklama-btn ${status === false ? 'absent' : ''}" id="absent-${id}" onclick="markYoklamaAbsent('${id}')">✗</button>
+                            </div>
                         </div>
-                    `;
-                });
-            } else {
-                html += '<p style="color:#999;font-style:italic;">Kimse gelmedi</p>';
-            }
-
-            html += '</div>';
-
-            // Gelmeyenler
-            html += `
-                <div style="background:white;padding:20px;border-radius:10px;border-left:4px solid #dc3545;">
-                    <h4 style="color:#dc3545;margin-bottom:15px;font-size:1.1em;">
-                        ✗ GELMEYENLER (${absent.length} kişi)
-                    </h4>
-            `;
-
-            if (absent.length > 0) {
-                absent.forEach(name => {
-                    html += `
-                        <div style="padding:8px 0;border-bottom:1px solid #f0f0f0;">
-                            • ${name}
-                        </div>
-                    `;
-                });
-            } else {
-                html += '<p style="color:#999;font-style:italic;">Herkes geldi! 🎉</p>';
-            }
-
-            html += '</div>';
-            html += '</div></div>';
-
-            container.innerHTML = html;
-        }
-
-        // Geldi işaretle
-        function markYoklamaPresent(athleteId) {
-            // Eğer zaten geldi işaretliyse, işareti kaldır
-            if (currentYoklamaAttendance[athleteId] === true) {
-                delete currentYoklamaAttendance[athleteId];
-                
-                // UI'yi güncelle - işaretsiz hale getir
-                document.getElementById('present-' + athleteId).classList.remove('present');
-                document.getElementById('status-' + athleteId).textContent = 'İşaretlenmedi';
-                document.getElementById('status-' + athleteId).style.color = '#999';
-            } else {
-                // Geldi olarak işaretle
-                currentYoklamaAttendance[athleteId] = true;
-                
-                // UI'yi anında güncelle
-                document.getElementById('present-' + athleteId).classList.add('present');
-                document.getElementById('absent-' + athleteId).classList.remove('absent');
-                document.getElementById('status-' + athleteId).textContent = '✓ Geldi';
-                document.getElementById('status-' + athleteId).style.color = '#28a745';
-            }
-        }
-
-        // Gelmedi işaretle
-        function markYoklamaAbsent(athleteId) {
-            // Eğer zaten gelmedi işaretliyse, işareti kaldır
-            if (currentYoklamaAttendance[athleteId] === false) {
-                delete currentYoklamaAttendance[athleteId];
-                
-                // UI'yi güncelle - işaretsiz hale getir
-                document.getElementById('absent-' + athleteId).classList.remove('absent');
-                document.getElementById('status-' + athleteId).textContent = 'İşaretlenmedi';
-                document.getElementById('status-' + athleteId).style.color = '#999';
-            } else {
-                // Gelmedi olarak işaretle
-                currentYoklamaAttendance[athleteId] = false;
-                
-                // UI'yi anında güncelle
-                document.getElementById('absent-' + athleteId).classList.add('absent');
-                document.getElementById('present-' + athleteId).classList.remove('present');
-                document.getElementById('status-' + athleteId).textContent = '✗ Gelmedi';
-                document.getElementById('status-' + athleteId).style.color = '#dc3545';
-            }
-        }
-
-        // Yoklamayı kaydet
-        function saveYoklamaAttendance() {
-            const group = document.getElementById('yoklama-group').value;
-            const date = document.getElementById('yoklama-date').value;
-
-            if (!group || !date) {
-                alert('⚠️ Lütfen grup ve tarih seçin!');
-                return;
-            }
-
-            const changedCount = Object.keys(currentYoklamaAttendance).length;
-            
-            if (changedCount === 0) {
-                alert('⚠️ Henüz hiç yoklama işaretlemediniz!');
-                return;
-            }
-
-            const data = loadYoklamaData();
-            
-            if (!data.attendances) data.attendances = {};
-            
-            const attendanceKey = `${group}_${date}`;
-            
-            if (!data.attendances[attendanceKey]) {
-                data.attendances[attendanceKey] = {};
-            }
-
-            // Tüm işaretlemeleri kaydet
-            if (currentYoklamaAttendance && Object.keys(currentYoklamaAttendance).length > 0) {
-    Object.assign(data.attendances[attendanceKey], currentYoklamaAttendance);
-}
-
-            // VERİYİ KAYDET!
-            saveYoklamaData(data);
-            
-            // Kaç kişi geldi/gelmedi
-            let present = 0, absent = 0;
-            Object.values(currentYoklamaAttendance).forEach(status => {
-                if (status === true) present++;
-                else if (status === false) absent++;
+                    </div>`;
             });
 
-            alert(`✅ Yoklama kaydedildi!\n\n✓ Geldi: ${present} kişi\n✗ Gelmedi: ${absent} kişi`);
-            
+            container.innerHTML = html;
+            document.getElementById('yoklama-save-section').style.display = 'block';
             loadYoklamaDateView(group, date);
             loadYoklamaStats(group);
+            loadYoklamaManageSection(group);
+        }).catch(err => {
+            console.error('Yoklama yükleme hatası:', err);
+            document.getElementById('yoklama-athletes-container').innerHTML =
+                '<div style="color:#dc3545;padding:20px;">⚠️ Yükleme hatası! Sayfayı yenileyin.</div>';
+        });
+    }
+
+    function markYoklamaPresent(id) {
+        if (currentYoklamaAttendance[id] === true) {
+            delete currentYoklamaAttendance[id];
+            document.getElementById('present-' + id).classList.remove('present');
+            document.getElementById('status-' + id).textContent = 'İşaretlenmedi';
+            document.getElementById('status-' + id).style.color = '#999';
+        } else {
+            currentYoklamaAttendance[id] = true;
+            document.getElementById('present-' + id).classList.add('present');
+            document.getElementById('absent-' + id).classList.remove('absent');
+            document.getElementById('status-' + id).textContent = '✓ Geldi';
+            document.getElementById('status-' + id).style.color = '#28a745';
         }
+    }
 
-        // İstatistikler
-        function loadYoklamaStats(group) {
-            const data = loadYoklamaData();
-            const container = document.getElementById('yoklama-stats-section');
-            
-            if (!data.athletes[group] || data.athletes[group].length === 0) {
-                container.innerHTML = '';
-                return;
+    function markYoklamaAbsent(id) {
+        if (currentYoklamaAttendance[id] === false) {
+            delete currentYoklamaAttendance[id];
+            document.getElementById('absent-' + id).classList.remove('absent');
+            document.getElementById('status-' + id).textContent = 'İşaretlenmedi';
+            document.getElementById('status-' + id).style.color = '#999';
+        } else {
+            currentYoklamaAttendance[id] = false;
+            document.getElementById('absent-' + id).classList.add('absent');
+            document.getElementById('present-' + id).classList.remove('present');
+            document.getElementById('status-' + id).textContent = '✗ Gelmedi';
+            document.getElementById('status-' + id).style.color = '#dc3545';
+        }
+    }
+
+    function saveYoklamaAttendance() {
+        const group = document.getElementById('yoklama-group').value;
+        const date = document.getElementById('yoklama-date').value;
+        if (!group || !date) { alert('⚠️ Grup ve tarih seçin!'); return; }
+        if (Object.keys(currentYoklamaAttendance).length === 0) { alert('⚠️ Henüz yoklama işaretlemediniz!'); return; }
+
+        loadYoklamaData().then(data => {
+            if (!data.attendances) data.attendances = {};
+            const key = `${group}_${date}`;
+            if (!data.attendances[key]) data.attendances[key] = {};
+            Object.assign(data.attendances[key], currentYoklamaAttendance);
+            return saveYoklamaData(data);
+        }).then(() => {
+            let present = 0, absent = 0;
+            Object.values(currentYoklamaAttendance).forEach(s => { if (s === true) present++; else if (s === false) absent++; });
+            alert(`✅ Yoklama kaydedildi!\n\n✓ Geldi: ${present} kişi\n✗ Gelmedi: ${absent} kişi`);
+            loadYoklamaDateView(group, date);
+            loadYoklamaStats(group);
+        });
+    }
+
+    function loadYoklamaDateView(group, date) {
+        const container = document.getElementById('yoklama-date-view-section');
+        loadYoklamaData().then(data => {
+            if (!data.athletes || !data.athletes[group] || data.athletes[group].length === 0) {
+                container.innerHTML = ''; return;
             }
+            const key = `${group}_${date}`;
+            const dayAtt = data.attendances && data.attendances[key];
+            if (!dayAtt || Object.keys(dayAtt).length === 0) { container.innerHTML = ''; return; }
 
-            const athletes = data.athletes[group];
-            
-            // Bu grup için tüm yoklamaları bul
-            const groupAttendances = {};
-            Object.keys(data.attendances).forEach(key => {
-                if (key.startsWith(group + '_')) {
-                    groupAttendances[key] = data.attendances[key];
-                }
+            const dateObj = new Date(date);
+            const formatted = dateObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+            const present = [], absent = [];
+
+            data.athletes[group].forEach(athlete => {
+                const name = athlete.fullname;
+                const s = dayAtt[athlete.id];
+                if (s === true) present.push(name);
+                else if (s === false) absent.push(name);
             });
 
-            const totalDays = Object.keys(groupAttendances).length;
+            if (!present.length && !absent.length) { container.innerHTML = ''; return; }
 
-            if (totalDays === 0) {
-                container.innerHTML = '';
-                return;
-            }
-
-            let html = '<div style="background:#f9f9f9;padding:20px;border-radius:10px;">';
-            html += '<h3 style="color:#8B0000;margin-bottom:15px;">📊 İstatistikler</h3>';
-            html += `<p style="margin-bottom:15px;color:#666;">Toplam ${totalDays} yoklama günü</p>`;
-
-            athletes.forEach((athlete, i) => {
-                const athleteId = athlete.id;
-                let present = 0;
-                let total = 0;
-                const attendanceHistory = [];
-
-                // Tarihe göre sıralı geçmiş
-                Object.keys(groupAttendances).sort().reverse().forEach(key => {
-                    const day = groupAttendances[key];
-                    if (day[athleteId] !== undefined) {
-                        total++;
-                        const date = key.split('_')[1]; // grup_tarih formatından tarihi al
-                        const status = day[athleteId];
-                        if (status === true) present++;
-                        
-                        const dateObj = new Date(date);
-                        const formatted = dateObj.toLocaleDateString('tr-TR', { 
-                            day: 'numeric', 
-                            month: 'short',
-                            year: 'numeric'
-                        });
-                        
-                        attendanceHistory.push({
-                            date: formatted,
-                            status: status,
-                            statusText: status ? '✓ Geldi' : '✗ Gelmedi',
-                            statusColor: status ? '#28a745' : '#dc3545'
-                        });
-                    }
-                });
-
-                const percentage = total > 0 ? Math.round((present / total) * 100) : 0;
-                const athleteName = athlete.fullname || (athlete.name + ' ' + athlete.surname);
-
-                html += `
-                    <div class="stat-card" style="cursor:pointer;transition:all 0.3s;" onclick="toggleAthleteStats('${athleteId}')">
-                        <div class="stat-header">
-                            <div class="stat-name">${athleteName}</div>
-                            <div style="display:flex;align-items:center;gap:15px;">
-                                <div style="font-size:0.9em;color:#666;">
-                                    <span style="color:#28a745;">✓${present}</span> / 
-                                    <span style="color:#dc3545;">✗${total - present}</span>
-                                </div>
-                                <div class="stat-percentage">${percentage}%</div>
-                                <div id="arrow-${athleteId}" style="transition:transform 0.3s;">▼</div>
-                            </div>
+            container.innerHTML = `
+                <div style="background:#f9f9f9;padding:20px;border-radius:10px;">
+                    <h3 style="color:#8B0000;margin-bottom:15px;">📅 ${formatted} Antrenmanı</h3>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                        <div style="background:white;padding:20px;border-radius:10px;border-left:4px solid #28a745;">
+                            <h4 style="color:#28a745;margin-bottom:15px;">✓ GELENLER (${present.length})</h4>
+                            ${present.length ? present.map(n => `<div style="padding:8px 0;border-bottom:1px solid #f0f0f0;">• ${n}</div>`).join('') : '<p style="color:#999;">Kimse gelmedi</p>'}
                         </div>
-                        <div class="progress-bar" style="margin-top:10px;">
-                            <div class="progress-fill" style="width:${percentage}%"></div>
-                        </div>
-                        
-                        <div id="athlete-history-${athleteId}" style="display:none;margin-top:15px;padding-top:15px;border-top:2px solid #eee;">
-                            <h4 style="color:#8B0000;font-size:1em;margin-bottom:10px;">Yoklama Geçmişi:</h4>
-                `;
-
-                if (attendanceHistory.length > 0) {
-                    attendanceHistory.forEach(record => {
-                        html += `
-                            <div style="padding:8px 12px;background:white;border-radius:6px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">
-                                <span style="font-weight:500;">${record.date}</span>
-                                <span style="color:${record.statusColor};font-weight:600;">${record.statusText}</span>
-                            </div>
-                        `;
-                    });
-                } else {
-                    html += '<p style="color:#999;font-style:italic;">Henüz yoklama kaydı yok.</p>';
-                }
-
-                html += `
+                        <div style="background:white;padding:20px;border-radius:10px;border-left:4px solid #dc3545;">
+                            <h4 style="color:#dc3545;margin-bottom:15px;">✗ GELMEYENLER (${absent.length})</h4>
+                            ${absent.length ? absent.map(n => `<div style="padding:8px 0;border-bottom:1px solid #f0f0f0;">• ${n}</div>`).join('') : '<p style="color:#999;">Herkes geldi! 🎉</p>'}
                         </div>
                     </div>
-                `;
-            });
+                </div>`;
+        });
+    }
 
+    function loadYoklamaStats(group) {
+        const container = document.getElementById('yoklama-stats-section');
+        loadYoklamaData().then(data => {
+            if (!data.athletes || !data.athletes[group] || data.athletes[group].length === 0) {
+                container.innerHTML = ''; return;
+            }
+            const groupAtts = {};
+            Object.keys(data.attendances || {}).forEach(k => {
+                if (k.startsWith(group + '_')) groupAtts[k] = data.attendances[k];
+            });
+            const totalDays = Object.keys(groupAtts).length;
+            if (totalDays === 0) { container.innerHTML = ''; return; }
+
+            let html = `<div style="background:#f9f9f9;padding:20px;border-radius:10px;">
+                <h3 style="color:#8B0000;margin-bottom:15px;">📊 İstatistikler</h3>
+                <p style="margin-bottom:15px;color:#666;">Toplam ${totalDays} yoklama günü</p>`;
+
+            data.athletes[group].forEach(athlete => {
+                let present = 0, total = 0;
+                const history = [];
+                Object.keys(groupAtts).sort().reverse().forEach(k => {
+                    const day = groupAtts[k];
+                    if (day[athlete.id] !== undefined) {
+                        total++;
+                        const s = day[athlete.id];
+                        if (s === true) present++;
+                        const d = new Date(k.split('_')[1]).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
+                        history.push({ date: d, status: s });
+                    }
+                });
+                const pct = total > 0 ? Math.round((present / total) * 100) : 0;
+                html += `
+                    <div class="stat-card" style="cursor:pointer;" onclick="toggleAthleteStats('${athlete.id}')">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <strong>${athlete.fullname}</strong>
+                            <div style="display:flex;align-items:center;gap:15px;">
+                                <span style="color:#28a745;">✓${present}</span>/<span style="color:#dc3545;">✗${total-present}</span>
+                                <strong>${pct}%</strong>
+                                <span id="arrow-${athlete.id}">▼</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+                        <div id="athlete-history-${athlete.id}" style="display:none;margin-top:15px;padding-top:15px;border-top:2px solid #eee;">
+                            ${history.map(r => `<div style="padding:8px;background:white;border-radius:6px;margin-bottom:6px;display:flex;justify-content:space-between;">
+                                <span>${r.date}</span>
+                                <span style="color:${r.status?'#28a745':'#dc3545'};font-weight:600;">${r.status?'✓ Geldi':'✗ Gelmedi'}</span>
+                            </div>`).join('') || '<p style="color:#999;">Henüz kayıt yok.</p>'}
+                        </div>
+                    </div>`;
+            });
             html += '</div>';
             container.innerHTML = html;
-        }
+        });
+    }
 
-        // Sporcu istatistik detayını aç/kapa
-        function toggleAthleteStats(athleteId) {
-            const history = document.getElementById('athlete-history-' + athleteId);
-            const arrow = document.getElementById('arrow-' + athleteId);
-            
-            if (history.style.display === 'none') {
-                history.style.display = 'block';
-                arrow.style.transform = 'rotate(180deg)';
-            } else {
-                history.style.display = 'none';
-                arrow.style.transform = 'rotate(0deg)';
-            }
-        }
+    function toggleAthleteStats(id) {
+        const h = document.getElementById('athlete-history-' + id);
+        const a = document.getElementById('arrow-' + id);
+        if (h.style.display === 'none') { h.style.display = 'block'; a.style.transform = 'rotate(180deg)'; }
+        else { h.style.display = 'none'; a.style.transform = ''; }
+    }
 
-        // Sporcu yönetimi
-        function loadYoklamaManageSection(group) {
-            try {
-                const container = document.getElementById('yoklama-manage-section');
-                if (!container) {
-                    console.error('yoklama-manage-section element bulunamadı!');
-                    return;
-                }
-                
-                const data = loadYoklamaData();
-                
-                // Güvenli veri kontrolü
-                if (!data.athletes) data.athletes = {};
-                if (!data.athletes[group]) data.athletes[group] = [];
-                
-                const athletes = data.athletes[group];
+    function loadYoklamaManageSection(group) {
+        const container = document.getElementById('yoklama-manage-section');
+        if (!container) return;
 
-                let html = `
-                    <div style="background:#f9f9f9;padding:20px;border-radius:10px;">
-                        <h3 style="color:#8B0000;margin-bottom:15px;">👥 Sporcu Yönetimi (${athletes.length})</h3>
-                `;
+        loadYoklamaData().then(data => {
+            if (!data.athletes[group]) data.athletes[group] = [];
+            const athletes = data.athletes[group];
 
-                if (athletes.length > 0) {
-                    athletes.forEach((athlete, i) => {
-                        html += `
-                            <div class="match-item" style="margin-bottom:10px;">
-                                <div id="athlete-display-${i}">
-                                    <strong>${athlete.fullname}</strong>
-                                </div>
-                                <div id="athlete-edit-${i}" style="display:none;flex:1;">
-                                    <input type="text" id="athlete-input-${i}" value="${athlete.fullname}" style="width:100%;margin:0;">
-                                </div>
-                                <div style="display:flex;gap:8px;">
-                                    <button class="btn-secondary btn-small" id="edit-btn-${i}" onclick="editYoklamaAthlete('${group}', ${i})">Düzenle</button>
-                                    <button class="btn-secondary btn-small" id="save-btn-${i}" onclick="saveYoklamaAthlete('${group}', ${i})" style="display:none;">Kaydet</button>
-                                    <button class="btn-danger btn-small" onclick="deleteYoklamaAthlete('${group}', ${i})">Sil</button>
-                                </div>
-                            </div>
-                        `;
-                    });
-                } else {
-                    html += '<p style="text-align:center;color:#666;padding:20px 0;">Henüz sporcu eklenmemiş.</p>';
-                }
+            let html = `<div style="background:#f9f9f9;padding:20px;border-radius:10px;">
+                <h3 style="color:#8B0000;margin-bottom:15px;">👥 Sporcu Yönetimi (${athletes.length})</h3>`;
 
+            athletes.forEach((athlete, i) => {
                 html += `
-                    <form onsubmit="event.preventDefault(); addYoklamaAthlete('${group}');" style="margin-top:15px;">
-                        <div style="display:flex;gap:10px;">
-                            <input type="text" id="yoklama-new-fullname-${group}" placeholder="İsim Soyisim (örn: Ahmet Yılmaz)" required style="flex:1;">
-                            <button type="submit" class="btn" style="width:auto;padding:18px 25px;">➕ Ekle</button>
+                    <div class="match-item">
+                        <div id="disp-${i}"><strong>${athlete.fullname}</strong></div>
+                        <div id="edit-${i}" style="display:none;flex:1;">
+                            <input type="text" id="ainput-${i}" value="${athlete.fullname}" style="width:100%;margin:0;">
                         </div>
-                    </form>
-                    </div>
-                `;
+                        <div style="display:flex;gap:8px;">
+                            <button class="btn-secondary btn-small" id="ebtn-${i}" onclick="editYoklamaAthlete('${group}',${i})">Düzenle</button>
+                            <button class="btn-secondary btn-small" id="sbtn-${i}" onclick="saveYoklamaAthlete('${group}',${i})" style="display:none;">Kaydet</button>
+                            <button class="btn-danger btn-small" onclick="deleteYoklamaAthlete('${group}',${i})">Sil</button>
+                        </div>
+                    </div>`;
+            });
 
-                container.innerHTML = html;
-            } catch (error) {
-                console.error('❌ loadYoklamaManageSection hatası:', error);
-            }
-        }
+            html += `
+                <div style="display:flex;gap:10px;margin-top:15px;">
+                    <input type="text" id="yoklama-new-fullname-${group}" placeholder="İsim Soyisim" style="flex:1;">
+                    <button class="btn-small" onclick="addYoklamaAthlete('${group}')">➕ Ekle</button>
+                </div></div>`;
 
-        // Düzenleme modu aç
-        function editYoklamaAthlete(group, index) {
-            document.getElementById('athlete-display-' + index).style.display = 'none';
-            document.getElementById('athlete-edit-' + index).style.display = 'block';
-            document.getElementById('edit-btn-' + index).style.display = 'none';
-            document.getElementById('save-btn-' + index).style.display = 'inline-block';
-            document.getElementById('athlete-input-' + index).focus();
-        }
+            container.innerHTML = html;
+        });
+    }
 
-        // Düzenlemeyi kaydet
-        function saveYoklamaAthlete(group, index) {
-            const newName = document.getElementById('athlete-input-' + index).value.trim();
-            
-            if (!newName) {
-                alert('⚠️ İsim boş olamaz!');
-                return;
-            }
+    function editYoklamaAthlete(group, i) {
+        document.getElementById('disp-' + i).style.display = 'none';
+        document.getElementById('edit-' + i).style.display = 'block';
+        document.getElementById('ebtn-' + i).style.display = 'none';
+        document.getElementById('sbtn-' + i).style.display = 'inline-block';
+        document.getElementById('ainput-' + i).focus();
+    }
 
-            const data = loadYoklamaData();
-            data.athletes[group][index].fullname = newName;
-            saveYoklamaData(data);
-
-            alert('✅ Sporcu güncellendi!');
-            
-            // Tüm bölümleri yenile
-            const date = document.getElementById('yoklama-date').value;
+    function saveYoklamaAthlete(group, i) {
+        const name = document.getElementById('ainput-' + i).value.trim();
+        if (!name) { alert('İsim boş olamaz!'); return; }
+        loadYoklamaData().then(data => {
+            data.athletes[group][i].fullname = name;
+            return saveYoklamaData(data);
+        }).then(() => {
+            alert('✅ Güncellendi!');
             loadYoklamaManageSection(group);
             loadYoklamaAthletes();
-            
-            // Eğer tarih seçiliyse genel tabloyu da güncelle
-            if (date) {
-                loadYoklamaDateView(group, date);
-            }
-        }
-
-        // Sporcu ekle
-        function addYoklamaAthlete(group) {
-            try {
-                const fullname = document.getElementById('yoklama-new-fullname-' + group).value.trim();
-
-                if (!fullname) return;
-
-                const data = loadYoklamaData();
-                
-                // Güvenli veri kontrolü
-                if (!data.athletes) data.athletes = {};
-                if (!data.athletes[group]) data.athletes[group] = [];
-
-                // Unique ID oluştur (timestamp + random)
-                const athleteId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-
-                data.athletes[group].push({ 
-                    id: athleteId,
-                    fullname: fullname 
-                });
-                saveYoklamaData(data);
-
-                alert('✅ Sporcu eklendi!');
-                document.getElementById('yoklama-new-fullname-' + group).value = '';
-                loadYoklamaAthletes(); // Tüm bölümleri yenile
-            } catch (error) {
-                console.error('❌ Sporcu ekleme hatası:', error);
-                alert('⚠️ Sporcu eklenirken hata oluştu!');
-            }
-        }
-
-        // Sporcu sil
-        function deleteYoklamaAthlete(group, index) {
-            if (!confirm('Bu sporcuyu silmek istediğinize emin misiniz?')) return;
-
-            const data = loadYoklamaData();
-            
-            // Silinecek sporcunun ID'sini al
-            const deletedAthleteId = data.athletes[group][index].id;
-            
-            // Sporcu listesinden sil
-            data.athletes[group].splice(index, 1);
-            
-            // Tüm yoklamalardan bu sporcunun kayıtlarını sil
-            if (data.attendances) {
-                Object.keys(data.attendances).forEach(attendanceKey => {
-                    if (attendanceKey.startsWith(group + '_')) {
-                        delete data.attendances[attendanceKey][deletedAthleteId];
-                    }
-                });
-            }
-            
-            saveYoklamaData(data);
-
-            alert('✅ Sporcu silindi!');
-            
-            // Tüm bölümleri yenile
-            const date = document.getElementById('yoklama-date').value;
-            loadYoklamaAthletes();
-            
-            // Eğer tarih seçiliyse genel tabloyu da güncelle
-            if (date) {
-                loadYoklamaDateView(group, date);
-            }
-        }
-
-        // Yoklama sekmesi açıldığında
-        const originalShowTab = window.showTab;
-        window.showTab = function(tab) {
-            originalShowTab(tab);
-            if (tab === 'attendance') {
-                setYoklamaTodayDate();
-                const group = document.getElementById('yoklama-group').value;
-                if (group) loadYoklamaAthletes();
-            }
-        };
-    </script>
-
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
-    <script>
-        // ===== FIREBASE CONFIGURATION =====
-        // BURAYA KOPYALADIĞINIZ CONFİG'İ YAPIŞTIRIN!
-        const firebaseConfig = {
-            apiKey: "AIzaSyDUXWJ2Q1ywTh90ewPfD_BuH5Rsjqu00Y4",
-            authDomain: "vaveylask-862c2.firebaseapp.com",
-            databaseURL: "https://vaveylask-862c2-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "vaveylask-862c2",
-            storageBucket: "vaveylask-862c2.firebasestorage.app",
-            messagingSenderId: "539195972878",
-            appId: "1:539195972878:web:27c776639df321ec670b5f"
-        };
-
-        // Firebase'i başlat
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const database = firebase.database();
-
-        console.log('🔥 Firebase başlatıldı!');
-        console.log('Database URL:', firebaseConfig.databaseURL);
-
-        // Firebase'den yoklama verilerini dinle (realtime sync)
-        database.ref('yoklama').on('value', (snapshot) => {
-            const firebaseData = snapshot.val();
-            if (firebaseData) {
-                // Firebase'den gelen veriyi localStorage'a kaydet
-                localStorage.setItem(YOKLAMA_KEY, JSON.stringify(firebaseData));
-                console.log('🔄 Firebase\'den veri güncellendi');
-                
-                // Eğer yoklama sekmesindeyse sayfayı yenile
-                const yoklamaTab = document.getElementById('attendance-tab');
-                if (yoklamaTab && yoklamaTab.classList.contains('active')) {
-                    const group = document.getElementById('yoklama-group')?.value;
-                    if (group) {
-                        loadYoklamaAthletes();
-                    }
-                }
-            }
         });
-    </script>
+    }
+
+    function addYoklamaAthlete(group) {
+        const fullname = document.getElementById('yoklama-new-fullname-' + group).value.trim();
+        if (!fullname) return;
+        loadYoklamaData().then(data => {
+            if (!data.athletes[group]) data.athletes[group] = [];
+            const id = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            data.athletes[group].push({ id, fullname });
+            return saveYoklamaData(data);
+        }).then(() => {
+            alert('✅ Sporcu eklendi!');
+            document.getElementById('yoklama-new-fullname-' + group).value = '';
+            loadYoklamaAthletes();
+        });
+    }
+
+    function deleteYoklamaAthlete(group, i) {
+        if (!confirm('Bu sporcuyu silmek istediğinize emin misiniz?')) return;
+        loadYoklamaData().then(data => {
+            const deletedId = data.athletes[group][i].id;
+            data.athletes[group].splice(i, 1);
+            Object.keys(data.attendances || {}).forEach(k => {
+                if (k.startsWith(group + '_')) delete data.attendances[k][deletedId];
+            });
+            return saveYoklamaData(data);
+        }).then(() => {
+            alert('✅ Sporcu silindi!');
+            loadYoklamaAthletes();
+        });
+    }
+
+    // Firebase realtime: yoklama başka cihazdan güncellenince yansıt
+    database.ref('yoklama').on('value', () => {
+        const grp = document.getElementById('yoklama-group')?.value;
+        const date = document.getElementById('yoklama-date')?.value;
+        const tab = document.getElementById('attendance-tab');
+        if (tab && tab.classList.contains('active') && grp && date) {
+            loadYoklamaDateView(grp, date);
+            loadYoklamaStats(grp);
+        }
+    });
+</script>
 </body>
 </html>
