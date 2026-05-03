@@ -1037,6 +1037,7 @@
         if (!name) { alert('İsim boş olamaz!'); return; }
         loadYoklamaData().then(data => {
             data.athletes[group][i].fullname = name;
+            data.athletes[group].sort((a, b) => a.fullname.localeCompare(b.fullname, 'tr'));
             return saveYoklamaData(data);
         }).then(() => {
             alert('✅ Güncellendi!');
@@ -1052,6 +1053,7 @@
             if (!data.athletes[group]) data.athletes[group] = [];
             const id = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             data.athletes[group].push({ id, fullname });
+            data.athletes[group].sort((a, b) => a.fullname.localeCompare(b.fullname, 'tr'));
             return saveYoklamaData(data);
         }).then(() => {
             alert('✅ Sporcu eklendi!');
