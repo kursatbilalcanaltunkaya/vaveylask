@@ -79,6 +79,41 @@
         .set-score { font-size: 1em; font-weight: 700; color: #333; }
 
         /* Takım kartları */
+
+        /* Üst Tur - Round sekmeleri */
+        .round-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+        .round-tab { background: #eee; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; color: #555; font-size: 0.95em; transition: all 0.2s; }
+        .round-tab:hover { background: #ddd; }
+        .round-tab.active { background: #8B0000; color: #FFD700; }
+
+        /* Bracket görsel */
+        .bracket-container { overflow-x: auto; padding: 10px 0; }
+        .bracket { display: flex; gap: 0; align-items: stretch; min-width: 600px; }
+        .bracket-round { display: flex; flex-direction: column; flex: 1; }
+        .bracket-round-title { text-align: center; font-weight: bold; color: #8B0000; background: #fff8e1; padding: 8px; border-radius: 8px 8px 0 0; border: 2px solid #FFD700; border-bottom: none; font-size: 0.9em; margin: 0 6px; }
+        .bracket-matches { display: flex; flex-direction: column; justify-content: space-around; flex: 1; padding: 10px 6px; gap: 15px; }
+        .bracket-match { background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.12); overflow: hidden; border: 2px solid #eee; }
+        .bracket-match.played { border-color: #8B0000; }
+        .bracket-team { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid #f0f0f0; font-size: 0.9em; }
+        .bracket-team:last-child { border-bottom: none; }
+        .bracket-team.winner { background: rgba(255,215,0,0.2); font-weight: bold; color: #8B0000; }
+        .bracket-team-name { font-weight: 600; flex: 1; }
+        .bracket-team-score { font-weight: bold; font-size: 1.1em; min-width: 20px; text-align: right; }
+        .bracket-tbd { color: #bbb; font-style: italic; }
+
+        /* Liste görünümü */
+        .playoff-card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); border-left: 4px solid #8B0000; }
+        .playoff-round-label { display: inline-block; background: #8B0000; color: #FFD700; padding: 3px 12px; border-radius: 5px; font-size: 0.8em; font-weight: bold; margin-bottom: 12px; }
+        .playoff-main { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .playoff-team { font-weight: 700; font-size: 1.05em; flex: 1; }
+        .playoff-team.right { text-align: right; }
+        .playoff-score { background: #8B0000; color: #FFD700; padding: 8px 18px; border-radius: 8px; font-weight: bold; font-size: 1.1em; white-space: nowrap; }
+        .playoff-vs { background: #eee; color: #555; padding: 8px 14px; border-radius: 8px; font-weight: bold; }
+        .playoff-meta { font-size: 0.82em; color: #888; margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+        .view-toggle { display: flex; gap: 8px; margin-bottom: 16px; }
+        .view-btn { background: #eee; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; color: #555; transition: all 0.2s; }
+        .view-btn.active { background: #8B0000; color: #FFD700; }
         .team-card { background: #f9f9f9; padding: 12px 16px; border-radius: 10px; margin-bottom: 8px; border-left: 4px solid #FFD700; font-weight: 600; color: #8B0000; }
 
         .empty-msg { text-align: center; color: #888; padding: 40px 20px; font-size: 1em; }
@@ -107,6 +142,7 @@
         <button onclick="showSection('puan-durumu',this)">Puan Durumu</button>
         <button onclick="showSection('fikstur',this)">Fikstür</button>
         <button onclick="showSection('sonuclar',this)">Maç Sonuçları</button>
+        <button onclick="showSection('ust-tur',this)">🏆 Üst Tur</button>
     </nav>
     <div class="content">
         <div id="takimlar" class="section active">
@@ -123,6 +159,10 @@
             <h2>Fikstür</h2>
             <div class="group-tabs" id="fixtures-group-tabs"></div>
             <div id="fixtures-container"><p class="empty-msg">⏳ Yükleniyor...</p></div>
+        </div>
+        <div id="ust-tur" class="section">
+            <h2>🏆 Üst Tur</h2>
+            <div id="ust-tur-container"><p class="empty-msg">⏳ Yükleniyor...</p></div>
         </div>
         <div id="sonuclar" class="section">
             <h2>Maç Sonuçları</h2>
@@ -150,6 +190,7 @@ const database = firebase.database();
 <script>
 // Seçili grupları sakla
 const activeGroups = { takimlar: null, 'puan-durumu': null, fikstur: null, sonuclar: null };
+let ustTurView = 'bracket'; // 'bracket' veya 'list'
 let globalData = null;
 
 function showSection(id, btn) {
@@ -338,9 +379,96 @@ function renderSection(section, data) {
     }
 }
 
+
+const ROUNDS = [
+    { key: 'QF', label: 'Çeyrek Final', short: 'ÇF' },
+    { key: 'SF', label: 'Yarı Final',   short: 'YF' },
+    { key: 'F',  label: 'Final',        short: 'F'  },
+    { key: 'TP', label: '3.'lük Maçı', short: '3.' }
+];
+
+function renderUstTur(data) {
+    const container = document.getElementById('ust-tur-container');
+    const playoffs = data.playoffs || [];
+
+    if (!playoffs.length) {
+        container.innerHTML = '<p class="empty-msg">Henüz üst tur maçı eklenmemiş.</p>';
+        return;
+    }
+
+    // Hangi roundlar var?
+    const roundsPresent = ROUNDS.filter(r => playoffs.some(m => m.round === r.key));
+
+    // Toggle butonları
+    let html = `<div class="view-toggle">
+        <button class="view-btn ${ustTurView==='bracket'?'active':''}" onclick="setUstTurView('bracket')">🏆 Bracket</button>
+        <button class="view-btn ${ustTurView==='list'?'active':''}" onclick="setUstTurView('list')">📋 Liste</button>
+    </div>`;
+
+    if (ustTurView === 'bracket') {
+        html += '<div class="bracket-container"><div class="bracket">';
+        roundsPresent.forEach(r => {
+            const ms = playoffs.filter(m => m.round === r.key);
+            html += `<div class="bracket-round">
+                <div class="bracket-round-title">${r.label}</div>
+                <div class="bracket-matches">`;
+            ms.forEach(m => {
+                const played = m.played;
+                const s1 = parseInt(m.score1), s2 = parseInt(m.score2);
+                const w1 = played && s1 > s2, w2 = played && s2 > s1;
+                html += `<div class="bracket-match ${played?'played':''}">
+                    <div class="bracket-team ${w1?'winner':''}">
+                        <span class="bracket-team-name ${!m.team1?'bracket-tbd':''}">${m.team1||'TBD'}</span>
+                        <span class="bracket-team-score">${played?s1:''}</span>
+                    </div>
+                    <div class="bracket-team ${w2?'winner':''}">
+                        <span class="bracket-team-name ${!m.team2?'bracket-tbd':''}">${m.team2||'TBD'}</span>
+                        <span class="bracket-team-score">${played?s2:''}</span>
+                    </div>
+                </div>`;
+            });
+            html += '</div></div>';
+        });
+        html += '</div></div>';
+    } else {
+        // Liste görünümü - round sırasıyla
+        roundsPresent.forEach(r => {
+            const ms = playoffs.filter(m => m.round === r.key);
+            ms.forEach(m => {
+                const setList = m.sets ? m.sets.split(',').map(s=>s.trim()).filter(Boolean) : [];
+                const setsHtml = setList.length ? `<div class="sets-grid" style="margin-top:10px;">${
+                    setList.map((s,i)=>`<div class="set-box"><span class="set-label">Set ${i+1}</span><span class="set-score">${s}</span></div>`).join('')
+                }</div>` : '';
+                html += `<div class="playoff-card">
+                    <span class="playoff-round-label">${r.label}</span>
+                    ${m.date||m.time||m.venue ? `<div class="playoff-meta">
+                        ${m.date?'📅 '+m.date:''} ${m.time?'🕐 '+m.time:''} ${m.venue?'📍 '+m.venue:''}
+                    </div>` : ''}
+                    <div class="playoff-main">
+                        <span class="playoff-team">${m.team1||'TBD'}</span>
+                        ${m.played
+                            ? `<span class="playoff-score">${m.score1} – ${m.score2}</span>`
+                            : `<span class="playoff-vs">vs</span>`}
+                        <span class="playoff-team right">${m.team2||'TBD'}</span>
+                    </div>
+                    ${setsHtml}
+                </div>`;
+            });
+        });
+    }
+
+    container.innerHTML = html;
+}
+
+function setUstTurView(v) {
+    ustTurView = v;
+    if (globalData) renderUstTur(globalData);
+}
+
 function renderAll(data) {
     globalData = data;
     ['takimlar', 'puan-durumu', 'fikstur', 'sonuclar'].forEach(s => renderSection(s, data));
+    renderUstTur(data);
 }
 
 window.addEventListener('load', () => {
