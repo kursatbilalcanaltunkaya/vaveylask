@@ -327,11 +327,6 @@ function renderSection(section, data) {
             const setsHtml = setList.length ? `<div class="sets-grid">${setList.map((s,i) =>
                 `<div class="set-box"><span class="set-label">Set ${i+1}</span><span class="set-score">${s}</span></div>`).join('')}</div>` : '';
             return `<div class="result-card">
-                <div class="result-meta">
-                    <span class="result-badge">📅 ${m.date}</span>
-                    ${m.time ? `<span class="result-badge">🕐 ${m.time}</span>` : ''}
-                    ${m.venue ? `<span class="result-badge salon">📍 ${m.venue}</span>` : ''}
-                </div>
                 <div class="result-main">
                     <span class="result-team">${m.team1}</span>
                     <span class="result-score">${m.score1} – ${m.score2}</span>
