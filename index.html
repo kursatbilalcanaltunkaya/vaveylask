@@ -477,6 +477,8 @@ window.addEventListener('load', () => {
         if (!data) return;
         if (data.matches && !Array.isArray(data.matches)) data.matches = Object.values(data.matches);
         else if (!data.matches) data.matches = [];
+        if (data.playoffs && !Array.isArray(data.playoffs)) data.playoffs = Object.values(data.playoffs);
+        else if (!data.playoffs) data.playoffs = [];
         renderAll(data);
     });
 });
