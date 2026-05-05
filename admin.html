@@ -218,6 +218,7 @@
             <button onclick="showTab('add', this)">Maç Ekle</button>
             <button onclick="showTab('teams', this)">Takımlar</button>
             <button onclick="showTab('attendance', this)">Yoklama</button>
+            <button onclick="showTab('playoff', this)">🏆 Üst Tur</button>
         </div>
 
         <!-- MAÇLAR -->
@@ -280,6 +281,59 @@
 
             <!-- Dinamik grup listesi -->
             <div id="all-groups-list"></div>
+        </div>
+
+
+        <!-- ÜST TUR -->
+        <div id="playoff-tab" class="tab-content">
+            <h2 style="color:#8B0000;margin-bottom:20px;">🏆 Üst Tur Yönetimi</h2>
+
+            <!-- Maç Ekle -->
+            <div style="background:#fff8e1;border:2px solid #FFD700;border-radius:12px;padding:20px;margin-bottom:25px;">
+                <h3 style="color:#8B0000;margin-bottom:15px;">➕ Üst Tur Maçı Ekle</h3>
+                <div id="playoff-success" style="display:none;" class="success"></div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tur</label>
+                        <select id="playoff-round" required>
+                            <option value="">Seçiniz</option>
+                            <option value="QF">Çeyrek Final</option>
+                            <option value="SF">Yarı Final</option>
+                            <option value="F">Final</option>
+                            <option value="TP">3.'lük Maçı</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tarih</label>
+                        <input type="date" id="playoff-date">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Saat</label>
+                        <input type="time" id="playoff-time">
+                    </div>
+                    <div class="form-group">
+                        <label>Salon / Yer</label>
+                        <input type="text" id="playoff-venue" placeholder="Opsiyonel">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Takım 1</label>
+                        <input type="text" id="playoff-team1" placeholder="Takım adı veya boş bırak (TBD)">
+                    </div>
+                    <div class="form-group">
+                        <label>Takım 2</label>
+                        <input type="text" id="playoff-team2" placeholder="Takım adı veya boş bırak (TBD)">
+                    </div>
+                </div>
+                <button id="add-playoff-btn">Maç Ekle</button>
+            </div>
+
+            <!-- Mevcut maçlar -->
+            <h3 style="color:#8B0000;margin-bottom:15px;">Üst Tur Maçları</h3>
+            <div id="playoff-list"><div class="loading">⏳ Yükleniyor...</div></div>
         </div>
 
         <!-- YOKLAMA -->
@@ -508,6 +562,7 @@
         document.querySelectorAll('#admin-tabs button').forEach(b => b.classList.remove('active'));
         document.getElementById(tab + '-tab').classList.add('active');
         if (btn) btn.classList.add('active');
+        if (tab === 'playoff') { displayPlayoffs(); }
         if (tab === 'attendance') {
             setYoklamaTodayDate();
             const grp = document.getElementById('yoklama-group').value;
@@ -521,6 +576,7 @@
         displayTeamsAdmin();
         setupMatchGroupListener();
         setupGroupAddListener();
+        displayPlayoffs();
     }
 
     // ─── MAÇLAR ──────────────────────────────────────────────────────────────
@@ -764,6 +820,126 @@
         }).then(() => displayTeamsAdmin());
     }
 
+
+
+    // ════════════════════════════════════════════════════════════════════════
+    // ÜST TUR (PLAYOFF) SİSTEMİ
+    // ════════════════════════════════════════════════════════════════════════
+
+    function loadPlayoffs() {
+        return database.ref('turnuva/playoffs').once('value').then(snap => {
+            const d = snap.val();
+            if (!d) return [];
+            return Array.isArray(d) ? d : Object.values(d);
+        });
+    }
+
+    function savePlayoffs(playoffs) {
+        return database.ref('turnuva/playoffs').set(playoffs.filter(m => m != null))
+            .then(() => console.log('✅ Playoff kaydedildi'));
+    }
+
+    const ROUND_LABELS = { QF: 'Çeyrek Final', SF: 'Yarı Final', F: 'Final', TP: "3.'lük Maçı" };
+    const ROUND_ORDER  = ['QF', 'SF', 'F', 'TP'];
+
+    function displayPlayoffs() {
+        const container = document.getElementById('playoff-list');
+        if (!container) return;
+        container.innerHTML = '<div class="loading">⏳ Yükleniyor...</div>';
+        loadPlayoffs().then(playoffs => {
+            if (!playoffs.length) {
+                container.innerHTML = '<p style="color:#666;text-align:center;padding:20px;">Henüz üst tur maçı yok.</p>';
+                return;
+            }
+            let html = '';
+            ROUND_ORDER.forEach(r => {
+                const ms = playoffs.filter(m => m.round === r);
+                if (!ms.length) return;
+                html += `<h4 style="color:#8B0000;margin:15px 0 8px;">${ROUND_LABELS[r]}</h4>`;
+                ms.forEach((m, i) => {
+                    const globalIdx = playoffs.indexOf(m);
+                    const score = m.played ? `${m.score1} - ${m.score2}` : 'vs';
+                    html += `<div class="match-item">
+                        <div>
+                            <strong>${m.team1||'TBD'}</strong> ${score} <strong>${m.team2||'TBD'}</strong><br>
+                            <small>${m.date||''} ${m.time?'• '+m.time:''} ${m.venue?'• '+m.venue:''} • ${m.played?'✅ Oynandı':'⏳ Bekliyor'}</small>
+                        </div>
+                        <div>
+                            <button class="btn-secondary btn-small" onclick="editPlayoff(${globalIdx})">${m.played?'Düzenle':'Sonuç Gir'}</button>
+                            <button class="btn-secondary btn-small" onclick="editPlayoffTeams(${globalIdx})">Takım Düzenle</button>
+                            <button class="btn-danger btn-small" onclick="deletePlayoff(${globalIdx})">Sil</button>
+                        </div>
+                    </div>`;
+                });
+            });
+            container.innerHTML = html;
+        });
+    }
+
+    document.getElementById('add-playoff-btn').addEventListener('click', () => {
+        const round  = document.getElementById('playoff-round').value;
+        const dateV  = document.getElementById('playoff-date').value;
+        const timeV  = document.getElementById('playoff-time').value;
+        const venueV = document.getElementById('playoff-venue').value.trim();
+        const t1     = document.getElementById('playoff-team1').value.trim();
+        const t2     = document.getElementById('playoff-team2').value.trim();
+        if (!round) { alert('Tur seçin!'); return; }
+
+        const months = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+        let dateStr = '';
+        if (dateV) { const d = new Date(dateV); dateStr = d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear(); }
+
+        const match = { round, date: dateStr, time: timeV||'', venue: venueV, team1: t1, team2: t2, score1: null, score2: null, sets: '', played: false };
+
+        loadPlayoffs().then(playoffs => {
+            playoffs.push(match);
+            return savePlayoffs(playoffs);
+        }).then(() => {
+            ['playoff-round','playoff-date','playoff-time','playoff-venue','playoff-team1','playoff-team2'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            const msg = document.getElementById('playoff-success');
+            msg.textContent = '✅ Maç eklendi!'; msg.style.display = 'block';
+            setTimeout(() => msg.style.display = 'none', 3000);
+            displayPlayoffs();
+        });
+    });
+
+    function editPlayoff(i) {
+        loadPlayoffs().then(playoffs => {
+            const m = playoffs[i];
+            editingMatchKey = { type: 'playoff', index: i };
+            document.getElementById('edit-title').textContent = (m.team1||'TBD') + ' vs ' + (m.team2||'TBD');
+            document.getElementById('edit-team1-label').textContent = m.team1||'Takım 1';
+            document.getElementById('edit-team2-label').textContent = m.team2||'Takım 2';
+            document.getElementById('edit-score1').value = m.score1 ?? '';
+            document.getElementById('edit-score2').value = m.score2 ?? '';
+            document.getElementById('edit-sets').value = m.sets || '';
+            document.getElementById('edit-modal').style.display = 'block';
+        });
+    }
+
+    function editPlayoffTeams(i) {
+        loadPlayoffs().then(playoffs => {
+            const m = playoffs[i];
+            const t1 = prompt('Takım 1 adı:', m.team1||'');
+            if (t1 === null) return;
+            const t2 = prompt('Takım 2 adı:', m.team2||'');
+            if (t2 === null) return;
+            playoffs[i].team1 = t1.trim();
+            playoffs[i].team2 = t2.trim();
+            return savePlayoffs(playoffs);
+        }).then(() => displayPlayoffs());
+    }
+
+    function deletePlayoff(i) {
+        if (!confirm('Bu maçı silmek istediğinize emin misiniz?')) return;
+        loadPlayoffs().then(playoffs => {
+            playoffs.splice(i, 1);
+            return savePlayoffs(playoffs);
+        }).then(() => displayPlayoffs());
+    }
 
     // ════════════════════════════════════════════════════════════════════════
     // YOKLAMA SİSTEMİ (Firebase Realtime DB)
