@@ -236,12 +236,20 @@
                     <input type="date" id="match-date" required>
                 </div>
                 <div class="form-group">
+                    <label>Saat</label>
+                    <input type="time" id="match-time" placeholder="Örn: 14:30">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
                     <label>Grup</label>
                     <select id="match-group" required>
                         <option value="">Seçiniz</option>
-                        <option value="A">A Grubu</option>
-                        <option value="B">B Grubu</option>
                     </select>
+                </div>
+                <div class="form-group">
+                    <label>Salon / Yer</label>
+                    <input type="text" id="match-venue" placeholder="Örn: Vaveyla Spor Salonu">
                 </div>
             </div>
             <div class="form-row">
@@ -257,22 +265,21 @@
             <button id="add-match-btn">Maç Ekle</button>
         </div>
 
-        <!-- TAKIMLAR -->
+        <!-- TAKIMLAR & GRUPLAR -->
         <div id="teams-tab" class="tab-content">
-            <h2 style="color:#8B0000;margin-bottom:20px;">Takımları Yönet</h2>
-            <h3 style="margin:20px 0 10px;">A Grubu</h3>
-            <div id="groupA-list"></div>
-            <div style="display:flex;gap:10px;margin-top:10px;">
-                <input type="text" id="new-teamA" placeholder="Yeni A grubu takım adı">
-                <button class="btn-small" id="addA-btn">Ekle</button>
+            <h2 style="color:#8B0000;margin-bottom:20px;">Gruplar & Takımlar</h2>
+
+            <!-- Yeni Grup Ekle -->
+            <div style="background:#fff8e1;border:2px solid #FFD700;border-radius:10px;padding:15px;margin-bottom:25px;">
+                <h3 style="color:#8B0000;margin-bottom:12px;">➕ Yeni Grup Ekle</h3>
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                    <input type="text" id="new-group-name" placeholder="Grup adı (örn: C)" style="width:120px;">
+                    <button class="btn-small" id="add-group-btn">Grup Ekle</button>
+                </div>
             </div>
 
-            <h3 style="margin:20px 0 10px;">B Grubu</h3>
-            <div id="groupB-list"></div>
-            <div style="display:flex;gap:10px;margin-top:10px;">
-                <input type="text" id="new-teamB" placeholder="Yeni B grubu takım adı">
-                <button class="btn-small" id="addB-btn">Ekle</button>
-            </div>
+            <!-- Dinamik grup listesi -->
+            <div id="all-groups-list"></div>
         </div>
 
         <!-- YOKLAMA -->
@@ -513,67 +520,138 @@
         displayMatches();
         displayTeamsAdmin();
         setupMatchGroupListener();
+        setupGroupAddListener();
     }
 
-    // ─── MAÇLAR (Firebase'den) ────────────────────────────────────────────────
+    // ─── MAÇLAR ──────────────────────────────────────────────────────────────
     function displayMatches() {
         const container = document.getElementById('matches-list');
         container.innerHTML = '<div class="loading">⏳ Yükleniyor...</div>';
-
         loadData().then(data => {
             if (!data.matches || data.matches.length === 0) {
                 container.innerHTML = '<p style="text-align:center;color:#666;padding:20px;">Henüz maç yok.</p>';
                 return;
             }
-
             let html = '';
             data.matches.forEach((match, i) => {
                 const status = match.played ? '✅ Oynandı' : '⏳ Bekliyor';
                 const score = match.played ? `${match.score1} - ${match.score2}` : 'vs';
-                html += `
-                    <div class="match-item">
-                        <div>
-                            <strong>${match.team1}</strong> ${score} <strong>${match.team2}</strong><br>
-                            <small>${match.date} • ${match.group} Grubu • ${status}</small>
-                        </div>
-                        <div>
-                            <button class="btn-secondary btn-small" onclick="editMatch(${i})">${match.played ? 'Düzenle' : 'Sonuç Gir'}</button>
-                            <button class="btn-danger btn-small" onclick="deleteMatch(${i})">Sil</button>
-                        </div>
+                const extra = [match.time, match.venue].filter(Boolean).join(' • ');
+                html += `<div class="match-item">
+                    <div>
+                        <strong>${match.team1}</strong> ${score} <strong>${match.team2}</strong><br>
+                        <small>${match.date}${extra?' • '+extra:''} • ${match.group} Grubu • ${status}</small>
                     </div>
-                `;
+                    <div>
+                        <button class="btn-secondary btn-small" onclick="editMatch(${i})">${match.played ? 'Düzenle' : 'Sonuç Gir'}</button>
+                        <button class="btn-danger btn-small" onclick="deleteMatch(${i})">Sil</button>
+                    </div>
+                </div>`;
             });
             container.innerHTML = html;
         });
     }
 
-    // ─── TAKIMLAR (Firebase'den) ──────────────────────────────────────────────
+    // ─── GRUPLAR & TAKIMLAR ───────────────────────────────────────────────────
+    function getAdminGroups(data) {
+        const set = new Set();
+        if (data.groups && Array.isArray(data.groups)) data.groups.forEach(g => set.add(g));
+        if (data.teams) Object.keys(data.teams).forEach(k => { if (k.startsWith('group')) set.add(k.replace('group','')); });
+        (data.matches||[]).forEach(m => { if (m.group) set.add(m.group); });
+        if (!set.size) { set.add('A'); set.add('B'); }
+        return [...set].sort();
+    }
+
     function displayTeamsAdmin() {
         loadData().then(data => {
-            ['A', 'B'].forEach(group => {
-                const teams = data.teams['group' + group] || [];
-                const container = document.getElementById('group' + group + '-list');
-                let html = '';
+            const groups = getAdminGroups(data);
+            // Grup dropdown'ını güncelle
+            const sel = document.getElementById('match-group');
+            const cur = sel.value;
+            sel.innerHTML = '<option value="">Seçiniz</option>';
+            groups.forEach(g => { sel.innerHTML += `<option value="${g}"${g===cur?' selected':''}>${g} Grubu</option>`; });
+
+            // Tüm grupları listele
+            const container = document.getElementById('all-groups-list');
+            let html = '';
+            groups.forEach(g => {
+                const teams = (data.teams && data.teams['group'+g]) || [];
+                html += `<div style="background:#f9f9f9;border-radius:10px;padding:15px;margin-bottom:15px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <h3 style="color:#8B0000;">${g} Grubu <span style="color:#999;font-size:0.8em;font-weight:normal;">(${teams.length} takım)</span></h3>
+                        <button class="btn-danger btn-small" onclick="deleteGroup('${g}')">Grubu Sil</button>
+                    </div>
+                    <div id="group${g}-list">`;
                 teams.forEach((team, i) => {
-                    html += `
-                        <div class="match-item">
-                            <span>${team}</span>
-                            <button class="btn-danger btn-small" onclick="deleteTeam('${group}', ${i})">Sil</button>
-                        </div>
-                    `;
+                    html += `<div class="match-item">
+                        <span>${team}</span>
+                        <button class="btn-danger btn-small" onclick="deleteTeam('${g}',${i})">Sil</button>
+                    </div>`;
                 });
-                container.innerHTML = html || '<p style="color:#666;padding:10px;">Henüz takım yok.</p>';
+                html += `</div>
+                    <div style="display:flex;gap:10px;margin-top:10px;">
+                        <input type="text" id="new-team${g}" placeholder="${g} grubuna takım ekle" style="flex:1;">
+                        <button class="btn-small" onclick="addTeamToGroup('${g}')">Ekle</button>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html || '<p style="color:#666;">Henüz grup yok.</p>';
+        });
+    }
+
+    function setupGroupAddListener() {
+        document.getElementById('add-group-btn').addEventListener('click', () => {
+            const name = document.getElementById('new-group-name').value.trim().toUpperCase();
+            if (!name) { alert('Grup adı girin!'); return; }
+            loadData().then(data => {
+                if (!data.groups) data.groups = [];
+                const existing = getAdminGroups(data);
+                if (existing.includes(name)) { alert('Bu grup zaten var!'); return; }
+                if (!data.groups.includes(name)) data.groups.push(name);
+                if (!data.teams) data.teams = {};
+                if (!data.teams['group'+name]) data.teams['group'+name] = [];
+                return saveData(data);
+            }).then(() => {
+                document.getElementById('new-group-name').value = '';
+                displayTeamsAdmin();
+                alert(`✅ ${name} Grubu eklendi!`);
             });
         });
     }
 
-    // Grup seçilince takım dropdown'ları doldur
+    function addTeamToGroup(group) {
+        const input = document.getElementById('new-team'+group);
+        const name = input ? input.value.trim() : '';
+        if (!name) return;
+        loadData().then(data => {
+            if (!data.teams) data.teams = {};
+            if (!data.teams['group'+group]) data.teams['group'+group] = [];
+            if (data.teams['group'+group].includes(name)) { alert('Bu takım zaten var!'); return; }
+            data.teams['group'+group].push(name);
+            data.teams['group'+group].sort((a,b) => a.localeCompare(b,'tr'));
+            return saveData(data);
+        }).then(() => {
+            if (input) input.value = '';
+            displayTeamsAdmin();
+        });
+    }
+
+    function deleteGroup(group) {
+        if (!confirm(`${group} grubunu ve içindeki TÜM takımları silmek istediğinize emin misiniz?`)) return;
+        loadData().then(data => {
+            if (data.groups) data.groups = data.groups.filter(g => g !== group);
+            if (data.teams && data.teams['group'+group]) delete data.teams['group'+group];
+            return saveData(data);
+        }).then(() => { displayTeamsAdmin(); alert(`✅ ${group} Grubu silindi.`); });
+    }
+
+    // Grup seçilince takım dropdown doldur
     function setupMatchGroupListener() {
         document.getElementById('match-group').addEventListener('change', function () {
             const group = this.value;
             if (!group) return;
             loadData().then(data => {
-                const teams = data.teams['group' + group] || [];
+                const teams = (data.teams && data.teams['group'+group]) || [];
                 let opts = '<option value="">Seçiniz</option>';
                 teams.forEach(t => opts += `<option value="${t}">${t}</option>`);
                 document.getElementById('team1').innerHTML = opts;
@@ -585,11 +663,13 @@
     // ─── MAÇ EKLE ─────────────────────────────────────────────────────────────
     document.getElementById('add-match-btn').addEventListener('click', () => {
         const dateVal = document.getElementById('match-date').value;
+        const timeVal = document.getElementById('match-time').value;
+        const venueVal = document.getElementById('match-venue').value.trim();
         const group = document.getElementById('match-group').value;
         const t1 = document.getElementById('team1').value;
         const t2 = document.getElementById('team2').value;
 
-        if (!dateVal || !group || !t1 || !t2) { alert('Tüm alanları doldurun!'); return; }
+        if (!dateVal || !group || !t1 || !t2) { alert('Tarih, grup ve takımları doldurun!'); return; }
         if (t1 === t2) { alert('Aynı takım kendisiyle oynamaz!'); return; }
 
         const date = new Date(dateVal);
@@ -598,6 +678,8 @@
 
         const match = {
             date: dateStr,
+            time: timeVal || '',
+            venue: venueVal || '',
             group,
             team1: t1,
             team2: t2,
@@ -672,29 +754,12 @@
         }).then(() => displayMatches());
     }
 
-    // ─── TAKIM EKLE ──────────────────────────────────────────────────────────
-    ['A', 'B'].forEach(group => {
-        document.getElementById('add' + group + '-btn').addEventListener('click', () => {
-            const name = document.getElementById('new-team' + group).value.trim();
-            if (!name) return;
-            loadData().then(data => {
-                if (data.teams['group' + group].includes(name)) {
-                    alert('Bu takım zaten var!'); return;
-                }
-                data.teams['group' + group].push(name);
-                return saveData(data);
-            }).then(() => {
-                document.getElementById('new-team' + group).value = '';
-                displayTeamsAdmin();
-            });
-        });
-    });
-
     // ─── TAKIM SİL ───────────────────────────────────────────────────────────
     function deleteTeam(group, index) {
         if (!confirm('Bu takımı silmek istediğinize emin misiniz?')) return;
         loadData().then(data => {
-            data.teams['group' + group].splice(index, 1);
+            if (!data.teams || !data.teams['group'+group]) return;
+            data.teams['group'+group].splice(index, 1);
             return saveData(data);
         }).then(() => displayTeamsAdmin());
     }
