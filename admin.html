@@ -147,6 +147,37 @@
         /* Yükleniyor göstergesi */
         .loading { text-align: center; padding: 30px; color: #888; }
 
+        /* Accordion */
+        .accordion-section {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .accordion-header {
+            background: #8B0000;
+            color: #FFD700;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.05em;
+            user-select: none;
+            transition: background 0.2s;
+        }
+        .accordion-header:hover { background: #6B0000; }
+        .accordion-body {
+            background: white;
+            padding: 20px;
+            display: block;
+        }
+        .acc-arrow {
+            transition: transform 0.3s;
+            font-size: 0.85em;
+        }
+        .acc-closed .acc-arrow { transform: rotate(-90deg); }
+
         @media (max-width: 768px) {
             .form-row { grid-template-columns: 1fr; }
             .match-item { flex-direction: column; align-items: flex-start; }
@@ -269,15 +300,52 @@
                 </div>
             </div>
 
-            <div id="yoklama-athletes-container"></div>
-
-            <div id="yoklama-save-section" style="display:none;margin-top:20px;">
-                <button onclick="saveYoklamaAttendance()">💾 Yoklamayı Kaydet</button>
+            <!-- Yoklama listesi - accordion -->
+            <div class="accordion-section" id="acc-yoklama">
+                <div class="accordion-header" onclick="toggleAccordion('acc-yoklama')">
+                    <span>📋 Yoklama Listesi</span>
+                    <span class="acc-arrow">▼</span>
+                </div>
+                <div class="accordion-body" style="display:block;">
+                    <div id="yoklama-athletes-container"></div>
+                    <div id="yoklama-save-section" style="display:none;margin-top:20px;">
+                        <button onclick="saveYoklamaAttendance()">💾 Yoklamayı Kaydet</button>
+                    </div>
+                </div>
             </div>
 
-            <div id="yoklama-date-view-section" style="margin-top:30px;"></div>
-            <div id="yoklama-stats-section" style="margin-top:30px;"></div>
-            <div id="yoklama-manage-section" style="margin-top:30px;"></div>
+            <!-- Antrenman günü görünümü - accordion -->
+            <div class="accordion-section" id="acc-dateview" style="margin-top:15px;">
+                <div class="accordion-header" onclick="toggleAccordion('acc-dateview')">
+                    <span>📅 Antrenman Günü</span>
+                    <span class="acc-arrow">▼</span>
+                </div>
+                <div class="accordion-body">
+                    <div id="yoklama-date-view-section"></div>
+                </div>
+            </div>
+
+            <!-- İstatistikler - accordion -->
+            <div class="accordion-section" id="acc-stats" style="margin-top:15px;">
+                <div class="accordion-header" onclick="toggleAccordion('acc-stats')">
+                    <span>📊 İstatistikler</span>
+                    <span class="acc-arrow">▼</span>
+                </div>
+                <div class="accordion-body" style="display:none;">
+                    <div id="yoklama-stats-section"></div>
+                </div>
+            </div>
+
+            <!-- Sporcu Yönetimi - accordion -->
+            <div class="accordion-section" id="acc-manage" style="margin-top:15px;margin-bottom:20px;">
+                <div class="accordion-header" onclick="toggleAccordion('acc-manage')">
+                    <span>👥 Sporcu Yönetimi</span>
+                    <span class="acc-arrow">▼</span>
+                </div>
+                <div class="accordion-body" style="display:none;">
+                    <div id="yoklama-manage-section"></div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -409,6 +477,16 @@
             }
         });
         document.getElementById('panel-title').textContent = '📋 Yoklama Paneli';
+    }
+
+    // ─── ACCORDION ───────────────────────────────────────────────────────────
+    function toggleAccordion(id) {
+        const section = document.getElementById(id);
+        const body = section.querySelector('.accordion-body');
+        const header = section.querySelector('.accordion-header');
+        const isOpen = body.style.display !== 'none';
+        body.style.display = isOpen ? 'none' : 'block';
+        header.parentElement.classList.toggle('acc-closed', isOpen);
     }
 
     document.getElementById('logout-btn').addEventListener('click', () => {
@@ -570,11 +648,7 @@
         const s2 = parseInt(document.getElementById('edit-score2').value);
 
         if (isNaN(s1) || isNaN(s2)) { alert('Skor girin!'); return; }
-        const validScores = ['3-0','3-1','3-2','0-3','1-3','2-3'];
-        if (!validScores.includes(s1 + '-' + s2)) {
-            alert('Geçersiz skor!\nGeçerli skorlar: 3-0, 3-1, 3-2 veya 0-3, 1-3, 2-3');
-            return;
-        }
+        // Skor validasyonu yok - admin girebilir
 
         loadData().then(data => {
             data.matches[editingMatchKey].score1 = s1;
