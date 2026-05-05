@@ -330,9 +330,17 @@
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>Grup</label>
+                    <label>Grup / Tur</label>
                     <select id="match-group" required>
                         <option value="">Seçiniz</option>
+                        <optgroup label="── Üst Tur ──" id="playoff-optgroup">
+                            <option value="__QF__">🏆 Çeyrek Final</option>
+                            <option value="__SF__">🏆 Yarı Final</option>
+                            <option value="__F__">🏆 Final</option>
+                            <option value="__TP__">🏆 3. luk Maci</option>
+                        </optgroup>
+                        <optgroup label="── Grup Maçları ──" id="group-optgroup">
+                        </optgroup>
                     </select>
                 </div>
                 <div class="form-group">
@@ -582,6 +590,14 @@
         header.parentElement.classList.toggle('acc-closed', isOpen);
     }
 
+    function showSuccessMsg() {
+        const msg = document.getElementById('success-msg');
+        if (!msg) return;
+        msg.textContent = '✅ Maç eklendi!';
+        msg.style.display = 'block';
+        setTimeout(() => msg.style.display = 'none', 3000);
+    }
+
     document.getElementById('logout-btn').addEventListener('click', () => {
         document.getElementById('login-screen').style.display = 'block';
         document.getElementById('admin-panel').style.display = 'none';
@@ -682,8 +698,18 @@
             // Grup dropdown'ını güncelle
             const sel = document.getElementById('match-group');
             const cur = sel.value;
-            sel.innerHTML = '<option value="">Seçiniz</option>';
-            groups.forEach(g => { sel.innerHTML += `<option value="${g}"${g===cur?' selected':''}>${g} Grubu</option>`; });
+            const groupOpts = groups.map(g => `<option value="${g}"${g===cur?' selected':''}>${g} Grubu</option>`).join('');
+            sel.innerHTML = `
+                <option value="">Seçiniz</option>
+                <optgroup label="── Üst Tur ──">
+                    <option value="__QF__"${cur==='__QF__'?' selected':''}>🏆 Çeyrek Final</option>
+                    <option value="__SF__"${cur==='__SF__'?' selected':''}>🏆 Yarı Final</option>
+                    <option value="__F__"${cur==='__F__'?' selected':''}>🏆 Final</option>
+                    <option value="__TP__"${cur==='__TP__'?' selected':''}>🏆 3. luk Maci</option>
+                </optgroup>
+                <optgroup label="── Grup Maçları ──">
+                    ${groupOpts}
+                </optgroup>`;
 
             // Tüm grupları listele
             const container = document.getElementById('all-groups-list');
@@ -762,15 +788,30 @@
     // Grup seçilince takım dropdown doldur
     function setupMatchGroupListener() {
         document.getElementById('match-group').addEventListener('change', function () {
-            const group = this.value;
-            if (!group) return;
-            loadData().then(data => {
-                const teams = (data.teams && data.teams['group'+group]) || [];
-                let opts = '<option value="">Seçiniz</option>';
-                teams.forEach(t => opts += `<option value="${t}">${t}</option>`);
-                document.getElementById('team1').innerHTML = opts;
-                document.getElementById('team2').innerHTML = opts;
-            });
+            const val = this.value;
+            if (!val) return;
+            // Üst tur seçilince serbest metin input'u göster
+            if (val.startsWith('__')) {
+                document.getElementById('team1').innerHTML = '<option value="">Serbest girin</option>';
+                document.getElementById('team2').innerHTML = '<option value="">Serbest girin</option>';
+                document.getElementById('team1').outerHTML = '<input type="text" id="team1" placeholder="Takım adı (boş = TBD)">';
+                document.getElementById('team2').outerHTML = '<input type="text" id="team2" placeholder="Takım adı (boş = TBD)">';
+            } else {
+                // Grup seçilince select'e döndür
+                const t1 = document.getElementById('team1');
+                const t2 = document.getElementById('team2');
+                if (t1.tagName === 'INPUT') {
+                    t1.outerHTML = '<select id="team1" required><option value="">Seçiniz</option></select>';
+                    t2.outerHTML = '<select id="team2" required><option value="">Seçiniz</option></select>';
+                }
+                loadData().then(data => {
+                    const teams = (data.teams && data.teams['group'+val]) || [];
+                    let opts = '<option value="">Seçiniz</option>';
+                    teams.forEach(t => opts += `<option value="${t}">${t}</option>`);
+                    document.getElementById('team1').innerHTML = opts;
+                    document.getElementById('team2').innerHTML = opts;
+                });
+            }
         });
     }
 
@@ -779,28 +820,40 @@
         const dateVal = document.getElementById('match-date').value;
         const timeVal = document.getElementById('match-time').value;
         const venueVal = document.getElementById('match-venue').value.trim();
-        const group = document.getElementById('match-group').value;
-        const t1 = document.getElementById('team1').value;
-        const t2 = document.getElementById('team2').value;
+        const groupVal = document.getElementById('match-group').value;
+        const t1El = document.getElementById('team1');
+        const t2El = document.getElementById('team2');
+        const t1 = t1El ? t1El.value.trim() : '';
+        const t2 = t2El ? t2El.value.trim() : '';
 
-        if (!dateVal || !group || !t1 || !t2) { alert('Tarih, grup ve takımları doldurun!'); return; }
+        if (!groupVal) { alert('Grup veya tur seçin!'); return; }
+
+        const months = ['Ocak','Subat','Mart','Nisan','Mayis','Haziran','Temmuz','Agustos','Eylul','Ekim','Kasim','Aralik'];
+        let dateStr = '';
+        if (dateVal) { const d=new Date(dateVal); dateStr=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear(); }
+
+        // Üst tur mu?
+        if (groupVal.startsWith('__')) {
+            const roundKey = groupVal.replace(/__/g,''); // QF, SF, F, TP
+            const match = { round:roundKey, date:dateStr, time:timeVal||'', venue:venueVal,
+                team1:t1||'', team2:t2||'', score1:null, score2:null, sets:'', played:false };
+            loadPlayoffs().then(playoffs => {
+                playoffs.push(match);
+                return savePlayoffs(playoffs);
+            }).then(() => {
+                showSuccessMsg();
+                displayPlayoffs();
+            });
+            return;
+        }
+
+        if (!t1 || !t2) { alert('Takımları seçin!'); return; }
         if (t1 === t2) { alert('Aynı takım kendisiyle oynamaz!'); return; }
 
-        const date = new Date(dateVal);
-        const months = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
-        const dateStr = date.getDate() + ' ' + months[date.getMonth()] + ' ' + date.getFullYear();
-
         const match = {
-            date: dateStr,
-            time: timeVal || '',
-            venue: venueVal || '',
-            group,
-            team1: t1,
-            team2: t2,
-            score1: null,
-            score2: null,
-            sets: '',
-            played: false
+            date: dateStr, time: timeVal||'', venue: venueVal||'',
+            group: groupVal, team1:t1, team2:t2,
+            score1:null, score2:null, sets:'', played:false
         };
 
         loadData().then(data => {
@@ -811,10 +864,7 @@
             document.getElementById('match-group').value = '';
             document.getElementById('team1').innerHTML = '<option value="">Önce grup seçin</option>';
             document.getElementById('team2').innerHTML = '<option value="">Önce grup seçin</option>';
-            const msg = document.getElementById('success-msg');
-            msg.textContent = '✅ Maç eklendi!';
-            msg.style.display = 'block';
-            setTimeout(() => msg.style.display = 'none', 3000);
+            showSuccessMsg();
             displayMatches();
         });
     });
