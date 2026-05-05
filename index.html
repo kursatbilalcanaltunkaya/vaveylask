@@ -224,14 +224,35 @@ function volleyPts(s1, s2) {
 
 function getGroups(data) {
     const set = new Set();
-    if (data.groups && Array.isArray(data.groups)) data.groups.forEach(g => set.add(g));
-    if (data.teams) Object.keys(data.teams).forEach(k => { if (k.startsWith('group') && data.teams[k].length) set.add(k.replace('group','')); });
-    (data.matches||[]).forEach(m => { if (m.group) set.add(m.group); });
-    if (!set.size) { if (data.teams&&data.teams.groupA) set.add('A'); if (data.teams&&data.teams.groupB) set.add('B'); }
+    // groups array'den
+    if (data.groups) {
+        const grpArr = Array.isArray(data.groups) ? data.groups : Object.values(data.groups);
+        grpArr.forEach(g => { if (g) set.add(String(g)); });
+    }
+    // teams objelerinden (groupA, groupB, groupC...)
+    if (data.teams && typeof data.teams === 'object') {
+        Object.keys(data.teams).forEach(k => {
+            if (k.startsWith('group')) {
+                const g = k.replace('group', '');
+                const arr = data.teams[k];
+                const len = Array.isArray(arr) ? arr.length : (arr ? Object.keys(arr).length : 0);
+                if (len > 0) set.add(g);
+            }
+        });
+    }
+    // maçlardan
+    (data.matches||[]).forEach(m => { if (m && m.group) set.add(String(m.group)); });
+    // hiç bulunamazsa default
+    if (!set.size) { set.add('A'); set.add('B'); }
     return [...set].sort();
 }
 
-function getTeams(g, data) { return (data.teams && data.teams['group'+g]) || []; }
+function getTeams(g, data) {
+    if (!data.teams) return [];
+    const arr = data.teams['group'+g];
+    if (!arr) return [];
+    return Array.isArray(arr) ? arr : Object.values(arr);
+}
 
 function calcStandings(g, data) {
     const st = {};
@@ -275,6 +296,11 @@ function selectGroup(section, group) {
 
 function renderSection(section, data) {
     const groups = getGroups(data);
+    if (!groups.length) {
+        const containers = { takimlar:'teams-container', 'puan-durumu':'standings-container', fikstur:'fixtures-container', sonuclar:'results-container' };
+        if (containers[section]) document.getElementById(containers[section]).innerHTML = '<p class="empty-msg">Henüz veri yok.</p>';
+        return;
+    }
     const g = activeGroups[section] || groups[0];
 
     // Joker hesabı (tüm 3.ler arasından en iyi 2)
