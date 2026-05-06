@@ -330,17 +330,24 @@
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>Grup / Tur</label>
+                    <label>Aşama</label>
                     <select id="match-group" required>
                         <option value="">Seçiniz</option>
-                        <optgroup label="── Üst Tur ──" id="playoff-optgroup">
+                        <optgroup label="Grup Aşaması">
+                            <option value="__GROUPS__">── Grup seç ──</option>
+                        </optgroup>
+                        <optgroup label="Üst Tur">
                             <option value="__QF__">🏆 Çeyrek Final</option>
                             <option value="__SF__">🏆 Yarı Final</option>
                             <option value="__F__">🏆 Final</option>
                             <option value="__TP__">🏆 3. luk Maci</option>
                         </optgroup>
-                        <optgroup label="── Grup Maçları ──" id="group-optgroup">
-                        </optgroup>
+                    </select>
+                </div>
+                <div class="form-group" id="group-select-row" style="display:none;">
+                    <label>Grup</label>
+                    <select id="match-group-actual">
+                        <option value="">Seçiniz</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -785,32 +792,85 @@
         }).then(() => { displayTeamsAdmin(); alert(`✅ ${group} Grubu silindi.`); });
     }
 
-    // Grup seçilince takım dropdown doldur
+    // Grup/Tur seçilince takım dropdown doldur
     function setupMatchGroupListener() {
         document.getElementById('match-group').addEventListener('change', function () {
             const val = this.value;
-            if (!val) return;
-            // Üst tur seçilince serbest metin input'u göster
-            if (val.startsWith('__')) {
-                document.getElementById('team1').innerHTML = '<option value="">Serbest girin</option>';
-                document.getElementById('team2').innerHTML = '<option value="">Serbest girin</option>';
-                document.getElementById('team1').outerHTML = '<input type="text" id="team1" placeholder="Takım adı (boş = TBD)">';
-                document.getElementById('team2').outerHTML = '<input type="text" id="team2" placeholder="Takım adı (boş = TBD)">';
-            } else {
-                // Grup seçilince select'e döndür
-                const t1 = document.getElementById('team1');
-                const t2 = document.getElementById('team2');
-                if (t1.tagName === 'INPUT') {
-                    t1.outerHTML = '<select id="team1" required><option value="">Seçiniz</option></select>';
-                    t2.outerHTML = '<select id="team2" required><option value="">Seçiniz</option></select>';
-                }
+            const groupRow = document.getElementById('group-select-row');
+
+            if (!val) {
+                groupRow.style.display = 'none';
+                resetTeamDropdowns();
+                return;
+            }
+
+            if (val === '__GROUPS__') {
+                // Grup aşaması seçildi - grup seçme satırını göster
+                groupRow.style.display = 'block';
                 loadData().then(data => {
-                    const teams = (data.teams && data.teams['group'+val]) || [];
+                    const groups = getAdminGroups(data);
                     let opts = '<option value="">Seçiniz</option>';
-                    teams.forEach(t => opts += `<option value="${t}">${t}</option>`);
+                    groups.forEach(g => opts += `<option value="${g}">${g} Grubu</option>`);
+                    document.getElementById('match-group-actual').innerHTML = opts;
+                });
+                resetTeamDropdowns();
+            } else {
+                // Üst tur seçildi - tüm takımları listele
+                groupRow.style.display = 'none';
+                loadData().then(data => {
+                    const groups = getAdminGroups(data);
+                    let allTeams = [];
+                    groups.forEach(g => {
+                        const teams = (data.teams && data.teams['group'+g]) || [];
+                        teams.forEach(t => allTeams.push({ team: t, group: g }));
+                    });
+                    let opts = '<option value="">Seçiniz (veya boş bırak)</option>';
+                    // Grup başlıklarıyla
+                    groups.forEach(g => {
+                        const teams = (data.teams && data.teams['group'+g]) || [];
+                        if (!teams.length) return;
+                        opts += `<optgroup label="${g} Grubu">`;
+                        teams.forEach(t => opts += `<option value="${t}">${t}</option>`);
+                        opts += '</optgroup>';
+                    });
                     document.getElementById('team1').innerHTML = opts;
                     document.getElementById('team2').innerHTML = opts;
+                    // Select olduğundan emin ol
+                    ensureTeamSelects();
                 });
+            }
+        });
+
+        // Grup aşamasında grup değişince takımları güncelle
+        document.getElementById('match-group-actual').addEventListener('change', function() {
+            const group = this.value;
+            if (!group) { resetTeamDropdowns(); return; }
+            loadData().then(data => {
+                const teams = (data.teams && data.teams['group'+group]) || [];
+                let opts = '<option value="">Seçiniz</option>';
+                teams.forEach(t => opts += `<option value="${t}">${t}</option>`);
+                document.getElementById('team1').innerHTML = opts;
+                document.getElementById('team2').innerHTML = opts;
+                ensureTeamSelects();
+            });
+        });
+    }
+
+    function resetTeamDropdowns() {
+        ensureTeamSelects();
+        document.getElementById('team1').innerHTML = '<option value="">Önce grup seçin</option>';
+        document.getElementById('team2').innerHTML = '<option value="">Önce grup seçin</option>';
+    }
+
+    function ensureTeamSelects() {
+        ['team1','team2'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el && el.tagName === 'INPUT') {
+                const sel = document.createElement('select');
+                sel.id = id;
+                sel.required = true;
+                sel.innerHTML = '<option value="">Seçiniz</option>';
+                el.parentNode.replaceChild(sel, el);
             }
         });
     }
@@ -820,13 +880,21 @@
         const dateVal = document.getElementById('match-date').value;
         const timeVal = document.getElementById('match-time').value;
         const venueVal = document.getElementById('match-venue').value.trim();
-        const groupVal = document.getElementById('match-group').value;
+        const groupSel = document.getElementById('match-group').value;
+        const groupActual = document.getElementById('match-group-actual') ? document.getElementById('match-group-actual').value : '';
         const t1El = document.getElementById('team1');
         const t2El = document.getElementById('team2');
         const t1 = t1El ? t1El.value.trim() : '';
         const t2 = t2El ? t2El.value.trim() : '';
 
-        if (!groupVal) { alert('Grup veya tur seçin!'); return; }
+        // Gerçek grup değeri
+        let groupVal = groupSel;
+        if (groupSel === '__GROUPS__') {
+            if (!groupActual) { alert('Grup seçin!'); return; }
+            groupVal = groupActual;
+        }
+
+        if (!groupVal || groupVal === '__GROUPS__') { alert('Grup veya tur seçin!'); return; }
 
         const months = ['Ocak','Subat','Mart','Nisan','Mayis','Haziran','Temmuz','Agustos','Eylul','Ekim','Kasim','Aralik'];
         let dateStr = '';
