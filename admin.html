@@ -254,8 +254,11 @@
 
         <!-- MAÇLAR -->
         <div id="matches-tab" class="tab-content active">
-            <h2 style="color:#8B0000;margin-bottom:20px;">Tüm Maçlar</h2>
+            <h2 style="color:#8B0000;margin-bottom:20px;">Grup Maçları</h2>
             <div id="matches-list"><div class="loading">⏳ Yükleniyor...</div></div>
+
+            <h2 style="color:#8B0000;margin:30px 0 15px;">🏆 Üst Tur Maçları</h2>
+            <div id="playoff-list"><div class="loading">⏳ Yükleniyor...</div></div>
         </div>
 
         <!-- MAÇ EKLE -->
@@ -589,37 +592,68 @@
     // ─── ADMIN YÜKLENİYOR ────────────────────────────────────────────────────
     function loadAdmin() {
         displayMatches();
+        displayPlayoffs();
         displayTeamsAdmin();
         setupMatchGroupListener();
         setupGroupAddListener();
-        displayPlayoffs();
     }
 
     // ─── MAÇLAR ──────────────────────────────────────────────────────────────
+    const ROUND_LABELS = { QF:'Çeyrek Final', SF:'Yarı Final', F:'Final', TP:'3. luk Maci' };
+
     function displayMatches() {
         const container = document.getElementById('matches-list');
         container.innerHTML = '<div class="loading">⏳ Yükleniyor...</div>';
-        loadData().then(data => {
-            if (!data.matches || data.matches.length === 0) {
+
+        Promise.all([loadData(), loadPlayoffs()]).then(([data, playoffs]) => {
+            let html = '';
+
+            // Grup maçları
+            if (data.matches && data.matches.length) {
+                html += '<h4 style="color:#8B0000;margin:0 0 10px;">Grup Maçları</h4>';
+                data.matches.forEach((match, i) => {
+                    const status = match.played ? '✅ Oynandı' : '⏳ Bekliyor';
+                    const score = match.played ? `${match.score1} - ${match.score2}` : 'vs';
+                    const extra = [match.time, match.venue].filter(Boolean).join(' • ');
+                    html += `<div class="match-item">
+                        <div>
+                            <strong>${match.team1}</strong> ${score} <strong>${match.team2}</strong><br>
+                            <small>${match.date}${extra?' • '+extra:''} • ${match.group} Grubu • ${status}</small>
+                        </div>
+                        <div>
+                            <button class="btn-secondary btn-small" onclick="editMatch(${i})">${match.played?'Düzenle':'Sonuç Gir'}</button>
+                            <button class="btn-danger btn-small" onclick="deleteMatch(${i})">Sil</button>
+                        </div>
+                    </div>`;
+                });
+            }
+
+            // Playoff maçları
+            if (playoffs && playoffs.length) {
+                html += '<h4 style="color:#8B0000;margin:20px 0 10px;">🏆 Üst Tur Maçları</h4>';
+                playoffs.forEach((match, i) => {
+                    const status = match.played ? '✅ Oynandı' : '⏳ Bekliyor';
+                    const score = match.played ? `${match.score1} - ${match.score2}` : 'vs';
+                    const roundLabel = ROUND_LABELS[match.round] || match.round;
+                    const extra = [match.time, match.venue].filter(Boolean).join(' • ');
+                    html += `<div class="match-item" style="border-left:4px solid #FFD700;">
+                        <div>
+                            <strong>${match.team1||'TBD'}</strong> ${score} <strong>${match.team2||'TBD'}</strong><br>
+                            <small>${roundLabel} • ${match.date}${extra?' • '+extra:''} • ${status}</small>
+                        </div>
+                        <div>
+                            <button class="btn-secondary btn-small" onclick="editPlayoff(${i})">${match.played?'Düzenle':'Sonuç Gir'}</button>
+                            <button class="btn-secondary btn-small" onclick="editPlayoffTeams(${i})">Takımlar</button>
+                            <button class="btn-danger btn-small" onclick="deletePlayoff(${i})">Sil</button>
+                        </div>
+                    </div>`;
+                });
+            }
+
+            if (!html) {
                 container.innerHTML = '<p style="text-align:center;color:#666;padding:20px;">Henüz maç yok.</p>';
                 return;
             }
-            let html = '';
-            data.matches.forEach((match, i) => {
-                const status = match.played ? '✅ Oynandı' : '⏳ Bekliyor';
-                const score = match.played ? `${match.score1} - ${match.score2}` : 'vs';
-                const extra = [match.time, match.venue].filter(Boolean).join(' • ');
-                html += `<div class="match-item">
-                    <div>
-                        <strong>${match.team1}</strong> ${score} <strong>${match.team2}</strong><br>
-                        <small>${match.date}${extra?' • '+extra:''} • ${match.group} Grubu • ${status}</small>
-                    </div>
-                    <div>
-                        <button class="btn-secondary btn-small" onclick="editMatch(${i})">${match.played ? 'Düzenle' : 'Sonuç Gir'}</button>
-                        <button class="btn-danger btn-small" onclick="deleteMatch(${i})">Sil</button>
-                    </div>
-                </div>`;
-            });
             container.innerHTML = html;
         });
     }
@@ -846,6 +880,7 @@
             }).then(() => {
                 showSuccessMsg();
                 displayPlayoffs();
+                displayMatches();
             });
             return;
         }
@@ -954,37 +989,8 @@
     const ROUND_ORDER  = ['QF', 'SF', 'F', 'TP'];
 
     function displayPlayoffs() {
-        const container = document.getElementById('playoff-list');
-        if (!container) return;
-        container.innerHTML = '<div class="loading">⏳ Yükleniyor...</div>';
-        loadPlayoffs().then(playoffs => {
-            if (!playoffs.length) {
-                container.innerHTML = '<p style="color:#666;text-align:center;padding:20px;">Henüz üst tur maçı yok.</p>';
-                return;
-            }
-            let html = '';
-            ROUND_ORDER.forEach(r => {
-                const ms = playoffs.filter(m => m.round === r);
-                if (!ms.length) return;
-                html += `<h4 style="color:#8B0000;margin:15px 0 8px;">${ROUND_LABELS[r]}</h4>`;
-                ms.forEach((m, i) => {
-                    const globalIdx = playoffs.indexOf(m);
-                    const score = m.played ? `${m.score1} - ${m.score2}` : 'vs';
-                    html += `<div class="match-item">
-                        <div>
-                            <strong>${m.team1||'TBD'}</strong> ${score} <strong>${m.team2||'TBD'}</strong><br>
-                            <small>${m.date||''} ${m.time?'• '+m.time:''} ${m.venue?'• '+m.venue:''} • ${m.played?'✅ Oynandı':'⏳ Bekliyor'}</small>
-                        </div>
-                        <div>
-                            <button class="btn-secondary btn-small" onclick="editPlayoff(${globalIdx})">${m.played?'Düzenle':'Sonuç Gir'}</button>
-                            <button class="btn-secondary btn-small" onclick="editPlayoffTeams(${globalIdx})">Takım Düzenle</button>
-                            <button class="btn-danger btn-small" onclick="deletePlayoff(${globalIdx})">Sil</button>
-                        </div>
-                    </div>`;
-                });
-            });
-            container.innerHTML = html;
-        });
+        // Artık displayMatches içinde birleştirildi
+        displayMatches();
     }
 
     document.getElementById('add-playoff-btn').addEventListener('click', () => {
