@@ -256,35 +256,7 @@
         <div id="matches-tab" class="tab-content active">
             <h2 style="color:#8B0000;margin-bottom:20px;">Tüm Maçlar</h2>
             <div id="matches-list"><div class="loading">⏳ Yükleniyor...</div></div>
-
-            <!-- Üst Tur Accordion -->
-            <div style="margin-top:30px;">
-                <div onclick="togglePlayoffAccordion()" style="background:#8B0000;color:#FFD700;padding:15px 20px;border-radius:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:bold;font-size:1.05em;user-select:none;">
-                    <span>🏆 Üst Tur Maçları</span>
-                    <span id="playoff-acc-arrow">▼</span>
-                </div>
-                <div id="playoff-accordion-body" style="display:none;background:#f9f9f9;border-radius:0 0 10px 10px;padding:20px;">
-
-                    <!-- Maç Ekle Formu -->
-                    <div style="background:white;border-radius:10px;padding:20px;margin-bottom:20px;border:2px solid #FFD700;">
-                        <h4 style="color:#8B0000;margin-bottom:15px;">➕ Üst Tur Maçı Ekle</h4>
-                        <div id="playoff-success" style="display:none;" class="success"></div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Tur</label>
-                                <select id="playoff-round">
-                                    <option value="">Seçiniz</option>
-                                    <option value="QF">Ceyrek Final</option>
-                                    <option value="SF">Yari Final</option>
-                                    <option value="F">Final</option>
-                                    <option value="TP">3. luk Maci</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Tarih</label>
-                                <input type="date" id="playoff-date">
-                            </div>
-                        </div>
+        </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Saat</label>
@@ -610,15 +582,6 @@
         document.getElementById('admin-panel').style.display = 'none';
         document.getElementById('password').value = '';
     });
-
-    function togglePlayoffAccordion() {
-        const body = document.getElementById('playoff-accordion-body');
-        const arrow = document.getElementById('playoff-acc-arrow');
-        const isOpen = body.style.display !== 'none';
-        body.style.display = isOpen ? 'none' : 'block';
-        arrow.style.transform = isOpen ? '' : 'rotate(180deg)';
-        if (!isOpen) displayPlayoffs();
-    }
 
     // ─── ANA SEKME ───────────────────────────────────────────────────────────
     function showMainTab(tab) {
