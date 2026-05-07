@@ -986,12 +986,6 @@
     const ROUND_ORDER  = ['QF', 'SF', 'F', 'TP'];
 
     function displayPlayoffs() { displayMatches(); }
-            const msg = document.getElementById('playoff-success');
-            msg.textContent = '✅ Maç eklendi!'; msg.style.display = 'block';
-            setTimeout(() => msg.style.display = 'none', 3000);
-            displayPlayoffs();
-        });
-    });
 
     function editPlayoff(i) {
         loadPlayoffs().then(playoffs => {
