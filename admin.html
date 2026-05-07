@@ -256,9 +256,7 @@
         <div id="matches-tab" class="tab-content active">
             <h2 style="color:#8B0000;margin-bottom:20px;">Grup Maçları</h2>
             <div id="matches-list"><div class="loading">⏳ Yükleniyor...</div></div>
-
-            <h2 style="color:#8B0000;margin:30px 0 15px;">🏆 Üst Tur Maçları</h2>
-            <div id="playoff-list"><div class="loading">⏳ Yükleniyor...</div></div>
+</div>
         </div>
 
         <!-- MAÇ EKLE -->
@@ -987,34 +985,7 @@
 
     const ROUND_ORDER  = ['QF', 'SF', 'F', 'TP'];
 
-    function displayPlayoffs() {
-        // Artık displayMatches içinde birleştirildi
-        displayMatches();
-    }
-
-    document.getElementById('add-playoff-btn').addEventListener('click', () => {
-        const round  = document.getElementById('playoff-round').value;
-        const dateV  = document.getElementById('playoff-date').value;
-        const timeV  = document.getElementById('playoff-time').value;
-        const venueV = document.getElementById('playoff-venue').value.trim();
-        const t1     = document.getElementById('playoff-team1').value.trim();
-        const t2     = document.getElementById('playoff-team2').value.trim();
-        if (!round) { alert('Tur seçin!'); return; }
-
-        const months = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
-        let dateStr = '';
-        if (dateV) { const d = new Date(dateV); dateStr = d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear(); }
-
-        const match = { round, date: dateStr, time: timeV||'', venue: venueV, team1: t1, team2: t2, score1: null, score2: null, sets: '', played: false };
-
-        loadPlayoffs().then(playoffs => {
-            playoffs.push(match);
-            return savePlayoffs(playoffs);
-        }).then(() => {
-            ['playoff-round','playoff-date','playoff-time','playoff-venue','playoff-team1','playoff-team2'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = '';
-            });
+    function displayPlayoffs() { displayMatches(); }
             const msg = document.getElementById('playoff-success');
             msg.textContent = '✅ Maç eklendi!'; msg.style.display = 'block';
             setTimeout(() => msg.style.display = 'none', 3000);
