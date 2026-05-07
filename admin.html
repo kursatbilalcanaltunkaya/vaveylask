@@ -929,21 +929,36 @@
     document.getElementById('edit-save-btn').addEventListener('click', () => {
         const s1 = parseInt(document.getElementById('edit-score1').value);
         const s2 = parseInt(document.getElementById('edit-score2').value);
-
         if (isNaN(s1) || isNaN(s2)) { alert('Skor girin!'); return; }
-        // Skor validasyonu yok - admin girebilir
+        const setsVal = document.getElementById('edit-sets').value;
 
-        loadData().then(data => {
-            data.matches[editingMatchKey].score1 = s1;
-            data.matches[editingMatchKey].score2 = s2;
-            data.matches[editingMatchKey].sets = document.getElementById('edit-sets').value;
-            data.matches[editingMatchKey].played = true;
-            return saveData(data);
-        }).then(() => {
-            closeModal();
-            displayMatches();
-            alert('✅ Sonuç Firebase\'e kaydedildi!');
-        });
+        if (editingMatchKey && typeof editingMatchKey === 'object' && editingMatchKey.type === 'playoff') {
+            // Playoff maçı
+            loadPlayoffs().then(playoffs => {
+                playoffs[editingMatchKey.index].score1 = s1;
+                playoffs[editingMatchKey.index].score2 = s2;
+                playoffs[editingMatchKey.index].sets = setsVal;
+                playoffs[editingMatchKey.index].played = true;
+                return savePlayoffs(playoffs);
+            }).then(() => {
+                closeModal();
+                displayMatches();
+                alert('✅ Sonuç kaydedildi!');
+            });
+        } else {
+            // Normal grup maçı
+            loadData().then(data => {
+                data.matches[editingMatchKey].score1 = s1;
+                data.matches[editingMatchKey].score2 = s2;
+                data.matches[editingMatchKey].sets = setsVal;
+                data.matches[editingMatchKey].played = true;
+                return saveData(data);
+            }).then(() => {
+                closeModal();
+                displayMatches();
+                alert('✅ Sonuç kaydedildi!');
+            });
+        }
     });
 
     // ─── MAÇ SİL ─────────────────────────────────────────────────────────────
