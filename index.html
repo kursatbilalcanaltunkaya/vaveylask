@@ -380,10 +380,7 @@ function renderSection(section, data) {
 
         // Final Yolu seçiliyse bracket göster
         if (activeGroups[section] === '__playoff__') {
-            const poffs = data.playoffs || [];
-            console.log('Playoffs:', poffs.length, poffs);
-            const bracketHtml = renderBracket(poffs);
-            document.getElementById('fixtures-container').innerHTML = bracketHtml;
+            document.getElementById('fixtures-container').innerHTML = renderBracket(data.playoffs||[]);
             return;
         }
         const ms = (data.matches||[]).filter(m => m.group === g);
@@ -446,88 +443,77 @@ const ROUNDS = [
     { key: "TP", label: "3. luk Maci",  short: "3." }
 ];
 
-function renderUstTur(data) {
-    const container = document.getElementById('ust-tur-container');
-    const playoffs = data.playoffs || [];
 
-    if (!playoffs.length) {
-        container.innerHTML = '<p class="empty-msg">Henüz üst tur maçı eklenmemiş.</p>';
-        return;
-    }
 
-    // Hangi roundlar var?
-    const roundsPresent = ROUNDS.filter(r => playoffs.some(m => m.round === r.key));
 
-    // Toggle butonları
-    let html = `<div class="view-toggle">
-        <button class="view-btn ${ustTurView==='bracket'?'active':''}" onclick="setUstTurView('bracket')">🏆 Bracket</button>
-        <button class="view-btn ${ustTurView==='list'?'active':''}" onclick="setUstTurView('list')">📋 Liste</button>
+function makeBMatch(m) {
+    if (!m) return '<div class="bm"><div class="bt"><span class="bn tbd">TBD</span></div><div class="bt"><span class="bn tbd">TBD</span></div></div>';
+    const played = m.played;
+    const s1 = parseInt(m.score1), s2 = parseInt(m.score2);
+    const w1 = played && s1 > s2, w2 = played && s2 > s1;
+    return `<div class="bm ${played?'played':''}">
+        <div class="bt ${w1?'win':''}"><span class="bn ${!m.team1?'tbd':''}">${m.team1||'TBD'}</span><span class="bs">${played?s1:''}</span></div>
+        <div class="bt ${w2?'win':''}"><span class="bn ${!m.team2?'tbd':''}">${m.team2||'TBD'}</span><span class="bs">${played?s2:''}</span></div>
     </div>`;
-
-    if (ustTurView === 'bracket') {
-        html += '<div class="bracket-container"><div class="bracket">';
-        roundsPresent.forEach(r => {
-            const ms = playoffs.filter(m => m.round === r.key);
-            html += `<div class="bracket-round">
-                <div class="bracket-round-title">${r.label}</div>
-                <div class="bracket-matches">`;
-            ms.forEach(m => {
-                const played = m.played;
-                const s1 = parseInt(m.score1), s2 = parseInt(m.score2);
-                const w1 = played && s1 > s2, w2 = played && s2 > s1;
-                html += `<div class="bracket-match ${played?'played':''}">
-                    <div class="bracket-team ${w1?'winner':''}">
-                        <span class="bracket-team-name ${!m.team1?'bracket-tbd':''}">${m.team1||'TBD'}</span>
-                        <span class="bracket-team-score">${played?s1:''}</span>
-                    </div>
-                    <div class="bracket-team ${w2?'winner':''}">
-                        <span class="bracket-team-name ${!m.team2?'bracket-tbd':''}">${m.team2||'TBD'}</span>
-                        <span class="bracket-team-score">${played?s2:''}</span>
-                    </div>
-                </div>`;
-            });
-            html += '</div></div>';
-        });
-        html += '</div></div>';
-    } else {
-        // Liste görünümü - round sırasıyla
-        roundsPresent.forEach(r => {
-            const ms = playoffs.filter(m => m.round === r.key);
-            ms.forEach(m => {
-                const setList = m.sets ? m.sets.split(',').map(s=>s.trim()).filter(Boolean) : [];
-                const setsHtml = setList.length ? `<div class="sets-grid" style="margin-top:10px;">${
-                    setList.map((s,i)=>`<div class="set-box"><span class="set-label">Set ${i+1}</span><span class="set-score">${s}</span></div>`).join('')
-                }</div>` : '';
-                html += `<div class="playoff-card">
-                    <span class="playoff-round-label">${r.label}</span>
-                    ${m.date||m.time||m.venue ? `<div class="playoff-meta">
-                        ${m.date?'📅 '+m.date:''} ${m.time?'🕐 '+m.time:''} ${m.venue?'📍 '+m.venue:''}
-                    </div>` : ''}
-                    <div class="playoff-main">
-                        <span class="playoff-team">${m.team1||'TBD'}</span>
-                        ${m.played
-                            ? `<span class="playoff-score">${m.score1} – ${m.score2}</span>`
-                            : `<span class="playoff-vs">vs</span>`}
-                        <span class="playoff-team right">${m.team2||'TBD'}</span>
-                    </div>
-                    ${setsHtml}
-                </div>`;
-            });
-        });
-    }
-
-    container.innerHTML = html;
 }
 
-function setUstTurView(v) {
-    ustTurView = v;
-    if (globalData) renderUstTur(globalData);
+function renderBracket(playoffs) {
+    if (!playoffs || !playoffs.length) return '<p class="empty-msg">Henüz üst tur maçı eklenmemiş.</p>';
+
+    const qf = playoffs.filter(m => m.round === 'QF');
+    const sf = playoffs.filter(m => m.round === 'SF');
+    const fn = playoffs.filter(m => m.round === 'F');
+    const tp = playoffs.filter(m => m.round === 'TP');
+
+    let champion = '';
+    if (fn.length && fn[0].played) {
+        const f = fn[0];
+        champion = parseInt(f.score1) > parseInt(f.score2) ? f.team1 : f.team2;
+    }
+
+    let third = '';
+    if (tp.length && tp[0].played) {
+        const t = tp[0];
+        third = parseInt(t.score1) > parseInt(t.score2) ? t.team1 : t.team2;
+    }
+
+    const qfL = [qf[0]||null, qf[1]||null];
+    const qfR = [qf[2]||null, qf[3]||null];
+    const sfL = sf[0]||null;
+    const sfR = sf[1]||null;
+    const finalM = fn[0]||null;
+
+    let html = `<div style="text-align:center;margin-bottom:16px;">
+        <span style="font-size:1.3em;font-weight:800;color:#8B0000;letter-spacing:1px;">🏆 FINAL YOLU</span>
+    </div>
+    <div class="bracket-wrapper">
+    <div class="bracket-grid">`;
+
+    html += `<div class="bc"><div class="b-round-label">Çeyrek Final</div>${makeBMatch(qfL[0])}<div style="height:16px;"></div>${makeBMatch(qfL[1])}</div>`;
+    html += `<div class="bc"><div class="b-round-label">Yarı Final</div><div style="height:24px;"></div>${makeBMatch(sfL)}<div style="height:24px;"></div></div>`;
+    html += `<div class="bc center"><div class="b-round-label" style="border-color:#8B0000;">Final</div>
+        <div class="b-center-box">
+            <span class="trophy">🏆</span>
+            <div class="final-label">Şampiyon</div>
+            <div class="champion ${!champion?'empty':''}">${champion||'Bekleniyor'}</div>
+        </div>
+        ${makeBMatch(finalM)}</div>`;
+    html += `<div class="bc"><div class="b-round-label">Yarı Final</div><div style="height:24px;"></div>${makeBMatch(sfR)}<div style="height:24px;"></div></div>`;
+    html += `<div class="bc"><div class="b-round-label">Çeyrek Final</div>${makeBMatch(qfR[0])}<div style="height:16px;"></div>${makeBMatch(qfR[1])}</div>`;
+
+    html += `</div>`;
+
+    if (tp.length) {
+        html += `<div class="b-tpm"><div class="b-tpm-label">3. luk Maci ${third?'— 3. '+third:''}</div>${makeBMatch(tp[0])}</div>`;
+    }
+
+    html += `</div>`;
+    return html;
 }
 
 function renderAll(data) {
     globalData = data;
     ['takimlar', 'puan-durumu', 'fikstur', 'sonuclar'].forEach(s => renderSection(s, data));
-    renderUstTur(data);
 }
 
 window.addEventListener('load', () => {
