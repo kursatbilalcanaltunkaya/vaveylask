@@ -195,7 +195,7 @@
             font-size: 0.85em;
         }
         .acc-closed .acc-arrow { transform: rotate(-90deg); }
-        .tab-content.active { background: white; }
+        .tab-content.active { background: white; padding: 20px; border-radius: 0 0 15px 15px; overflow: hidden; }
 
         @media (max-width: 768px) {
             .form-row { grid-template-columns: 1fr; }
@@ -262,7 +262,7 @@
         </div>
 
         <!-- MAÇ EKLE -->
-        <div id="add-tab" class="tab-content">
+        <div id="add-tab" class="tab-content" style="background:white;padding:20px;border-radius:0 0 15px 15px;">
             <h2 style="color:#8B0000;margin-bottom:20px;">Yeni Maç Ekle</h2>
             <div id="success-msg" style="display:none;" class="success"></div>
             <div class="form-row">
