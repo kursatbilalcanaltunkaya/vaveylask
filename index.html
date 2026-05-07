@@ -275,18 +275,26 @@ function calcStandings(g, data) {
 }
 
 // Grup sekmeleri oluştur
-function buildGroupTabs(tabsId, section, groups, onSelect) {
+function buildGroupTabs(tabsId, section, groups, hasPlayoffs) {
     const container = document.getElementById(tabsId);
-    if (!groups.length) { container.innerHTML = ''; return; }
+    if (!container) return;
 
-    // Eğer aktif grup henüz seçilmemişse ilkini seç
-    if (!activeGroups[section] || !groups.includes(activeGroups[section])) {
-        activeGroups[section] = groups[0];
+    // Aktif grubu belirle
+    if (!activeGroups[section] || (!groups.includes(activeGroups[section]) && activeGroups[section] !== '__playoff__')) {
+        activeGroups[section] = groups[0] || null;
     }
 
-    container.innerHTML = groups.map(g =>
+    let html = groups.map(g =>
         `<button class="group-tab ${activeGroups[section]===g?'active':''}" onclick="selectGroup('${section}','${g}')">${g} Grubu</button>`
     ).join('');
+
+    // Sadece fikstür sekmesinde ve playoff varsa Final Yolu butonu ekle
+    if (hasPlayoffs && section === 'fikstur') {
+        html += `<button class="group-tab playoff-tab ${activeGroups[section]==='__playoff__'?'active':''}"
+            onclick="selectGroup('fikstur','__playoff__')">🏆 Final Yolu</button>`;
+    }
+
+    container.innerHTML = html;
 }
 
 function selectGroup(section, group) {
@@ -315,14 +323,14 @@ function renderSection(section, data) {
     const wildSet = new Set(thirds.slice(0, wildcards).map(t => t.team));
 
     if (section === 'takimlar') {
-        buildGroupTabs('teams-group-tabs', section, groups, g);
+        buildGroupTabs('teams-group-tabs', section, groups, false);
         const teams = getTeams(g, data);
         if (!teams.length) { document.getElementById('teams-container').innerHTML = '<p class="empty-msg">Bu grupta henüz takım yok.</p>'; return; }
         document.getElementById('teams-container').innerHTML = teams.map(t => `<div class="team-card">🏐 ${t}</div>`).join('');
     }
 
     else if (section === 'puan-durumu') {
-        buildGroupTabs('standings-group-tabs', section, groups, g);
+        buildGroupTabs('standings-group-tabs', section, groups, false);
         const st = calcStandings(g, data);
 
         let html = `<div class="qualify-banner">
@@ -367,7 +375,14 @@ function renderSection(section, data) {
     }
 
     else if (section === 'fikstur') {
-        buildGroupTabs('fixtures-group-tabs', section, groups, g);
+        const hasPlayoffs = (data.playoffs||[]).length > 0;
+        buildGroupTabs('fixtures-group-tabs', section, groups, hasPlayoffs);
+
+        // Final Yolu seçiliyse bracket göster
+        if (activeGroups[section] === '__playoff__') {
+            document.getElementById('fixtures-container').innerHTML = renderBracket(data.playoffs||[]);
+            return;
+        }
         const ms = (data.matches||[]).filter(m => m.group === g);
         if (!ms.length) { document.getElementById('fixtures-container').innerHTML = '<p class="empty-msg">Bu grupta henüz maç eklenmemiş.</p>'; return; }
         document.getElementById('fixtures-container').innerHTML = ms.map(m => `
@@ -386,7 +401,7 @@ function renderSection(section, data) {
     }
 
     else if (section === 'sonuclar') {
-        buildGroupTabs('results-group-tabs', section, groups, g);
+        buildGroupTabs('results-group-tabs', section, groups, false);
         const played = (data.matches||[]).filter(m => m.group === g && m.played);
         if (!played.length) { document.getElementById('results-container').innerHTML = '<p class="empty-msg">Bu grupta henüz oynanmış maç yok.</p>'; return; }
         document.getElementById('results-container').innerHTML = played.map(m => {
