@@ -446,68 +446,121 @@ const ROUNDS = [
 
 
 
-function makeBMatch(m) {
-    if (!m) return '<div class="bm"><div class="bt"><span class="bn tbd">TBD</span></div><div class="bt"><span class="bn tbd">TBD</span></div></div>';
+function makeBTeam(name, score, isWinner) {
+    const bg = isWinner ? 'background:rgba(255,215,0,0.25);' : '';
+    const fw = isWinner ? 'font-weight:800;color:#8B0000;' : 'font-weight:600;';
+    const nameStyle = !name ? 'color:#bbb;font-style:italic;font-weight:400;' : fw;
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #f0f0f0;min-height:40px;${bg}">
+        <span style="font-size:0.85em;flex:1;line-height:1.3;${nameStyle}">${name||'TBD'}</span>
+        <span style="font-size:0.9em;font-weight:800;color:#8B0000;min-width:18px;text-align:right;padding-left:6px;">${score!==null&&score!==undefined?score:''}</span>
+    </div>`;
+}
+
+function makeBMatchInline(m) {
+    const boxStyle = 'background:white;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.12);border:2px solid';
+    if (!m) {
+        return `<div style="${boxStyle} #eee;">
+            ${makeBTeam('',null,false)}
+            <div style="border-bottom:none;">${makeBTeam('',null,false)}</div>
+        </div>`;
+    }
     const played = m.played;
     const s1 = parseInt(m.score1), s2 = parseInt(m.score2);
-    const w1 = played && s1 > s2, w2 = played && s2 > s1;
-    return `<div class="bm ${played?'played':''}">
-        <div class="bt ${w1?'win':''}"><span class="bn ${!m.team1?'tbd':''}">${m.team1||'TBD'}</span><span class="bs">${played?s1:''}</span></div>
-        <div class="bt ${w2?'win':''}"><span class="bn ${!m.team2?'tbd':''}">${m.team2||'TBD'}</span><span class="bs">${played?s2:''}</span></div>
+    const w1 = played && s1>s2, w2 = played && s2>s1;
+    const border = played ? '#FFD700' : '#e5e5e5';
+    return `<div style="${boxStyle} ${border};">
+        ${makeBTeam(m.team1||'', played?s1:null, w1)}
+        <div style="border-top:1px solid #f0f0f0;">${makeBTeam(m.team2||'', played?s2:null, w2)}</div>
     </div>`;
 }
 
 function renderBracket(playoffs) {
-    if (!playoffs || !playoffs.length) return '<p class="empty-msg">Henüz üst tur maçı eklenmemiş.</p>';
+    if (!playoffs || !playoffs.length) return '<p style="text-align:center;color:#888;padding:40px;">Henüz üst tur maçı eklenmemiş.</p>';
 
-    const qf = playoffs.filter(m => m.round === 'QF');
-    const sf = playoffs.filter(m => m.round === 'SF');
-    const fn = playoffs.filter(m => m.round === 'F');
-    const tp = playoffs.filter(m => m.round === 'TP');
+    const qf = playoffs.filter(m => m.round==='QF');
+    const sf = playoffs.filter(m => m.round==='SF');
+    const fn = playoffs.filter(m => m.round==='F');
+    const tp = playoffs.filter(m => m.round==='TP');
 
     let champion = '';
     if (fn.length && fn[0].played) {
-        const f = fn[0];
-        champion = parseInt(f.score1) > parseInt(f.score2) ? f.team1 : f.team2;
+        const f=fn[0]; champion = parseInt(f.score1)>parseInt(f.score2)?f.team1:f.team2;
     }
 
-    let third = '';
-    if (tp.length && tp[0].played) {
-        const t = tp[0];
-        third = parseInt(t.score1) > parseInt(t.score2) ? t.team1 : t.team2;
-    }
+    const qfL=[qf[0]||null,qf[1]||null], qfR=[qf[2]||null,qf[3]||null];
+    const sfL=sf[0]||null, sfR=sf[1]||null, finalM=fn[0]||null;
 
-    const qfL = [qf[0]||null, qf[1]||null];
-    const qfR = [qf[2]||null, qf[3]||null];
-    const sfL = sf[0]||null;
-    const sfR = sf[1]||null;
-    const finalM = fn[0]||null;
+    const colStyle = 'flex:1;min-width:150px;display:flex;flex-direction:column;gap:10px;padding:0 6px;';
+    const colCenterStyle = 'flex:1;min-width:160px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:0 6px;';
+    const roundLabel = (txt) => `<div style="text-align:center;font-size:0.72em;font-weight:800;color:#8B0000;text-transform:uppercase;letter-spacing:1px;padding:6px 4px;border-bottom:2px solid #FFD700;margin-bottom:4px;">${txt}</div>`;
 
-    let html = `<div style="text-align:center;margin-bottom:16px;">
-        <span style="font-size:1.3em;font-weight:800;color:#8B0000;letter-spacing:1px;">🏆 FINAL YOLU</span>
+    const centerBox = `<div style="background:linear-gradient(135deg,#8B0000,#6B0000);border-radius:14px;padding:16px 12px;text-align:center;box-shadow:0 6px 20px rgba(139,0,0,0.3);width:100%;">
+        <div style="font-size:2em;margin-bottom:6px;">🏆</div>
+        <div style="color:#FFD700;font-size:0.72em;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Şampiyon</div>
+        <div style="color:#FFD700;font-size:0.95em;font-weight:800;margin-top:6px;min-height:20px;">${champion||'<span style=\'opacity:0.4;font-style:italic;font-size:0.85em;\'>Bekleniyor</span>'}</div>
+    </div>`;
+
+    let html = `
+    <div style="text-align:center;margin-bottom:20px;">
+        <span style="font-size:1.4em;font-weight:800;color:#8B0000;letter-spacing:1px;">🏆 FINAL YOLU</span>
     </div>
-    <div class="bracket-wrapper">
-    <div class="bracket-grid">`;
+    <div style="overflow-x:auto;padding-bottom:10px;">
+    <div style="display:flex;gap:0;align-items:center;min-width:650px;padding:10px 0;">
 
-    html += `<div class="bc"><div class="b-round-label">Çeyrek Final</div>${makeBMatch(qfL[0])}<div style="height:16px;"></div>${makeBMatch(qfL[1])}</div>`;
-    html += `<div class="bc"><div class="b-round-label">Yarı Final</div><div style="height:24px;"></div>${makeBMatch(sfL)}<div style="height:24px;"></div></div>`;
-    html += `<div class="bc center"><div class="b-round-label" style="border-color:#8B0000;">Final</div>
-        <div class="b-center-box">
-            <span class="trophy">🏆</span>
-            <div class="final-label">Şampiyon</div>
-            <div class="champion ${!champion?'empty':''}">${champion||'Bekleniyor'}</div>
+        <div style="${colStyle}">
+            ${roundLabel('Çeyrek Final')}
+            ${makeBMatchInline(qfL[0])}
+            <div style="height:12px;"></div>
+            ${makeBMatchInline(qfL[1])}
         </div>
-        ${makeBMatch(finalM)}</div>`;
-    html += `<div class="bc"><div class="b-round-label">Yarı Final</div><div style="height:24px;"></div>${makeBMatch(sfR)}<div style="height:24px;"></div></div>`;
-    html += `<div class="bc"><div class="b-round-label">Çeyrek Final</div>${makeBMatch(qfR[0])}<div style="height:16px;"></div>${makeBMatch(qfR[1])}</div>`;
 
-    html += `</div>`;
+        <div style="color:#FFD700;font-size:1.5em;padding:0 2px;align-self:center;">›</div>
+
+        <div style="${colStyle}">
+            ${roundLabel('Yarı Final')}
+            <div style="height:30px;"></div>
+            ${makeBMatchInline(sfL)}
+            <div style="height:30px;"></div>
+        </div>
+
+        <div style="color:#FFD700;font-size:1.5em;padding:0 2px;align-self:center;">›</div>
+
+        <div style="${colCenterStyle}">
+            ${roundLabel('Final')}
+            ${centerBox}
+            ${makeBMatchInline(finalM)}
+        </div>
+
+        <div style="color:#FFD700;font-size:1.5em;padding:0 2px;align-self:center;">‹</div>
+
+        <div style="${colStyle}">
+            ${roundLabel('Yarı Final')}
+            <div style="height:30px;"></div>
+            ${makeBMatchInline(sfR)}
+            <div style="height:30px;"></div>
+        </div>
+
+        <div style="color:#FFD700;font-size:1.5em;padding:0 2px;align-self:center;">‹</div>
+
+        <div style="${colStyle}">
+            ${roundLabel('Çeyrek Final')}
+            ${makeBMatchInline(qfR[0])}
+            <div style="height:12px;"></div>
+            ${makeBMatchInline(qfR[1])}
+        </div>
+
+    </div>
+    </div>`;
 
     if (tp.length) {
-        html += `<div class="b-tpm"><div class="b-tpm-label">3. luk Maci ${third?'— 3. '+third:''}</div>${makeBMatch(tp[0])}</div>`;
+        let third = '';
+        if (tp[0].played) { const t=tp[0]; third=parseInt(t.score1)>parseInt(t.score2)?t.team1:t.team2; }
+        html += `<div style="margin-top:20px;padding-top:16px;border-top:2px dashed #eee;">
+            <div style="font-size:0.78em;color:#888;font-weight:700;text-align:center;margin-bottom:10px;text-transform:uppercase;">3. luk Maci ${third?'— 3. Olan: '+third:''}</div>
+            <div style="max-width:300px;margin:0 auto;">${makeBMatchInline(tp[0])}</div>
+        </div>`;
     }
 
-    html += `</div>`;
     return html;
 }
 
