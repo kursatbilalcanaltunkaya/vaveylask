@@ -380,7 +380,10 @@ function renderSection(section, data) {
 
         // Final Yolu seçiliyse bracket göster
         if (activeGroups[section] === '__playoff__') {
-            document.getElementById('fixtures-container').innerHTML = renderBracket(data.playoffs||[]);
+            const poffs = data.playoffs || [];
+            console.log('Playoffs:', poffs.length, poffs);
+            const bracketHtml = renderBracket(poffs);
+            document.getElementById('fixtures-container').innerHTML = bracketHtml;
             return;
         }
         const ms = (data.matches||[]).filter(m => m.group === g);
