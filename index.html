@@ -401,7 +401,7 @@ function renderSection(section, data) {
     }
 
     else if (section === 'sonuclar') {
-        const hasPlayoffsR = (data.playoffs||[]).filter(m=>m.played).length > 0;
+        const hasPlayoffsR = (data.playoffs||[]).length > 0;
         buildGroupTabs('results-group-tabs', section, groups, hasPlayoffsR);
 
         // Final Yolu seçiliyse playoff sonuçlarını göster
