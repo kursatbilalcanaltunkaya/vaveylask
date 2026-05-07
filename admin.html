@@ -933,17 +933,52 @@
         const setsVal = document.getElementById('edit-sets').value;
 
         if (editingMatchKey && typeof editingMatchKey === 'object' && editingMatchKey.type === 'playoff') {
-            // Playoff maçı
             loadPlayoffs().then(playoffs => {
-                playoffs[editingMatchKey.index].score1 = s1;
-                playoffs[editingMatchKey.index].score2 = s2;
-                playoffs[editingMatchKey.index].sets = setsVal;
-                playoffs[editingMatchKey.index].played = true;
+                const idx = editingMatchKey.index;
+                playoffs[idx].score1 = s1;
+                playoffs[idx].score2 = s2;
+                playoffs[idx].sets = setsVal;
+                playoffs[idx].played = true;
+
+                // Kazananı otomatik bir sonraki tura yaz
+                const match = playoffs[idx];
+                const winner = s1 > s2 ? match.team1 : match.team2;
+                const loser  = s1 > s2 ? match.team2 : match.team1;
+
+                if (match.round === 'QF') {
+                    // Çeyrek final kazananı → Yarı finale
+                    // QF 0 ve 1 → SF 0 (sol), QF 2 ve 3 → SF 1 (sağ)
+                    const qfMatches = playoffs.map((m,i) => ({...m,i})).filter(m => m.round === 'QF');
+                    const qfPos = qfMatches.findIndex(m => m.i === idx); // 0,1,2,3
+                    const sfSlot = Math.floor(qfPos / 2); // 0 veya 1
+                    const teamSlot = qfPos % 2; // 0=team1, 1=team2
+                    const sfMatches = playoffs.map((m,i) => ({...m,i})).filter(m => m.round === 'SF');
+                    if (sfMatches[sfSlot]) {
+                        const sfIdx = sfMatches[sfSlot].i;
+                        if (teamSlot === 0) playoffs[sfIdx].team1 = winner;
+                        else playoffs[sfIdx].team2 = winner;
+                    }
+                } else if (match.round === 'SF') {
+                    // Yarı final kazananı → Finale, kaybedeni → 3.lük maçına
+                    const sfMatches = playoffs.map((m,i) => ({...m,i})).filter(m => m.round === 'SF');
+                    const sfPos = sfMatches.findIndex(m => m.i === idx); // 0 veya 1
+                    const fMatch = playoffs.find(m => m.round === 'F');
+                    const tpMatch = playoffs.find(m => m.round === 'TP');
+                    if (fMatch) {
+                        if (sfPos === 0) fMatch.team1 = winner;
+                        else fMatch.team2 = winner;
+                    }
+                    if (tpMatch) {
+                        if (sfPos === 0) tpMatch.team1 = loser;
+                        else tpMatch.team2 = loser;
+                    }
+                }
+
                 return savePlayoffs(playoffs);
             }).then(() => {
                 closeModal();
                 displayMatches();
-                alert('✅ Sonuç kaydedildi!');
+                alert('✅ Sonuç kaydedildi! Kazanan bir sonraki tura aktarıldı.');
             });
         } else {
             // Normal grup maçı
