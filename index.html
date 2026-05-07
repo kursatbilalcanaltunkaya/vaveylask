@@ -375,8 +375,7 @@ function renderSection(section, data) {
     }
 
     else if (section === 'fikstur') {
-        const hasPlayoffs = (data.playoffs||[]).length > 0;
-        buildGroupTabs('fixtures-group-tabs', section, groups, hasPlayoffs);
+        buildGroupTabs('fixtures-group-tabs', section, groups, true);
 
         // Final Yolu seçiliyse bracket göster
         if (activeGroups[section] === '__playoff__') {
@@ -401,8 +400,7 @@ function renderSection(section, data) {
     }
 
     else if (section === 'sonuclar') {
-        const hasPlayoffsR = (data.playoffs||[]).length > 0;
-        buildGroupTabs('results-group-tabs', section, groups, hasPlayoffsR);
+        buildGroupTabs('results-group-tabs', section, groups, true);
 
         // Final Yolu seçiliyse playoff sonuçlarını göster
         if (activeGroups[section] === '__playoff__') {
@@ -496,33 +494,46 @@ function renderPlayoffResults(playoffs) {
 function makeBTeam(name, score, isWinner) {
     const bg = isWinner ? 'background:rgba(255,215,0,0.25);' : '';
     const fw = isWinner ? 'font-weight:800;color:#8B0000;' : 'font-weight:600;';
-    const nameStyle = !name ? 'color:#bbb;font-style:italic;font-weight:400;' : fw;
-    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #f0f0f0;min-height:40px;${bg}">
-        <span style="font-size:0.85em;flex:1;line-height:1.3;${nameStyle}">${name||'TBD'}</span>
-        <span style="font-size:0.9em;font-weight:800;color:#8B0000;min-width:18px;text-align:right;padding-left:6px;">${score!==null&&score!==undefined?score:''}</span>
+    const nameStyle = name ? fw : 'color:transparent;';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;min-height:40px;${bg}">
+        <span style="font-size:0.85em;flex:1;line-height:1.3;${nameStyle}">${name||'—'}</span>
+        <span style="font-size:0.9em;font-weight:800;color:#8B0000;min-width:18px;text-align:right;padding-left:6px;">${score!==null&&score!==undefined&&name?score:''}</span>
     </div>`;
 }
 
 function makeBMatchInline(m) {
-    const boxStyle = 'background:white;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.12);border:2px solid';
+    const boxStyle = 'background:white;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);border:2px solid';
     if (!m) {
         return `<div style="${boxStyle} #eee;">
-            ${makeBTeam('',null,false)}
-            <div style="border-bottom:none;">${makeBTeam('',null,false)}</div>
+            <div style="padding:10px 14px;min-height:40px;border-bottom:1px solid #f0f0f0;"></div>
+            <div style="padding:10px 14px;min-height:40px;"></div>
         </div>`;
     }
     const played = m.played;
     const s1 = parseInt(m.score1), s2 = parseInt(m.score2);
     const w1 = played && s1>s2, w2 = played && s2>s1;
     const border = played ? '#FFD700' : '#e5e5e5';
+    // Takım adı yoksa boş satır göster
+    const t1 = m.team1 || '';
+    const t2 = m.team2 || '';
     return `<div style="${boxStyle} ${border};">
-        ${makeBTeam(m.team1||'', played?s1:null, w1)}
-        <div style="border-top:1px solid #f0f0f0;">${makeBTeam(m.team2||'', played?s2:null, w2)}</div>
+        ${makeBTeam(t1, played&&t1?s1:null, w1)}
+        <div style="border-top:1px solid #f0f0f0;">${makeBTeam(t2, played&&t2?s2:null, w2)}</div>
     </div>`;
 }
 
 function renderBracket(playoffs) {
-    if (!playoffs || !playoffs.length) return '<p style="text-align:center;color:#888;padding:40px;">Henüz üst tur maçı eklenmemiş.</p>';
+    if (!playoffs) playoffs = [];
+    // Playoff yoksa boş 4 çeyrek final, 2 yarı final, 1 final ile bracket göster
+    if (!playoffs.length) {
+        const empty = () => ({ round:'', played:false, team1:'', team2:'', score1:null, score2:null });
+        playoffs = [
+            {...empty(), round:'QF'}, {...empty(), round:'QF'},
+            {...empty(), round:'QF'}, {...empty(), round:'QF'},
+            {...empty(), round:'SF'}, {...empty(), round:'SF'},
+            {...empty(), round:'F'}
+        ];
+    }
 
     const qf = playoffs.filter(m => m.round==='QF');
     const sf = playoffs.filter(m => m.round==='SF');
