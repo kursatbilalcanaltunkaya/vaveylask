@@ -288,10 +288,10 @@ function buildGroupTabs(tabsId, section, groups, hasPlayoffs) {
         `<button class="group-tab ${activeGroups[section]===g?'active':''}" onclick="selectGroup('${section}','${g}')">${g} Grubu</button>`
     ).join('');
 
-    // Sadece fikstür sekmesinde ve playoff varsa Final Yolu butonu ekle
-    if (hasPlayoffs && section === 'fikstur') {
+    // Fikstür ve Sonuçlar sekmelerinde Final Yolu butonu
+    if (hasPlayoffs && (section === 'fikstur' || section === 'sonuclar')) {
         html += `<button class="group-tab playoff-tab ${activeGroups[section]==='__playoff__'?'active':''}"
-            onclick="selectGroup('fikstur','__playoff__')">🏆 Final Yolu</button>`;
+            onclick="selectGroup('${section}','__playoff__')">🏆 Final Yolu</button>`;
     }
 
     container.innerHTML = html;
@@ -401,7 +401,14 @@ function renderSection(section, data) {
     }
 
     else if (section === 'sonuclar') {
-        buildGroupTabs('results-group-tabs', section, groups, false);
+        const hasPlayoffsR = (data.playoffs||[]).filter(m=>m.played).length > 0;
+        buildGroupTabs('results-group-tabs', section, groups, hasPlayoffsR);
+
+        // Final Yolu seçiliyse playoff sonuçlarını göster
+        if (activeGroups[section] === '__playoff__') {
+            document.getElementById('results-container').innerHTML = renderPlayoffResults(data.playoffs||[]);
+            return;
+        }
         const played = (data.matches||[]).filter(m => m.group === g && m.played);
         if (!played.length) { document.getElementById('results-container').innerHTML = '<p class="empty-msg">Bu grupta henüz oynanmış maç yok.</p>'; return; }
         document.getElementById('results-container').innerHTML = played.map(m => {
@@ -445,6 +452,46 @@ const ROUNDS = [
 
 
 
+
+function renderPlayoffResults(playoffs) {
+    const played = playoffs.filter(m => m.played);
+    if (!played.length) return '<p style="text-align:center;color:#888;padding:40px;">Henüz oynanmış üst tur maçı yok.</p>';
+
+    const ROUND_ORDER = ['QF','SF','F','TP'];
+    const ROUND_NAMES = { QF:'Çeyrek Final', SF:'Yarı Final', F:'Final', TP:'3. luk Maci' };
+
+    let html = '';
+    ROUND_ORDER.forEach(r => {
+        const ms = played.filter(m => m.round === r);
+        if (!ms.length) return;
+        html += `<div style="margin-bottom:8px;"><span style="background:#8B0000;color:#FFD700;padding:4px 14px;border-radius:6px;font-size:0.82em;font-weight:800;">${ROUND_NAMES[r]}</span></div>`;
+        ms.forEach(m => {
+            const sets = m.sets ? m.sets.split(',').map(s=>s.trim()).filter(Boolean) : [];
+            let leftSets = [], rightSets = [];
+            sets.forEach((s,i) => {
+                const parts = s.split('-');
+                const a=parseInt(parts[0])||0, b=parseInt(parts[1])||0;
+                const box = `<div class="set-box"><span class="set-label">Set ${i+1}</span><span class="set-score">${s}</span></div>`;
+                if (a>=b) leftSets.push(box); else rightSets.push(box);
+            });
+            const lHtml = leftSets.length ? `<div class="sets-grid">${leftSets.join('')}</div>` : '';
+            const rHtml = rightSets.length ? `<div class="sets-grid">${rightSets.join('')}</div>` : '';
+            html += `<div class="result-card" style="margin-bottom:14px;">
+                <div class="result-main">
+                    <span class="result-team">${m.team1||'TBD'}</span>
+                    <span class="result-score">${m.score1} – ${m.score2}</span>
+                    <span class="result-team right">${m.team2||'TBD'}</span>
+                </div>
+                ${sets.length ? `<div class="sets-row">
+                    <div class="sets-col">${lHtml}</div>
+                    <div style="width:80px;flex-shrink:0;"></div>
+                    <div class="sets-col sets-col-right">${rHtml}</div>
+                </div>` : ''}
+            </div>`;
+        });
+    });
+    return html;
+}
 
 function makeBTeam(name, score, isWinner) {
     const bg = isWinner ? 'background:rgba(255,215,0,0.25);' : '';
