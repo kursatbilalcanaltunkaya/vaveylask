@@ -24,11 +24,11 @@
         }
         .login-container h2 { color: #8B0000; text-align: center; margin-bottom: 30px; }
 
-        .admin-container { display: none; max-width: 1200px; margin: 0 auto; }
+        .admin-container { display: none; max-width: 1200px; margin: 0 auto; width: 100%; }
 
         .admin-header {
             background: white;
-            padding: 20px;
+            padding: 20px 25px;
             border-radius: 15px;
             margin-bottom: 20px;
             display: flex;
@@ -37,7 +37,7 @@
         }
         .admin-header h1 { color: #8B0000; }
 
-        .admin-content { background: white; padding: 30px; border-radius: 15px; }
+        .admin-content { background: white; padding: 25px; border-radius: 0 0 15px 15px; overflow: hidden; }
 
         .form-group { margin-bottom: 20px; }
         label { display: block; color: #333; font-weight: 600; margin-bottom: 8px; }
@@ -151,12 +151,13 @@
         .main-tabs {
             display: flex; gap: 0; margin-bottom: 0;
             border-bottom: 3px solid #FFD700;
+            border-radius: 10px 10px 0 0;
+            overflow: hidden;
         }
         .main-tab {
             background: #f0f0f0; border: none; padding: 14px 30px;
             font-size: 1.05em; font-weight: bold; cursor: pointer;
-            color: #666; transition: all 0.2s; border-radius: 10px 10px 0 0;
-            margin-right: 4px;
+            color: #666; transition: all 0.2s; flex: 1;
         }
         .main-tab:hover { background: #e0e0e0; }
         .main-tab.active { background: #8B0000; color: #FFD700; }
@@ -1031,7 +1032,10 @@
         return database.ref('turnuva/playoffs').once('value').then(snap => {
             const d = snap.val();
             if (!d) return [];
-            return Array.isArray(d) ? d : Object.values(d);
+            // Firebase objeyi numeric key'li objeye çevirebilir, array'e çevir
+            if (Array.isArray(d)) return d;
+            // Obje ise değerleri al, null olanları filtrele
+            return Object.values(d).filter(v => v != null);
         });
     }
 
