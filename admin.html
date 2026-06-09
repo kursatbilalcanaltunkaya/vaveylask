@@ -677,7 +677,6 @@
             sel.innerHTML = `
                 <option value="">Seçiniz</option>
                 <optgroup label="── Üst Tur ──">
-                    <option value="__QF__"${cur==='__QF__'?' selected':''}>🏆 Çeyrek Final</option>
                     <option value="__SF__"${cur==='__SF__'?' selected':''}>🏆 Yarı Final</option>
                     <option value="__F__"${cur==='__F__'?' selected':''}>🏆 Final</option>
                     <option value="__TP__"${cur==='__TP__'?' selected':''}>🏆 3. luk Maci</option>
@@ -1027,7 +1026,7 @@
             .then(() => console.log('✅ Playoff kaydedildi'));
     }
 
-    const ROUND_ORDER  = ['QF', 'SF', 'F', 'TP'];
+    const ROUND_ORDER  = ['SF', 'F', 'TP'];
 
     function displayPlayoffs() { displayMatches(); }
 
