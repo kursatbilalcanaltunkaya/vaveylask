@@ -540,17 +540,16 @@ function renderBracket(playoffs) {
         const f=fn[0]; champion = parseInt(f.score1)>parseInt(f.score2)?f.team1:f.team2;
     }
 
-    const qfL=[qf[0]||null,qf[1]||null], qfR=[qf[2]||null,qf[3]||null];
     const sfL=sf[0]||null, sfR=sf[1]||null, finalM=fn[0]||null;
 
-    const colStyle = 'flex:1;min-width:150px;display:flex;flex-direction:column;gap:10px;padding:0 6px;';
-    const colCenterStyle = 'flex:1;min-width:160px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:0 6px;';
-    const roundLabel = (txt) => `<div style="text-align:center;font-size:0.72em;font-weight:800;color:#8B0000;text-transform:uppercase;letter-spacing:1px;padding:6px 4px;border-bottom:2px solid #FFD700;margin-bottom:4px;">${txt}</div>`;
+    const col = 'flex:1;min-width:160px;display:flex;flex-direction:column;gap:10px;padding:0 10px;';
+    const colC = 'flex:1;min-width:180px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:0 10px;';
+    const rl = (txt) => `<div style="text-align:center;font-size:0.75em;font-weight:800;color:#8B0000;text-transform:uppercase;letter-spacing:1px;padding:6px 4px;border-bottom:2px solid #FFD700;margin-bottom:6px;">${txt}</div>`;
 
-    const centerBox = `<div style="background:linear-gradient(135deg,#8B0000,#6B0000);border-radius:14px;padding:16px 12px;text-align:center;box-shadow:0 6px 20px rgba(139,0,0,0.3);width:100%;">
-        <div style="font-size:2em;margin-bottom:6px;">🏆</div>
-        <div style="color:#FFD700;font-size:0.72em;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Şampiyon</div>
-        <div style="color:#FFD700;font-size:0.95em;font-weight:800;margin-top:6px;min-height:20px;">${champion||'<span style=\'opacity:0.4;font-style:italic;font-size:0.85em;\'>Bekleniyor</span>'}</div>
+    const centerBox = `<div style="background:linear-gradient(135deg,#8B0000,#6B0000);border-radius:14px;padding:18px 12px;text-align:center;box-shadow:0 6px 20px rgba(139,0,0,0.3);width:100%;">
+        <div style="font-size:2.2em;margin-bottom:6px;">🏆</div>
+        <div style="color:#FFD700;font-size:0.75em;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Şampiyon</div>
+        <div style="color:#FFD700;font-size:1em;font-weight:800;margin-top:8px;min-height:22px;">${champion||'<span style=\'opacity:0.35;font-style:italic;font-size:0.85em;\'>Bekleniyor</span>'}</div>
     </div>`;
 
     let html = `
@@ -558,48 +557,26 @@ function renderBracket(playoffs) {
         <span style="font-size:1.4em;font-weight:800;color:#8B0000;letter-spacing:1px;">🏆 FINAL FOUR</span>
     </div>
     <div style="overflow-x:auto;padding-bottom:10px;">
-    <div style="display:flex;gap:0;align-items:center;min-width:650px;padding:10px 0;">
+    <div style="display:flex;gap:0;align-items:center;min-width:400px;padding:10px 0;">
 
-        <div style="${colStyle}">
-            ${roundLabel('Çeyrek Final')}
-            ${makeBMatchInline(qfL[0])}
-            <div style="height:12px;"></div>
-            ${makeBMatchInline(qfL[1])}
-        </div>
-
-        <div style="color:#FFD700;font-size:1.5em;padding:0 2px;align-self:center;">›</div>
-
-        <div style="${colStyle}">
-            ${roundLabel('Yarı Final')}
-            <div style="height:30px;"></div>
+        <div style="${col}">
+            ${rl('Yarı Final')}
             ${makeBMatchInline(sfL)}
-            <div style="height:30px;"></div>
         </div>
 
-        <div style="color:#FFD700;font-size:1.5em;padding:0 2px;align-self:center;">›</div>
+        <div style="color:#FFD700;font-size:1.5em;padding:0 4px;align-self:center;">›</div>
 
-        <div style="${colCenterStyle}">
-            ${roundLabel('Final')}
+        <div style="${colC}">
+            ${rl('Final')}
             ${centerBox}
-            ${makeBMatchInline(finalM)}
+            <div style="margin-top:8px;width:100%;">${makeBMatchInline(finalM)}</div>
         </div>
 
-        <div style="color:#FFD700;font-size:1.5em;padding:0 2px;align-self:center;">‹</div>
+        <div style="color:#FFD700;font-size:1.5em;padding:0 4px;align-self:center;">‹</div>
 
-        <div style="${colStyle}">
-            ${roundLabel('Yarı Final')}
-            <div style="height:30px;"></div>
+        <div style="${col}">
+            ${rl('Yarı Final')}
             ${makeBMatchInline(sfR)}
-            <div style="height:30px;"></div>
-        </div>
-
-        <div style="color:#FFD700;font-size:1.5em;padding:0 2px;align-self:center;">‹</div>
-
-        <div style="${colStyle}">
-            ${roundLabel('Çeyrek Final')}
-            ${makeBMatchInline(qfR[0])}
-            <div style="height:12px;"></div>
-            ${makeBMatchInline(qfR[1])}
         </div>
 
     </div>
@@ -609,12 +586,14 @@ function renderBracket(playoffs) {
         let third = '';
         if (tp[0].played) { const t=tp[0]; third=parseInt(t.score1)>parseInt(t.score2)?t.team1:t.team2; }
         html += `<div style="margin-top:20px;padding-top:16px;border-top:2px dashed #eee;">
-            <div style="font-size:0.78em;color:#888;font-weight:700;text-align:center;margin-bottom:10px;text-transform:uppercase;">3. luk Maci ${third?'— 3. Olan: '+third:''}</div>
-            <div style="max-width:300px;margin:0 auto;">${makeBMatchInline(tp[0])}</div>
+            <div style="font-size:0.8em;color:#888;font-weight:700;text-align:center;margin-bottom:10px;text-transform:uppercase;">3.lük Maçı ${third?'— 3. Olan: '+third:''}</div>
+            <div style="max-width:320px;margin:0 auto;">${makeBMatchInline(tp[0])}</div>
         </div>`;
     }
 
     return html;
+}
+
 }
 
 function renderAll(data) {
