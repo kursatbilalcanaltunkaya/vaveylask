@@ -288,10 +288,10 @@ function buildGroupTabs(tabsId, section, groups, hasPlayoffs) {
         `<button class="group-tab ${activeGroups[section]===g?'active':''}" onclick="selectGroup('${section}','${g}')">${g} Grubu</button>`
     ).join('');
 
-    // Fikstür ve Sonuçlar sekmelerinde Final Yolu butonu
+    // Fikstür ve Sonuçlar sekmelerinde Final Four butonu
     if (hasPlayoffs && (section === 'fikstur' || section === 'sonuclar')) {
         html += `<button class="group-tab playoff-tab ${activeGroups[section]==='__playoff__'?'active':''}"
-            onclick="selectGroup('${section}','__playoff__')">🏆 Final Yolu</button>`;
+            onclick="selectGroup('${section}','__playoff__')">🏆 Final Four</button>`;
     }
 
     container.innerHTML = html;
@@ -377,7 +377,7 @@ function renderSection(section, data) {
     else if (section === 'fikstur') {
         buildGroupTabs('fixtures-group-tabs', section, groups, true);
 
-        // Final Yolu seçiliyse bracket göster
+        // Final Four seçiliyse bracket göster
         if (activeGroups[section] === '__playoff__') {
             document.getElementById('fixtures-container').innerHTML = renderBracket(data.playoffs||[]);
             return;
@@ -402,7 +402,7 @@ function renderSection(section, data) {
     else if (section === 'sonuclar') {
         buildGroupTabs('results-group-tabs', section, groups, true);
 
-        // Final Yolu seçiliyse playoff sonuçlarını göster
+        // Final Four seçiliyse playoff sonuçlarını göster
         if (activeGroups[section] === '__playoff__') {
             document.getElementById('results-container').innerHTML = renderPlayoffResults(data.playoffs||[]);
             return;
@@ -524,14 +524,12 @@ function makeBMatchInline(m) {
 
 function renderBracket(playoffs) {
     if (!playoffs) playoffs = [];
-    // Playoff yoksa boş 4 çeyrek final, 2 yarı final, 1 final ile bracket göster
+    // Boşsa Final Four şablonu göster: 2 SF + 1 Final + 1 TP
     if (!playoffs.length) {
-        const empty = () => ({ round:'', played:false, team1:'', team2:'', score1:null, score2:null });
+        const empty = (r) => ({ round:r, played:false, team1:'', team2:'', score1:null, score2:null, sets:'' });
         playoffs = [
-            {...empty(), round:'QF'}, {...empty(), round:'QF'},
-            {...empty(), round:'QF'}, {...empty(), round:'QF'},
-            {...empty(), round:'SF'}, {...empty(), round:'SF'},
-            {...empty(), round:'F'}
+            empty('SF'), empty('SF'),
+            empty('F'),  empty('TP')
         ];
     }
 
@@ -560,7 +558,7 @@ function renderBracket(playoffs) {
 
     let html = `
     <div style="text-align:center;margin-bottom:20px;">
-        <span style="font-size:1.4em;font-weight:800;color:#8B0000;letter-spacing:1px;">🏆 FINAL YOLU</span>
+        <span style="font-size:1.4em;font-weight:800;color:#8B0000;letter-spacing:1px;">🏆 FINAL FOUR</span>
     </div>
     <div style="overflow-x:auto;padding-bottom:10px;">
     <div style="display:flex;gap:0;align-items:center;min-width:650px;padding:10px 0;">
