@@ -283,8 +283,7 @@
                         <optgroup label="Grup Aşaması">
                             <option value="__GROUPS__">── Grup seç ──</option>
                         </optgroup>
-                        <optgroup label="Üst Tur">
-                            <option value="__QF__">🏆 Çeyrek Final</option>
+                        <optgroup label="Final Four">
                             <option value="__SF__">🏆 Yarı Final</option>
                             <option value="__F__">🏆 Final</option>
                             <option value="__TP__">🏆 3. luk Maci</option>
@@ -599,7 +598,7 @@
     }
 
     // ─── MAÇLAR ──────────────────────────────────────────────────────────────
-    const ROUND_LABELS = { QF:'Çeyrek Final', SF:'Yarı Final', F:'Final', TP:'3. luk Maci' };
+    const ROUND_LABELS = { SF:'Yarı Final', F:'Final', TP:'3. luk Maci' };
 
     function displayMatches() {
         const container = document.getElementById('matches-list');
@@ -948,23 +947,7 @@
 
                 const emptyMatch = (round) => ({ round, date:'', time:'', venue:'', team1:'', team2:'', score1:null, score2:null, sets:'', played:false });
 
-                if (match.round === 'QF') {
-                    const qfMatches = playoffs.map((m,i) => ({...m,i})).filter(m => m.round === 'QF');
-                    const qfPos = qfMatches.findIndex(m => m.i === idx);
-                    const sfSlot = Math.floor(qfPos / 2); // 0=sol SF, 1=sağ SF
-                    const teamSlot = qfPos % 2;           // 0=team1, 1=team2
-
-                    // SF maçı yoksa otomatik oluştur
-                    let sfMatches = playoffs.map((m,i) => ({...m,i})).filter(m => m.round === 'SF');
-                    while (sfMatches.length <= sfSlot) {
-                        playoffs.push(emptyMatch('SF'));
-                        sfMatches = playoffs.map((m,i) => ({...m,i})).filter(m => m.round === 'SF');
-                    }
-                    const sfIdx = sfMatches[sfSlot].i;
-                    if (teamSlot === 0) playoffs[sfIdx].team1 = winner;
-                    else playoffs[sfIdx].team2 = winner;
-
-                } else if (match.round === 'SF') {
+                if (match.round === 'SF') {
                     const sfMatches = playoffs.map((m,i) => ({...m,i})).filter(m => m.round === 'SF');
                     const sfPos = sfMatches.findIndex(m => m.i === idx);
 
