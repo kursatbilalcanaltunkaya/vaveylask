@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VAVEYLA SPOR KULÜBÜ Voleybol Turnuvası 2026</title>
+    <title>Vaveyla Spor Kulübü Voleybol Turnuvası 2026</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #8B0000 0%, #4a0000 100%); color: #333; min-height: 100vh; padding: 20px; }
@@ -313,7 +313,7 @@ function renderSection(section, data) {
 
     // Joker hesabı (tüm 3.ler arasından en iyi 2)
     const direct = 2;
-    const wildcards = 2;
+    const wildcards = 0;
     const thirds = [];
     groups.forEach(gr => {
         const st = calcStandings(gr, data);
@@ -351,10 +351,10 @@ function renderSection(section, data) {
 
         st.forEach((t, i) => {
             const isDirect = i < direct;
-            const isWild = !isDirect && wildSet.has(t.team);
+            const isWild = false;
             const rc = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'';
-            const qc = isDirect?'qualified-row':isWild?'maybe-row':'';
-            const badge = isDirect?' 🟢':isWild?' 🟡':'';
+            const qc = isDirect?'qualified-row':'';
+            const badge = isDirect?' 🟢':'';
             html += `<tr class="${rc} ${qc}">
                 <td><strong>${i+1}</strong></td>
                 <td>${t.team}${badge}</td>
