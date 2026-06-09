@@ -127,7 +127,7 @@
         @media (max-width: 768px) {
             .admin-link { position: relative; top: 0; right: 0; margin-top: 10px; display: inline-block; }
             h1 { font-size: 1.8em; }
-            .fixture-teams, .result-main { flex-direction: column; align-items: flex-start; }
+            .fixture-teams { flex-direction: column; align-items: flex-start; }
             .fixture-team.right, .result-team.right { text-align: left; }
             .standings-table th, .standings-table td { padding: 9px 6px; font-size: 0.8em; }
         }
@@ -421,19 +421,19 @@ function renderSection(section, data) {
                 if (a >= b) leftSets.push(box); else rightSets.push(box);
             });
 
-            const leftHtml  = leftSets.length  ? `<div class="sets-grid">${leftSets.join('')}</div>` : '';
-            const rightHtml = rightSets.length ? `<div class="sets-grid sets-right">${rightSets.join('')}</div>` : '';
+            const leftHtml  = leftSets.length  ? leftSets.join('') : '';
+            const rightHtml = rightSets.length ? rightSets.join('') : '';
 
             return `<div class="result-card">
-                <div class="result-main">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;">
                     <span class="result-team">${m.team1}</span>
                     <span class="result-score">${m.score1} – ${m.score2}</span>
                     <span class="result-team right">${m.team2}</span>
                 </div>
-                ${setList.length ? `<div class="sets-row">
-                    <div class="sets-col">${leftHtml}</div>
-                    <div style="width:80px;flex-shrink:0;"></div>
-                    <div class="sets-col sets-col-right">${rightHtml}</div>
+                ${setList.length ? `<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:4px;margin-top:8px;">
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;flex:1;">${leftHtml}</div>
+                    <div style="min-width:20px;flex-shrink:0;"></div>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;flex:1;justify-content:flex-end;">${rightHtml}</div>
                 </div>` : ''}
             </div>`;
         }).join('');
