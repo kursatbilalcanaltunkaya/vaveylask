@@ -512,10 +512,19 @@ function makeBMatchInline(m) {
     const s1 = parseInt(m.score1), s2 = parseInt(m.score2);
     const w1 = played && s1>s2, w2 = played && s2>s1;
     const border = played ? '#FFD700' : '#e5e5e5';
-    // Takım adı yoksa boş satır göster
     const t1 = m.team1 || '';
     const t2 = m.team2 || '';
+
+    // Meta bilgi (tarih, saat, salon)
+    const metaParts = [m.date, m.time, m.venue].filter(Boolean);
+    const metaHtml = metaParts.length ? `<div style="background:#f9f9f9;padding:6px 12px;font-size:0.72em;color:#666;border-bottom:1px solid #f0f0f0;display:flex;flex-wrap:wrap;gap:6px;">
+        ${m.date ? `<span>📅 ${m.date}</span>` : ''}
+        ${m.time ? `<span>🕐 ${m.time}</span>` : ''}
+        ${m.venue ? `<span>📍 ${m.venue}</span>` : ''}
+    </div>` : '';
+
     return `<div style="${boxStyle} ${border};">
+        ${metaHtml}
         ${makeBTeam(t1, played&&t1?s1:null, w1)}
         <div style="border-top:1px solid #f0f0f0;">${makeBTeam(t2, played&&t2?s2:null, w2)}</div>
     </div>`;
