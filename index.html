@@ -257,7 +257,8 @@ function getTeams(g, data) {
 function calcStandings(g, data) {
     const st = {};
     getTeams(g, data).forEach(t => { st[t] = { played:0, won:0, lost:0, sw:0, sl:0, pts:0 }; });
-    (data.matches||[]).filter(m => m.group===g && m.played).forEach(m => {
+    const groupMatches = (data.matches||[]).filter(m => m.group===g && m.played);
+    groupMatches.forEach(m => {
         if (!st[m.team1]) st[m.team1] = { played:0, won:0, lost:0, sw:0, sl:0, pts:0 };
         if (!st[m.team2]) st[m.team2] = { played:0, won:0, lost:0, sw:0, sl:0, pts:0 };
         const p = volleyPts(m.score1, m.score2);
@@ -269,9 +270,49 @@ function calcStandings(g, data) {
         if (s1 > s2) { st[m.team1].won++; st[m.team2].lost++; }
         else { st[m.team2].won++; st[m.team1].lost++; }
     });
-    return Object.entries(st)
-        .map(([team, s]) => ({ team, ...s, avg: s.sw - s.sl }))
-        .sort((a, b) => b.pts !== a.pts ? b.pts - a.pts : b.avg - a.avg);
+
+    // Kendi aralarındaki maç sonuçları (tiebreaker için)
+    function getH2H(teamA, teamB) {
+        const h = { pts:{[teamA]:0,[teamB]:0}, sw:{[teamA]:0,[teamB]:0}, sl:{[teamA]:0,[teamB]:0} };
+        groupMatches.filter(m => (m.team1===teamA&&m.team2===teamB)||(m.team1===teamB&&m.team2===teamA)).forEach(m => {
+            const p = volleyPts(m.score1, m.score2);
+            const s1 = parseInt(m.score1), s2 = parseInt(m.score2);
+            if (m.team1===teamA) {
+                h.pts[teamA]+=p.t1; h.pts[teamB]+=p.t2;
+                h.sw[teamA]+=s1; h.sw[teamB]+=s2;
+                h.sl[teamA]+=s2; h.sl[teamB]+=s1;
+            } else {
+                h.pts[teamA]+=p.t2; h.pts[teamB]+=p.t1;
+                h.sw[teamA]+=s2; h.sw[teamB]+=s1;
+                h.sl[teamA]+=s1; h.sl[teamB]+=s2;
+            }
+        });
+        return h;
+    }
+
+    const teams = Object.entries(st).map(([team, s]) => ({
+        team, ...s,
+        avg: s.sw - s.sl,
+        setRatio: s.sl > 0 ? s.sw / s.sl : (s.sw > 0 ? 999 : 0)
+    }));
+
+    teams.sort((a, b) => {
+        // 1. Puan
+        if (b.pts !== a.pts) return b.pts - a.pts;
+        // 2. Kazanılan maç sayısı
+        if (b.won !== a.won) return b.won - a.won;
+        // 3. Set oranı (sw/sl)
+        if (Math.abs(b.setRatio - a.setRatio) > 0.0001) return b.setRatio - a.setRatio;
+        // 4. Karşılıklı maç puanı (h2h)
+        const h = getH2H(a.team, b.team);
+        if (h.pts[b.team] !== h.pts[a.team]) return h.pts[b.team] - h.pts[a.team];
+        // 5. Karşılıklı set oranı
+        const hrA = h.sl[a.team] > 0 ? h.sw[a.team]/h.sl[a.team] : (h.sw[a.team] > 0 ? 999 : 0);
+        const hrB = h.sl[b.team] > 0 ? h.sw[b.team]/h.sl[b.team] : (h.sw[b.team] > 0 ? 999 : 0);
+        return hrB - hrA;
+    });
+
+    return teams;
 }
 
 // Grup sekmeleri oluştur
