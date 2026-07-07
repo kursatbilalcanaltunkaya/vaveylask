@@ -455,6 +455,25 @@
       </div>
 
       <!-- ─── AİDAT ──────────────────────────────────────── -->
+      <!-- ─── İSTATİSTİK ─────────────────────────────────────── -->
+      <div id="screen-istatistik" class="screen">
+        <div class="panel" style="margin-bottom:16px;">
+          <div class="panel-header">
+            <div class="panel-title">Yoklama İstatistikleri</div>
+            <div class="toolbar">
+              <select class="filter" id="ist-grup" onchange="loadIstatistik()">
+                <option value="">Grup seçin...</option>
+              </select>
+              <select class="filter" id="ist-ay" onchange="loadIstatistik()"></select>
+            </div>
+          </div>
+          <div id="ist-ozet" style="padding:16px 20px;border-bottom:1px solid var(--border);display:none;"></div>
+        </div>
+        <div id="ist-body">
+          <div class="empty"><span class="icon">📊</span><p>Grup ve ay seçerek istatistikleri görün.</p></div>
+        </div>
+      </div>
+
       <div id="screen-aidat" class="screen">
         <div class="panel">
           <div class="panel-header">
