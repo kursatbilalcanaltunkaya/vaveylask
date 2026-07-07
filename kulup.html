@@ -1186,8 +1186,14 @@ async function loadAidat() {
   ).join('');
 
   const tbody = document.getElementById('aidat-tbody');
+  // Her sporcunun durumunu normalize et ve filtrele
   const filteredAidat = filterDurum
-    ? aktifler.filter(s => (kayitlar[s.id]?.durum || 'odemedi') === filterDurum)
+    ? aktifler.filter(s => {
+        const k = kayitlar[s.id] || {};
+        const sporcuDurum = (k.durum || 'odemedi').trim().toLowerCase();
+        const aranan = filterDurum.trim().toLowerCase();
+        return sporcuDurum === aranan;
+      })
     : aktifler;
 
   tbody.innerHTML = filteredAidat.map(s => {
