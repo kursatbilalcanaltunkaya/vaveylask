@@ -1308,15 +1308,19 @@ async function loadIstatistik() {
   // Her sporcu için istatistik hesapla
   const sporcuStats = liste.map(s => {
     let geldi = 0, gelmedi = 0, isaretlenmemis = 0;
-    ayGunler.forEach(gun => {
+    const gunDetay = []; // { tarih, durum }
+    ayGunler.sort().forEach(gun => {
       const val = tumYoklama[gun]?.[s.id];
-      if (val === true)  geldi++;
-      else if (val === false) gelmedi++;
-      else isaretlenmemis++;
+      // Gun formatı: YYYYMMDD → güzel tarih
+      const y = gun.substring(0,4), m = gun.substring(4,6), d = gun.substring(6,8);
+      const tarihStr = d + '.' + m + '.' + y;
+      if (val === true)       { geldi++; gunDetay.push({ tarih: tarihStr, durum: 'geldi' }); }
+      else if (val === false) { gelmedi++; gunDetay.push({ tarih: tarihStr, durum: 'gelmedi' }); }
+      else                    { isaretlenmemis++; }
     });
     const toplam = geldi + gelmedi;
     const yuzde = toplam > 0 ? Math.round((geldi / toplam) * 100) : null;
-    return { ...s, geldi, gelmedi, isaretlenmemis, toplam, yuzde };
+    return { ...s, geldi, gelmedi, isaretlenmemis, toplam, yuzde, gunDetay };
   }).sort((a, b) => (b.yuzde ?? -1) - (a.yuzde ?? -1));
 
   // Özet
@@ -1366,8 +1370,18 @@ async function loadIstatistik() {
               : pct >= 80 ? `<span class="badge badge-green">İyi</span>`
               : pct >= 60 ? `<span class="badge badge-orange" style="background:#FEF3C7;color:#92400E;">Orta</span>`
               : `<span class="badge badge-red">Düşük</span>`;
-            return `<tr>
-              <td><div class="cell-name"><div class="avatar">${(s.ad||'?')[0]}</div><span style="font-weight:500;">${s.ad}</span></div></td>
+            const detayId = 'detay-' + s.id;
+            const detayHtml = s.gunDetay.map(g =>
+              `<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:0.75em;font-weight:500;margin:2px;
+                background:${g.durum==='geldi'?'#D1FAE5':'#FEE2E2'};color:${g.durum==='geldi'?'#065F46':'#991B1B'};">
+                ${g.durum==='geldi'?'✓':'✗'} ${g.tarih}
+              </span>`
+            ).join('');
+            return `<tr style="cursor:pointer;" onclick="toggleDetay('${detayId}')">
+              <td><div class="cell-name"><div class="avatar">${(s.ad||'?')[0]}</div>
+                <div><div style="font-weight:500;">${s.ad}</div>
+                <div style="font-size:0.72em;color:var(--muted);">detay için tıkla</div></div>
+              </div></td>
               <td style="color:var(--green);font-weight:600;">✓ ${s.geldi}</td>
               <td style="color:#b91c1c;font-weight:600;">✗ ${s.gelmedi}</td>
               <td>${s.toplam}</td>
@@ -1380,12 +1394,22 @@ async function loadIstatistik() {
                 </div>
               </td>
               <td>${badge}</td>
+            </tr>
+            <tr id="${detayId}" style="display:none;">
+              <td colspan="6" style="background:#FAFAF8;padding:10px 16px;">
+                ${detayHtml || '<span style="color:var(--muted);font-size:0.82em;">Bu ay yoklama kaydı yok.</span>'}
+              </td>
             </tr>`;
           }).join('')}
         </tbody>
       </table>
     </div>
   </div>`;
+}
+
+function toggleDetay(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = el.style.display === 'none' ? 'table-row' : 'none';
 }
 
 async function updateAidat(ay, sporcuId, field, value) {
