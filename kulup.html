@@ -462,6 +462,27 @@
               </select>
             </div>
           </div>
+          <div style="padding:12px 20px;border-bottom:1px solid var(--border);background:#FAFAF8;">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+              <select class="filter" id="filter-aidat-durum" onchange="loadAidat()" style="min-width:180px;">
+                <option value="">Tüm Durumlar</option>
+                <option value="odedi">✅ Ödedi</option>
+                <option value="ay-orta">🕐 Ayın Ortasında Geldi</option>
+                <option value="indirimli">💙 İndirimli Ödedi</option>
+                <option value="eksik">🟠 Eksik Ödedi</option>
+                <option value="bu-ay-odemeyecek">🔵 Bu Ay Ödemeyecek</option>
+                <option value="odemedi">🔴 Ödemedi</option>
+                <option value="odeyemeyecek">⚫ Ödeyemeyecek</option>
+              </select>
+              <div class="search-box" style="min-width:200px;">
+                <span>🔍</span>
+                <input type="text" id="aidat-search" placeholder="Sporcu ara..." oninput="loadAidat()">
+              </div>
+              <span style="font-size:0.78em;color:var(--muted);margin-left:4px;">
+                💡 Aylar otomatik güncellenir — her yeni ay açılır menüde görünür
+              </span>
+            </div>
+          </div>
           <div id="aidat-ozet" style="padding:16px 20px;border-bottom:1px solid var(--border);"></div>
           <div class="table-wrap">
             <table>
@@ -1141,14 +1162,19 @@ async function loadAidat() {
   const grup = document.getElementById('aidat-grup').value;
   if (!ay) return;
 
-  const aktifler = sporcular.filter(s => s.durum !== 'Pasif' && (!grup || s.grup === grup));
+  const filterDurum = document.getElementById('filter-aidat-durum')?.value || '';
+  const searchQ = (document.getElementById('aidat-search')?.value || '').toLowerCase();
+  let aktifler = sporcular.filter(s => s.durum !== 'Pasif' && (!grup || s.grup === grup));
+  if (searchQ) aktifler = aktifler.filter(s => (s.ad||'').toLowerCase().includes(searchQ));
   const snap = await db.ref('kulup/aidat/' + ay.replace('-','')).once('value');
   const kayitlar = snap.val() || {};
 
   // İstatistik özeti
+  // Tüm aktifler üzerinden istatistik (filtre bağımsız)
   const odedi    = aktifler.filter(s => kayitlar[s.id]?.durum === 'odedi').length;
   const odemedi  = aktifler.filter(s => !kayitlar[s.id]?.durum || kayitlar[s.id]?.durum === 'odemedi').length;
   const diger    = aktifler.length - odedi - odemedi;
+  const goster   = filterDurum ? filteredAidat.length : aktifler.length;
 
   const panel = document.getElementById('aidat-ozet');
   if (panel) panel.innerHTML = `
@@ -1157,14 +1183,19 @@ async function loadAidat() {
       <div class="stat-card red"><div class="stat-value">${odemedi}</div><div class="stat-label">Ödemedi</div></div>
       <div class="stat-card orange"><div class="stat-value">${diger}</div><div class="stat-label">Diğer Durum</div></div>
       <div class="stat-card"><div class="stat-value">${aktifler.length}</div><div class="stat-label">Toplam Sporcu</div></div>
-    </div>`;
+    </div>
+    ${filterDurum ? `<div style="margin-top:10px;font-size:0.82em;color:var(--muted);">Filtre aktif: <strong>${goster}</strong> sporcu gösteriliyor</div>` : ''}`;
 
   const durumOpts = AIDAT_DURUMLAR.map(d =>
     `<option value="${d.val}">${d.label}</option>`
   ).join('');
 
   const tbody = document.getElementById('aidat-tbody');
-  tbody.innerHTML = aktifler.map(s => {
+  const filteredAidat = filterDurum
+    ? aktifler.filter(s => (kayitlar[s.id]?.durum || 'odemedi') === filterDurum)
+    : aktifler;
+
+  tbody.innerHTML = filteredAidat.map(s => {
     const k = kayitlar[s.id] || {};
     const durum = k.durum || 'odemedi';
     return `<tr>
@@ -1193,7 +1224,7 @@ async function loadAidat() {
       <td><input type="text" value="${k.not||''}" placeholder="Not..." onblur="updateAidat('${ay}','${s.id}','not',this.value)"
           style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;width:140px;background:var(--bg);"></td>
     </tr>`;
-  }).join('') || `<tr><td colspan="8"><div class="empty"><span class="icon">💰</span><p>Sporcu bulunamadı.</p></div></td></tr>`;
+  }).join('') || `<tr><td colspan="8"><div class="empty"><span class="icon">💰</span><p>${filterDurum ? 'Bu filtreye uyan sporcu yok.' : 'Sporcu bulunamadı.'}</p></div></td></tr>`;
 }
 
 async function updateAidat(ay, sporcuId, field, value) {
