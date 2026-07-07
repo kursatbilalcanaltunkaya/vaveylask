@@ -273,15 +273,6 @@
   .page-btn:hover { background: var(--bg); }
   .page-btn.active { background: var(--red); color: #fff; border-color: var(--red); }
 
-  /* ── Aidat filtre butonları ─────────────────────────────── */
-  .af-btn {
-    padding: 5px 12px; border-radius: 20px; border: 1.5px solid var(--border);
-    background: white; color: var(--muted); font-size: 0.78em; font-weight: 500;
-    cursor: pointer; transition: all 0.15s; white-space: nowrap;
-  }
-  .af-btn:hover { border-color: #ccc; color: var(--text); }
-  .af-btn.af-active { background: var(--ab, var(--red)); color: var(--ac, white); border-color: transparent; font-weight: 600; }
-  .af-btn:first-child.af-active { background: var(--red); color: white; }
 
   /* ── Toast ───────────────────────────────────────────── */
   .toast {
@@ -470,24 +461,23 @@
               <select class="filter" id="aidat-grup" onchange="loadAidat()">
                 <option value="">Tüm Gruplar</option>
               </select>
+              <select class="filter" id="filter-aidat-durum" onchange="loadAidat()">
+                <option value="">Tüm Ödeme Durumu</option>
+                <option value="odedi">Ödedi</option>
+                <option value="ay-orta">Ayın Ortasında Geldi</option>
+                <option value="indirimli">İndirimli Ödedi</option>
+                <option value="eksik">Eksik Ödedi</option>
+                <option value="bu-ay-odemeyecek">Bu Ay Ödemeyecek</option>
+                <option value="odemedi">Ödemedi</option>
+                <option value="odeyemeyecek">Ödeyemeyecek</option>
+              </select>
               <div class="search-box">
                 <span>🔍</span>
                 <input type="text" id="aidat-search" placeholder="Sporcu ara..." oninput="loadAidat()">
               </div>
             </div>
           </div>
-          <!-- Durum filtre chip'leri -->
-          <div style="padding:10px 20px;border-bottom:1px solid var(--border);background:#FAFAF8;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
-            <button onclick="setAidatDurum('')"    id="af-btn-" class="af-btn af-active">Tümü</button>
-            <button onclick="setAidatDurum('odedi')"             id="af-btn-odedi"              class="af-btn" style="--ac:#065F46;--ab:#D1FAE5;">✅ Ödedi</button>
-            <button onclick="setAidatDurum('ay-orta')"           id="af-btn-ay-orta"            class="af-btn" style="--ac:#92400E;--ab:#FEF3C7;">🕐 Ay Ortası</button>
-            <button onclick="setAidatDurum('indirimli')"         id="af-btn-indirimli"          class="af-btn" style="--ac:#1E40AF;--ab:#DBEAFE;">💙 İndirimli</button>
-            <button onclick="setAidatDurum('eksik')"             id="af-btn-eksik"              class="af-btn" style="--ac:#9A3412;--ab:#FFEDD5;">🟠 Eksik</button>
-            <button onclick="setAidatDurum('bu-ay-odemeyecek')"  id="af-btn-bu-ay-odemeyecek"  class="af-btn" style="--ac:#1E3A5F;--ab:#BFDBFE;">🔵 Bu Ay Yok</button>
-            <button onclick="setAidatDurum('odemedi')"           id="af-btn-odemedi"            class="af-btn" style="--ac:#991B1B;--ab:#FEE2E2;">🔴 Ödemedi</button>
-            <button onclick="setAidatDurum('odeyemeyecek')"      id="af-btn-odeyemeyecek"       class="af-btn" style="--ac:#374151;--ab:#E5E7EB;">⚫ Ödeyemez</button>
-            <input type="hidden" id="filter-aidat-durum" value="">
-          </div>
+
           <div id="aidat-ozet" style="padding:16px 20px;border-bottom:1px solid var(--border);"></div>
           <div class="table-wrap">
             <table>
@@ -1160,14 +1150,6 @@ const AIDAT_DURUMLAR = [
 function aidatBadge(durum) {
   const d = AIDAT_DURUMLAR.find(x => x.val === durum) || AIDAT_DURUMLAR[0];
   return `<span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75em;font-weight:600;background:${d.bg};color:${d.color};">${d.label}</span>`;
-}
-
-function setAidatDurum(val) {
-  document.getElementById('filter-aidat-durum').value = val;
-  document.querySelectorAll('.af-btn').forEach(b => b.classList.remove('af-active'));
-  const btn = document.getElementById('af-btn-' + val);
-  if (btn) btn.classList.add('af-active');
-  loadAidat();
 }
 
 async function loadAidat() {
