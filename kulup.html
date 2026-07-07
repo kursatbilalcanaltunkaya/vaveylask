@@ -1164,12 +1164,19 @@ async function loadAidat() {
   const snap = await db.ref('kulup/aidat/' + ay.replace('-','')).once('value');
   const kayitlar = snap.val() || {};
 
-  // İstatistik özeti
-  // Tüm aktifler üzerinden istatistik (filtre bağımsız)
-  const odedi    = aktifler.filter(s => kayitlar[s.id]?.durum === 'odedi').length;
-  const odemedi  = aktifler.filter(s => !kayitlar[s.id]?.durum || kayitlar[s.id]?.durum === 'odemedi').length;
-  const diger    = aktifler.length - odedi - odemedi;
-  const goster   = filterDurum ? filteredAidat.length : aktifler.length;
+  // Önce filtrele, sonra istatistik
+  const filteredAidat = filterDurum
+    ? aktifler.filter(s => {
+        const k = kayitlar[s.id] || {};
+        const sporcuDurum = (k.durum || 'odemedi').trim().toLowerCase();
+        return sporcuDurum === filterDurum.trim().toLowerCase();
+      })
+    : aktifler;
+
+  // İstatistik (filtre bağımsız, tüm aktifler)
+  const odedi   = aktifler.filter(s => (kayitlar[s.id]?.durum||'') === 'odedi').length;
+  const odemedi = aktifler.filter(s => !kayitlar[s.id]?.durum || kayitlar[s.id]?.durum === 'odemedi').length;
+  const diger   = aktifler.length - odedi - odemedi;
 
   const panel = document.getElementById('aidat-ozet');
   if (panel) panel.innerHTML = `
@@ -1179,22 +1186,13 @@ async function loadAidat() {
       <div class="stat-card orange"><div class="stat-value">${diger}</div><div class="stat-label">Diğer Durum</div></div>
       <div class="stat-card"><div class="stat-value">${aktifler.length}</div><div class="stat-label">Toplam Sporcu</div></div>
     </div>
-    ${filterDurum ? `<div style="margin-top:10px;font-size:0.82em;color:var(--muted);">Filtre aktif: <strong>${goster}</strong> sporcu gösteriliyor</div>` : ''}`;
+    ${filterDurum ? `<div style="margin-top:10px;font-size:0.82em;color:var(--muted);">Filtre: <strong>${filteredAidat.length}</strong> sporcu gösteriliyor</div>` : ''}`;
 
   const durumOpts = AIDAT_DURUMLAR.map(d =>
     `<option value="${d.val}">${d.label}</option>`
   ).join('');
 
   const tbody = document.getElementById('aidat-tbody');
-  // Her sporcunun durumunu normalize et ve filtrele
-  const filteredAidat = filterDurum
-    ? aktifler.filter(s => {
-        const k = kayitlar[s.id] || {};
-        const sporcuDurum = (k.durum || 'odemedi').trim().toLowerCase();
-        const aranan = filterDurum.trim().toLowerCase();
-        return sporcuDurum === aranan;
-      })
-    : aktifler;
 
   tbody.innerHTML = filteredAidat.map(s => {
     const k = kayitlar[s.id] || {};
