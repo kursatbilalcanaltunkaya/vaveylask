@@ -462,18 +462,19 @@
               </select>
             </div>
           </div>
+          <div id="aidat-ozet" style="padding:16px 20px;border-bottom:1px solid var(--border);"></div>
           <div class="table-wrap">
             <table>
               <thead>
                 <tr>
                   <th>Sporcu</th>
                   <th>Grup</th>
-                  <th>Aidat Tutarı</th>
+                  <th>Aidat (₺)</th>
                   <th>Ödeme Durumu</th>
-                  <th>Ödeme Tarihi</th>
+                  <th>Ödeme Tarihi & Saati</th>
                   <th>Ödeyenin Adı</th>
+                  <th>Ödenen Tutar (₺)</th>
                   <th>Notlar</th>
-                  <th></th>
                 </tr>
               </thead>
               <tbody id="aidat-tbody">
@@ -1120,6 +1121,21 @@ async function saveYoklama(grupKey, key, grupAdi) {
 /* ═══════════════════════════════════════════════════════
    AİDAT
 ═══════════════════════════════════════════════════════ */
+const AIDAT_DURUMLAR = [
+  { val: 'odemedi',         label: 'Ödemedi',               color: '#6B3F3F', bg: '#F5E6E6' },
+  { val: 'odedi',           label: 'Ödedi',                 color: '#065F46', bg: '#D1FAE5' },
+  { val: 'ay-orta',         label: 'Ayın Ortasında Geldi',  color: '#92400E', bg: '#FEF3C7' },
+  { val: 'indirimli',       label: 'İndirimli Ödedi',       color: '#1E40AF', bg: '#DBEAFE' },
+  { val: 'eksik',           label: 'Eksik Ödedi',           color: '#9A3412', bg: '#FFEDD5' },
+  { val: 'bu-ay-odemeyecek',label: 'Bu Ay Ödemeyecek',     color: '#1E3A5F', bg: '#BFDBFE' },
+  { val: 'odeyemeyecek',    label: 'Ödeyemeyecek',          color: '#374151', bg: '#E5E7EB' },
+];
+
+function aidatBadge(durum) {
+  const d = AIDAT_DURUMLAR.find(x => x.val === durum) || AIDAT_DURUMLAR[0];
+  return `<span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75em;font-weight:600;background:${d.bg};color:${d.color};">${d.label}</span>`;
+}
+
 async function loadAidat() {
   const ay   = document.getElementById('aidat-ay').value;
   const grup = document.getElementById('aidat-grup').value;
@@ -1129,31 +1145,53 @@ async function loadAidat() {
   const snap = await db.ref('kulup/aidat/' + ay.replace('-','')).once('value');
   const kayitlar = snap.val() || {};
 
+  // İstatistik özeti
+  const odedi    = aktifler.filter(s => kayitlar[s.id]?.durum === 'odedi').length;
+  const odemedi  = aktifler.filter(s => !kayitlar[s.id]?.durum || kayitlar[s.id]?.durum === 'odemedi').length;
+  const diger    = aktifler.length - odedi - odemedi;
+
+  const panel = document.getElementById('aidat-ozet');
+  if (panel) panel.innerHTML = `
+    <div class="stat-grid" style="margin-bottom:0;">
+      <div class="stat-card green"><div class="stat-value">${odedi}</div><div class="stat-label">Ödedi</div></div>
+      <div class="stat-card red"><div class="stat-value">${odemedi}</div><div class="stat-label">Ödemedi</div></div>
+      <div class="stat-card orange"><div class="stat-value">${diger}</div><div class="stat-label">Diğer Durum</div></div>
+      <div class="stat-card"><div class="stat-value">${aktifler.length}</div><div class="stat-label">Toplam Sporcu</div></div>
+    </div>`;
+
+  const durumOpts = AIDAT_DURUMLAR.map(d =>
+    `<option value="${d.val}">${d.label}</option>`
+  ).join('');
+
   const tbody = document.getElementById('aidat-tbody');
   tbody.innerHTML = aktifler.map(s => {
     const k = kayitlar[s.id] || {};
-    const odendi = k.odendi || false;
-    const badge = odendi
-      ? `<span class="badge badge-green">Ödedi</span>`
-      : `<span class="badge badge-red">Ödemedi</span>`;
+    const durum = k.durum || 'odemedi';
     return `<tr>
-      <td><div class="cell-name"><div class="avatar">${(s.ad||'?')[0]}</div>${s.ad}</div></td>
+      <td><div class="cell-name"><div class="avatar">${(s.ad||'?')[0]}</div><span style="font-weight:500;">${s.ad}</span></div></td>
       <td style="font-size:0.8em;color:var(--muted);">${s.grup||'—'}</td>
-      <td>${s.aidat?'₺'+s.aidat:'—'}</td>
+      <td style="font-weight:600;">${s.aidat?'₺'+s.aidat:'—'}</td>
       <td>
-        <select onchange="updateAidat('${ay}','${s.id}','odendi',this.value==='true')"
-          style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;background:var(--bg);">
-          <option value="false" ${!odendi?'selected':''}>Ödemedi</option>
-          <option value="true"  ${odendi?'selected':''}>Ödedi</option>
+        <select onchange="updateAidat('${ay}','${s.id}','durum',this.value);this.closest('tr').querySelector('.durum-badge').innerHTML=aidatBadge(this.value);"
+          style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;background:var(--bg);max-width:170px;">
+          ${AIDAT_DURUMLAR.map(d => `<option value="${d.val}" ${durum===d.val?'selected':''}>${d.label}</option>`).join('')}
         </select>
+        <div class="durum-badge" style="margin-top:4px;">${aidatBadge(durum)}</div>
       </td>
-      <td><input type="date" value="${k.tarih||''}" onchange="updateAidat('${ay}','${s.id}','tarih',this.value)"
-          style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;background:var(--bg);"></td>
+      <td>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <input type="date" value="${k.tarih||''}" onchange="updateAidat('${ay}','${s.id}','tarih',this.value)"
+            style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;background:var(--bg);">
+          <input type="time" value="${k.saat||''}" onchange="updateAidat('${ay}','${s.id}','saat',this.value)"
+            style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;background:var(--bg);">
+        </div>
+      </td>
       <td><input type="text" value="${k.odeyen||''}" placeholder="Ödeyenin adı" onblur="updateAidat('${ay}','${s.id}','odeyen',this.value)"
           style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;width:140px;background:var(--bg);"></td>
+      <td><input type="number" value="${k.tutar||''}" placeholder="0" onblur="updateAidat('${ay}','${s.id}','tutar',this.value)"
+          style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;width:90px;background:var(--bg);"></td>
       <td><input type="text" value="${k.not||''}" placeholder="Not..." onblur="updateAidat('${ay}','${s.id}','not',this.value)"
           style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;width:140px;background:var(--bg);"></td>
-      <td>${badge}</td>
     </tr>`;
   }).join('') || `<tr><td colspan="8"><div class="empty"><span class="icon">💰</span><p>Sporcu bulunamadı.</p></div></td></tr>`;
 }
