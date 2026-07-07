@@ -815,8 +815,8 @@ function fillIstDropdowns() {
   }
   const ia = document.getElementById('ist-ay');
   if (ia) {
-    ia.innerHTML = '';
-    for (let i = 0; i < 6; i++) {
+    ia.innerHTML = '<option value="2026">📅 Tüm 2026</option>';
+    for (let i = 0; i < 12; i++) {
       const d = new Date(); d.setMonth(d.getMonth() - i);
       const val = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
       const label = d.toLocaleDateString('tr-TR',{month:'long',year:'numeric'});
@@ -1286,14 +1286,16 @@ async function loadIstatistik() {
 
   body.innerHTML = `<div class="loading">⏳ Yükleniyor...</div>`;
 
-  // Seçili aydaki tüm günleri bul
-  const [yil, ayNo] = ay.split('-').map(Number);
+  // Tüm yıl mı, tek ay mı?
+  const tumYil = !ay.includes('-');
+  const yil = tumYil ? parseInt(ay) : parseInt(ay.split('-')[0]);
+  const ayNo = tumYil ? null : parseInt(ay.split('-')[1]);
   const grupKey = grup.replace(/[^a-zA-Z0-9]/g,'_');
   const snap = await db.ref(`kulup/yoklama/${grupKey}`).once('value');
   const tumYoklama = snap.val() || {};
 
-  // Ay içindeki günleri filtrele
-  const ayStr = ay.replace('-',''); // 202507
+  // Günleri filtrele
+  const ayStr = tumYil ? String(yil) : ay.replace('-','');
   const ayGunler = Object.keys(tumYoklama).filter(k => k.startsWith(ayStr));
   const toplamGun = ayGunler.length;
 
@@ -1329,12 +1331,31 @@ async function loadIstatistik() {
     : 0;
   const riskli = sporcuStats.filter(s => s.yuzde !== null && s.yuzde < 70).length;
 
+  const dusuk = sporcuStats.filter(s => s.yuzde !== null && s.yuzde < 60);
+
   ozet.style.display = 'block';
   ozet.innerHTML = `<div class="stat-grid" style="margin-bottom:0;">
     <div class="stat-card"><div class="stat-value">${toplamGun}</div><div class="stat-label">Antrenman Günü</div></div>
     <div class="stat-card green"><div class="stat-value">%${ortYuzde}</div><div class="stat-label">Ortalama Devam</div></div>
-    <div class="stat-card red"><div class="stat-value">${riskli}</div><div class="stat-label">%70 Altı Sporcu</div></div>
+    <div class="stat-card red" style="cursor:pointer;" onclick="toggleDusukListesi()" title="Tıkla: %60 altındaki sporcuları gör">
+      <div class="stat-value">${dusuk.length}</div>
+      <div class="stat-label">Düşük Devam (%60↓) ↗</div>
+    </div>
     <div class="stat-card"><div class="stat-value">${liste.length}</div><div class="stat-label">Toplam Sporcu</div></div>
+  </div>
+  <div id="dusuk-listesi" style="display:none;margin-top:12px;background:#FEF2F2;border-radius:8px;padding:12px 14px;border:1px solid #FECACA;">
+    <div style="font-size:0.8em;font-weight:600;color:#991B1B;margin-bottom:8px;">🔴 %60 Altında Kalan Sporcular</div>
+    ${dusuk.length ? dusuk.map(s =>
+      `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #FECACA;font-size:0.83em;">
+        <span style="font-weight:500;">${s.ad}</span>
+        <span style="color:#b91c1c;font-weight:700;">%${s.yuzde} (${s.geldi}/${s.toplam} gün)</span>
+      </div>`
+    ).join('') : '<span style="font-size:0.82em;color:#666;">Henüz %60 altında sporcu yok 🎉</span>'}
+  </div>
+  <div style="margin-top:10px;padding:8px 12px;background:#f8f9fa;border-radius:8px;font-size:0.75em;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;">
+    <span>🟢 <strong>%80+</strong> → İyi</span>
+    <span>🟡 <strong>%60–79</strong> → Orta</span>
+    <span>🔴 <strong>%60 altı</strong> → Düşük</span>
   </div>`;
 
   if (toplamGun === 0) {
@@ -1346,7 +1367,7 @@ async function loadIstatistik() {
   body.innerHTML = `
   <div class="panel">
     <div class="panel-header">
-      <div class="panel-title">${grup} — ${new Date(yil,ayNo-1).toLocaleDateString('tr-TR',{month:'long',year:'numeric'})}</div>
+      <div class="panel-title">${grup} — ${tumYil ? yil + ' Tüm Yıl' : new Date(yil,ayNo-1).toLocaleDateString('tr-TR',{month:'long',year:'numeric'})}</div>
       <div style="font-size:0.8em;color:var(--muted);">${toplamGun} antrenman günü</div>
     </div>
     <div class="table-wrap">
@@ -1405,6 +1426,11 @@ async function loadIstatistik() {
       </table>
     </div>
   </div>`;
+}
+
+function toggleDusukListesi() {
+  const el = document.getElementById('dusuk-listesi');
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
 function toggleDetay(id) {
