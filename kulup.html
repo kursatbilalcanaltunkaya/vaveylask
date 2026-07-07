@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vaveyla SK — Kulüp Yönetimi</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --red:      #8B0000;
+    --red-soft: #a01010;
+    --gold:     #E8B84B;
+    --bg:       #F7F5F2;
+    --surface:  #FFFFFF;
+    --border:   #E8E4DE;
+    --text:     #1A1A1A;
+    --muted:    #7A7570;
+    --green:    #2D7D46;
+    --orange:   #C45C1A;
+    --radius:   10px;
+    --shadow:   0 1px 4px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05);
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── Sidebar ─────────────────────────────────────────── */
+  .layout { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: 220px;
+    background: var(--red);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh;
+    z-index: 100;
+  }
+
+  .sidebar-brand {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+  }
+  .sidebar-brand .logo { font-size: 1.1em; font-weight: 700; color: var(--gold); letter-spacing: 0.5px; }
+  .sidebar-brand .sub  { font-size: 0.75em; color: rgba(255,255,255,0.55); margin-top: 2px; }
+
+  .nav-section { padding: 12px 12px 4px; }
+  .nav-label   { font-size: 0.68em; font-weight: 600; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; padding: 0 8px; margin-bottom: 4px; }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: 7px;
+    color: rgba(255,255,255,0.75); font-size: 0.88em;
+    cursor: pointer; transition: all 0.15s;
+    border: none; background: none; width: 100%; text-align: left;
+  }
+  .nav-item:hover  { background: rgba(255,255,255,0.1); color: #fff; }
+  .nav-item.active { background: var(--gold); color: var(--red); font-weight: 600; }
+  .nav-item .icon  { font-size: 1em; width: 18px; text-align: center; }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 16px 12px;
+    border-top: 1px solid rgba(255,255,255,0.12);
+  }
+  .user-info { display: flex; align-items: center; gap: 10px; }
+  .user-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--gold); color: var(--red);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8em; font-weight: 700; flex-shrink: 0;
+  }
+  .user-name  { font-size: 0.82em; color: rgba(255,255,255,0.85); font-weight: 500; }
+  .user-role  { font-size: 0.72em; color: rgba(255,255,255,0.45); }
+  .btn-logout {
+    margin-top: 8px; width: 100%; padding: 7px;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.65); border-radius: 6px; cursor: pointer;
+    font-size: 0.8em; transition: all 0.15s;
+  }
+  .btn-logout:hover { background: rgba(255,255,255,0.15); color: #fff; }
+
+  /* ── Main ────────────────────────────────────────────── */
+  .main {
+    margin-left: 220px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .page-title { font-size: 1em; font-weight: 600; color: var(--text); }
+  .topbar-actions { display: flex; align-items: center; gap: 10px; }
+
+  .content { padding: 24px 28px; flex: 1; }
+
+  /* ── Screens ─────────────────────────────────────────── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── Login ───────────────────────────────────────────── */
+  #login-screen {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; background: var(--bg);
+  }
+  .login-card {
+    background: var(--surface); border-radius: 16px;
+    box-shadow: var(--shadow); padding: 40px 36px;
+    width: 360px;
+  }
+  .login-logo { text-align: center; margin-bottom: 28px; }
+  .login-logo .emblem { font-size: 2.4em; display: block; margin-bottom: 8px; }
+  .login-logo h1 { font-size: 1.2em; font-weight: 700; color: var(--red); }
+  .login-logo p  { font-size: 0.8em; color: var(--muted); margin-top: 2px; }
+
+  /* ── Cards / Stats ───────────────────────────────────── */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .stat-card {
+    background: var(--surface); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 18px 20px;
+    border-left: 3px solid var(--gold);
+  }
+  .stat-card.red    { border-left-color: var(--red); }
+  .stat-card.green  { border-left-color: var(--green); }
+  .stat-card.orange { border-left-color: var(--orange); }
+  .stat-value { font-size: 1.8em; font-weight: 700; color: var(--text); line-height: 1; }
+  .stat-label { font-size: 0.78em; color: var(--muted); margin-top: 4px; }
+
+  /* ── Panel / Table ───────────────────────────────────── */
+  .panel {
+    background: var(--surface); border-radius: var(--radius);
+    box-shadow: var(--shadow); overflow: hidden;
+  }
+  .panel-header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  }
+  .panel-title { font-size: 0.92em; font-weight: 600; }
+
+  .toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+  .search-box {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 7px; padding: 6px 12px; min-width: 220px;
+  }
+  .search-box input {
+    border: none; background: none; outline: none; font-size: 0.85em;
+    color: var(--text); width: 100%;
+  }
+  .search-box input::placeholder { color: var(--muted); }
+
+  select.filter {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 7px; padding: 6px 10px; font-size: 0.83em;
+    color: var(--text); outline: none; cursor: pointer;
+  }
+
+  /* ── Buttons ─────────────────────────────────────────── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: 7px; font-size: 0.83em;
+    font-weight: 500; cursor: pointer; border: none; transition: all 0.15s;
+  }
+  .btn-primary   { background: var(--red); color: #fff; }
+  .btn-primary:hover { background: var(--red-soft); }
+  .btn-secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-ghost     { background: none; color: var(--muted); border: none; padding: 4px 8px; }
+  .btn-ghost:hover { color: var(--text); background: var(--bg); }
+  .btn-danger    { background: #fee2e2; color: #b91c1c; }
+  .btn-danger:hover { background: #fecaca; }
+  .btn-sm { padding: 4px 10px; font-size: 0.78em; }
+
+  /* ── Table ───────────────────────────────────────────── */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    padding: 10px 14px; text-align: left; font-size: 0.75em;
+    font-weight: 600; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 0.5px; border-bottom: 1px solid var(--border);
+    background: var(--bg); white-space: nowrap; cursor: pointer;
+  }
+  th:hover { color: var(--text); }
+  td { padding: 11px 14px; border-bottom: 1px solid var(--border); font-size: 0.85em; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #FAFAF8; }
+
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 20px;
+    font-size: 0.75em; font-weight: 500;
+  }
+  .badge-green  { background: #D1FAE5; color: #065F46; }
+  .badge-gray   { background: #F3F4F6; color: #6B7280; }
+  .badge-red    { background: #FEE2E2; color: #991B1B; }
+  .badge-orange { background: #FEF3C7; color: #92400E; }
+
+  .avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--gold); color: var(--red);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.75em; font-weight: 700; flex-shrink: 0;
+  }
+  .cell-name { display: flex; align-items: center; gap: 10px; }
+
+  /* ── Form / Modal ────────────────────────────────────── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.35);
+    display: none; align-items: center; justify-content: center;
+    z-index: 200; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border-radius: 14px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    width: 100%; max-width: 640px; max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal-header {
+    padding: 20px 24px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; background: var(--surface); z-index: 1;
+  }
+  .modal-title { font-size: 0.95em; font-weight: 600; }
+  .modal-body  { padding: 20px 24px; }
+  .modal-footer {
+    padding: 16px 24px; border-top: 1px solid var(--border);
+    display: flex; gap: 8px; justify-content: flex-end;
+    position: sticky; bottom: 0; background: var(--surface);
+  }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-group label { font-size: 0.78em; font-weight: 500; color: var(--muted); }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    border: 1px solid var(--border); border-radius: 7px;
+    padding: 8px 11px; font-size: 0.85em; color: var(--text);
+    background: var(--bg); outline: none; transition: border 0.15s;
+    font-family: inherit;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus { border-color: var(--red); background: #fff; }
+  .form-section { font-size: 0.78em; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin: 18px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); grid-column: 1 / -1; }
+
+  /* ── Pagination ──────────────────────────────────────── */
+  .pagination { display: flex; align-items: center; gap: 6px; padding: 14px 20px; border-top: 1px solid var(--border); }
+  .page-info { font-size: 0.8em; color: var(--muted); margin-right: auto; }
+  .page-btn { width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; font-size: 0.82em; display: flex; align-items: center; justify-content: center; }
+  .page-btn:hover { background: var(--bg); }
+  .page-btn.active { background: var(--red); color: #fff; border-color: var(--red); }
+
+  /* ── Toast ───────────────────────────────────────────── */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: #1A1A1A; color: #fff;
+    padding: 12px 18px; border-radius: 8px;
+    font-size: 0.85em; z-index: 999;
+    transform: translateY(20px); opacity: 0;
+    transition: all 0.25s; pointer-events: none;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { background: var(--green); }
+  .toast.error   { background: #b91c1c; }
+
+  /* ── Empty state ─────────────────────────────────────── */
+  .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty .icon { font-size: 2.5em; margin-bottom: 12px; display: block; }
+  .empty p { font-size: 0.88em; }
+
+  /* ── Loading ─────────────────────────────────────────── */
+  .loading { text-align: center; padding: 40px; color: var(--muted); font-size: 0.85em; }
+
+  /* ── Responsive ──────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .sidebar { width: 100%; height: auto; position: relative; flex-direction: row; flex-wrap: wrap; }
+    .main { margin-left: 0; }
+    .form-grid { grid-template-columns: 1fr; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+    .content { padding: 16px; }
+    .topbar { padding: 0 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     LOGIN
+═══════════════════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <span class="emblem">🏐</span>
+      <h1>Vaveyla SK</h1>
+      <p>Kulüp Yönetim Paneli</p>
+    </div>
+    <div class="form-group" style="margin-bottom:14px;">
+      <label>Şifre</label>
+      <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <div id="login-err" style="color:#b91c1c;font-size:0.8em;margin-bottom:10px;display:none;">Yanlış şifre.</div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:10px;" onclick="doLogin()">Giriş Yap</button>
+    <div style="text-align:center;margin-top:14px;">
+      <a href="index.html" style="font-size:0.8em;color:var(--muted);text-decoration:none;">← Turnuva sayfasına dön</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     APP SHELL
+═══════════════════════════════════════════════════════ -->
+<div id="app" class="layout" style="display:none;">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">🏐 Vaveyla SK</div>
+      <div class="sub">Kulüp Yönetimi</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Genel</div>
+      <button class="nav-item active" onclick="goTo('sporcular')" id="nav-sporcular">
+        <span class="icon">👤</span> Sporcular
+      </button>
+      <button class="nav-item" onclick="goTo('yoklama')" id="nav-yoklama">
+        <span class="icon">📋</span> Yoklama
+      </button>
+      <button class="nav-item admin-only" onclick="goTo('aidat')" id="nav-aidat">
+        <span class="icon">💰</span> Aidat Takibi
+      </button>
+    </div>
+
+    <div class="nav-section admin-only">
+      <div class="nav-label">Yönetim</div>
+      <button class="nav-item" onclick="goTo('kasa')" id="nav-kasa">
+        <span class="icon">🏦</span> Kasa
+      </button>
+      <button class="nav-item" onclick="goTo('mesaj')" id="nav-mesaj">
+        <span class="icon">💬</span> Mesajlar
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="user-avatar">A</div>
+        <div>
+          <div class="user-name" id="user-name">Admin</div>
+          <div class="user-role" id="user-role">Yönetici</div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">Çıkış Yap</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <div class="page-title" id="page-title">Sporcular</div>
+      <div class="topbar-actions" id="topbar-actions"></div>
+    </div>
+
+    <div class="content">
+
+      <!-- ─── SPORCULAR ─────────────────────────────────── -->
+      <div id="screen-sporcular" class="screen active">
+        <div class="stat-grid" id="sporcu-stats"></div>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Sporcu Listesi</div>
+            <div class="toolbar">
+              <div class="search-box">
+                <span>🔍</span>
+                <input type="text" id="sporcu-search" placeholder="Ad, grup, telefon..." oninput="renderSporcu()">
+              </div>
+              <select class="filter" id="filter-grup" onchange="renderSporcu()">
+                <option value="">Tüm Gruplar</option>
+              </select>
+              <select class="filter" id="filter-durum" onchange="renderSporcu()">
+                <option value="">Tüm Durum</option>
+                <option value="Aktif">Aktif</option>
+                <option value="Pasif">Pasif</option>
+              </select>
+              <button class="btn btn-primary admin-only" onclick="openSporcuModal()">+ Yeni Sporcu</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table id="sporcu-table">
+              <thead>
+                <tr>
+                  <th onclick="sortSporcu('ad')">Ad Soyad ↕</th>
+                  <th onclick="sortSporcu('grup')">Grup ↕</th>
+                  <th>Telefon</th>
+                  <th>Veli</th>
+                  <th>Veli Tel</th>
+                  <th onclick="sortSporcu('dogumYili')">Doğum Yılı ↕</th>
+                  <th>Boy / Kilo</th>
+                  <th>Forma</th>
+                  <th onclick="sortSporcu('durum')">Durum ↕</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="sporcu-tbody">
+                <tr><td colspan="10" class="loading">⏳ Yükleniyor...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination" id="sporcu-pagination"></div>
+        </div>
+      </div>
+
+      <!-- ─── YOKLAMA ────────────────────────────────────── -->
+      <div id="screen-yoklama" class="screen">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Yoklama</div>
+            <div class="toolbar">
+              <select class="filter" id="yok-grup" onchange="loadYoklama()">
+                <option value="">Grup seçin...</option>
+              </select>
+              <input type="date" id="yok-tarih" class="filter" onchange="loadYoklama()">
+            </div>
+          </div>
+          <div id="yoklama-body" style="padding:20px;">
+            <div class="empty"><span class="icon">📋</span><p>Grup ve tarih seçerek yoklamaya başlayın.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── AİDAT ──────────────────────────────────────── -->
+      <div id="screen-aidat" class="screen">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Aidat Takibi</div>
+            <div class="toolbar">
+              <select class="filter" id="aidat-ay" onchange="loadAidat()"></select>
+              <select class="filter" id="aidat-grup" onchange="loadAidat()">
+                <option value="">Tüm Gruplar</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Sporcu</th>
+                  <th>Grup</th>
+                  <th>Aidat Tutarı</th>
+                  <th>Ödeme Durumu</th>
+                  <th>Ödeme Tarihi</th>
+                  <th>Ödeyenin Adı</th>
+                  <th>Notlar</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="aidat-tbody">
+                <tr><td colspan="8" class="loading">⏳ Yükleniyor...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── KASA ───────────────────────────────────────── -->
+      <div id="screen-kasa" class="screen">
+        <div class="stat-grid" id="kasa-stats"></div>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Kasa Hareketleri</div>
+            <div class="toolbar">
+              <button class="btn btn-primary" onclick="openKasaModal()">+ Hareket Ekle</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Tarih</th><th>Açıklama</th><th>Tür</th><th>Tutar</th><th></th></tr>
+              </thead>
+              <tbody id="kasa-tbody">
+                <tr><td colspan="5" class="loading">⏳ Yükleniyor...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── MESAJ ──────────────────────────────────────── -->
+      <div id="screen-mesaj" class="screen">
+        <div class="panel" style="margin-bottom:20px;">
+          <div class="panel-header"><div class="panel-title">Mesaj Şablonları & WhatsApp</div></div>
+          <div style="padding:20px;">
+            <p style="font-size:0.85em;color:var(--muted);margin-bottom:16px;">Planlı mesajlar buradan gönderilir. WhatsApp linki tıklandığında mesaj hazır açılır.</p>
+            <div id="mesaj-body"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+</div><!-- /app -->
+
+<!-- ─── SPORCU MODAL ──────────────────────────────────────── -->
+<div class="modal-overlay" id="sporcu-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="sporcu-modal-title">Yeni Sporcu</div>
+      <button class="btn btn-ghost" onclick="closeSporcu()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-section">Sporcu Bilgileri</div>
+        <div class="form-group">
+          <label>Ad Soyad *</label>
+          <input type="text" id="s-ad" placeholder="Ahsen Ela SAVAŞ">
+        </div>
+        <div class="form-group">
+          <label>Doğum Tarihi</label>
+          <input type="date" id="s-dogum">
+        </div>
+        <div class="form-group">
+          <label>TC Kimlik No</label>
+          <input type="text" id="s-tc" placeholder="12345678901" maxlength="11">
+        </div>
+        <div class="form-group">
+          <label>Telefon</label>
+          <input type="tel" id="s-tel" placeholder="0542 603 94 18">
+        </div>
+        <div class="form-group">
+          <label>Boy (cm)</label>
+          <input type="number" id="s-boy" placeholder="170">
+        </div>
+        <div class="form-group">
+          <label>Kilo (kg)</label>
+          <input type="number" id="s-kilo" placeholder="60">
+        </div>
+        <div class="form-group">
+          <label>Forma Bedeni</label>
+          <select id="s-forma">
+            <option value="">Seçin</option>
+            <option>XS</option><option>S</option><option>M</option>
+            <option>L</option><option>XL</option><option>XXL</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Forma Ücreti (₺)</label>
+          <input type="number" id="s-forma-ucret" placeholder="500">
+        </div>
+
+        <div class="form-section">Grup & Kayıt</div>
+        <div class="form-group">
+          <label>Grup *</label>
+          <select id="s-grup">
+            <option value="">Seçin</option>
+            <option>1- Kulüp Voleybol</option>
+            <option>2- Büyük Akademi Voleybol</option>
+            <option>3- Küçük Akademi Voleybol</option>
+            <option>4- Büyük Voleybol S.O.O.G.</option>
+            <option>5- Küçük Voleybol S.O.O.G.</option>
+            <option>6- Voleybol S.O.O.R.</option>
+            <option>7- Kadın Voleybol</option>
+            <option>8- Basketbol</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Kayıt Tarihi</label>
+          <input type="date" id="s-kayit">
+        </div>
+        <div class="form-group">
+          <label>Aylık Aidat (₺)</label>
+          <input type="number" id="s-aidat" placeholder="500">
+        </div>
+        <div class="form-group">
+          <label>Durum</label>
+          <select id="s-durum">
+            <option value="Aktif">Aktif</option>
+            <option value="Pasif">Pasif</option>
+          </select>
+        </div>
+
+        <div class="form-section">Veli Bilgileri</div>
+        <div class="form-group">
+          <label>Veli Adı Soyadı</label>
+          <input type="text" id="s-veli-ad" placeholder="Tuğba SAVAŞ">
+        </div>
+        <div class="form-group">
+          <label>Veli Telefonu (WhatsApp)</label>
+          <input type="tel" id="s-veli-tel" placeholder="0537 767 94 18">
+        </div>
+        <div class="form-group full">
+          <label>Notlar</label>
+          <textarea id="s-notlar" rows="2" placeholder="Sağlık durumu, özel notlar..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeSporcu()">İptal</button>
+      <button class="btn btn-primary" onclick="saveSporcu()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── KASA MODAL ────────────────────────────────────────── -->
+<div class="modal-overlay" id="kasa-modal">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <div class="modal-title">Kasa Hareketi Ekle</div>
+      <button class="btn btn-ghost" onclick="closeKasa()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Tarih</label>
+          <input type="date" id="k-tarih">
+        </div>
+        <div class="form-group">
+          <label>Tür</label>
+          <select id="k-tur">
+            <option value="gelir">Gelir</option>
+            <option value="gider">Gider</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Açıklama</label>
+          <input type="text" id="k-aciklama" placeholder="Aidat, malzeme, saha kirası...">
+        </div>
+        <div class="form-group">
+          <label>Tutar (₺)</label>
+          <input type="number" id="k-tutar" placeholder="0">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeKasa()">İptal</button>
+      <button class="btn btn-primary" onclick="saveKasa()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyDUXWJ2Q1ywTh90ewPfD_BuH5Rsjqu00Y4",
+  authDomain:"vaveylask-862c2.firebaseapp.com",
+  databaseURL:"https://vaveylask-862c2-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"vaveylask-862c2",
+  storageBucket:"vaveylask-862c2.firebasestorage.app",
+  messagingSenderId:"539195972878",
+  appId:"1:539195972878:web:27c776639df321ec670b5f"
+});
+const db = firebase.database();
+</script>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   AUTH
+═══════════════════════════════════════════════════════ */
+const PASSWORDS = {
+  'vaveyla2026': { role: 'admin', name: 'Admin' },
+  'hoca2026':    { role: 'hoca',  name: 'Hoca'  }
+};
+let currentUser = null;
+
+function doLogin() {
+  const pw = document.getElementById('login-pass').value;
+  const err = document.getElementById('login-err');
+  if (PASSWORDS[pw]) {
+    currentUser = { ...PASSWORDS[pw] };
+    err.style.display = 'none';
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('user-name').textContent = currentUser.name;
+    document.getElementById('user-role').textContent = currentUser.role === 'admin' ? 'Yönetici' : 'Antrenör';
+    document.getElementById('user-avatar').textContent = currentUser.name[0];
+    // Admin-only items
+    document.querySelectorAll('.admin-only').forEach(el => {
+      el.style.display = currentUser.role === 'admin' ? '' : 'none';
+    });
+    initApp();
+    goTo('sporcular');
+  } else {
+    err.style.display = 'block';
+  }
+}
+document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+function doLogout() {
+  currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-pass').value = '';
+}
+
+/* ═══════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════ */
+const PAGES = { sporcular:'Sporcular', yoklama:'Yoklama', aidat:'Aidat Takibi', kasa:'Kasa', mesaj:'Mesajlar' };
+let currentPage = 'sporcular';
+
+function goTo(page) {
+  if (!currentUser) return;
+  if (currentUser.role !== 'admin' && ['aidat','kasa','mesaj'].includes(page)) return;
+  currentPage = page;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + page).classList.add('active');
+  const nav = document.getElementById('nav-' + page);
+  if (nav) nav.classList.add('active');
+  document.getElementById('page-title').textContent = PAGES[page] || page;
+  updateTopbarActions(page);
+  if (page === 'yoklama') initYoklamaGruplar();
+  if (page === 'aidat')   loadAidat();
+  if (page === 'kasa')    loadKasa();
+  if (page === 'mesaj')   loadMesaj();
+}
+
+function updateTopbarActions(page) {
+  const el = document.getElementById('topbar-actions');
+  if (page === 'sporcular' && currentUser.role === 'admin') {
+    el.innerHTML = `<button class="btn btn-primary" onclick="openSporcuModal()">+ Yeni Sporcu</button>`;
+  } else {
+    el.innerHTML = '';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════ */
+let sporcular = []; // cache
+let sortKey = 'ad', sortDir = 1;
+let sporcu_page = 1;
+const PER_PAGE = 20;
+let editingId = null;
+
+async function initApp() {
+  await loadSporcular();
+  fillGrupFilters();
+  setDefaultDates();
+}
+
+function setDefaultDates() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('yok-tarih').value = today;
+  document.getElementById('s-kayit').value = today;
+  document.getElementById('k-tarih').value = today;
+  // Aidat ay dropdown
+  const ayEl = document.getElementById('aidat-ay');
+  ayEl.innerHTML = '';
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(); d.setMonth(d.getMonth() - i);
+    const val = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+    const label = d.toLocaleDateString('tr-TR', {month:'long', year:'numeric'});
+    ayEl.innerHTML += `<option value="${val}">${label}</option>`;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   SPORCULAR
+═══════════════════════════════════════════════════════ */
+async function loadSporcular() {
+  const snap = await db.ref('kulup/sporcular').once('value');
+  const data = snap.val() || {};
+  sporcular = Object.entries(data).map(([id, v]) => ({ id, ...v }));
+  renderSporcu();
+  renderSporcuStats();
+}
+
+function renderSporcuStats() {
+  const aktif = sporcular.filter(s => s.durum !== 'Pasif').length;
+  const pasif = sporcular.filter(s => s.durum === 'Pasif').length;
+  const grupSet = new Set(sporcular.filter(s => s.durum !== 'Pasif').map(s => s.grup));
+  document.getElementById('sporcu-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-value">${aktif}</div><div class="stat-label">Aktif Sporcu</div></div>
+    <div class="stat-card red"><div class="stat-value">${pasif}</div><div class="stat-label">Pasif Sporcu</div></div>
+    <div class="stat-card green"><div class="stat-value">${grupSet.size}</div><div class="stat-label">Aktif Grup</div></div>
+    <div class="stat-card orange"><div class="stat-value">${sporcular.length}</div><div class="stat-label">Toplam Kayıt</div></div>
+  `;
+}
+
+function fillGrupFilters() {
+  const grups = [...new Set(sporcular.map(s => s.grup).filter(Boolean))].sort();
+  ['filter-grup','aidat-grup','yoklama-grup-filter'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const cur = el.value;
+    el.innerHTML = id === 'filter-grup' ? '<option value="">Tüm Gruplar</option>' : '<option value="">Tüm Gruplar</option>';
+    grups.forEach(g => { el.innerHTML += `<option value="${g}"${g===cur?' selected':''}>${g}</option>`; });
+  });
+  // Yoklama grup select
+  const yg = document.getElementById('yok-grup');
+  if (yg) {
+    const cur = yg.value;
+    yg.innerHTML = '<option value="">Grup seçin...</option>';
+    grups.forEach(g => { yg.innerHTML += `<option value="${g}"${g===cur?' selected':''}>${g}</option>`; });
+  }
+}
+
+function sortSporcu(key) {
+  if (sortKey === key) sortDir *= -1;
+  else { sortKey = key; sortDir = 1; }
+  renderSporcu();
+}
+
+function renderSporcu() {
+  const q      = (document.getElementById('sporcu-search')?.value || '').toLowerCase();
+  const grup   = document.getElementById('filter-grup')?.value || '';
+  const durum  = document.getElementById('filter-durum')?.value || '';
+
+  let list = sporcular.filter(s => {
+    if (grup  && s.grup  !== grup)  return false;
+    if (durum && s.durum !== durum) return false;
+    if (q && !( (s.ad||'').toLowerCase().includes(q) ||
+                (s.grup||'').toLowerCase().includes(q) ||
+                (s.tel||'').includes(q) ||
+                (s.veliAd||'').toLowerCase().includes(q) )) return false;
+    return true;
+  });
+
+  list.sort((a, b) => {
+    const av = (a[sortKey] || '').toString().toLowerCase();
+    const bv = (b[sortKey] || '').toString().toLowerCase();
+    return av < bv ? -sortDir : av > bv ? sortDir : 0;
+  });
+
+  const total = list.length;
+  const pages = Math.ceil(total / PER_PAGE) || 1;
+  if (sporcu_page > pages) sporcu_page = 1;
+  const slice = list.slice((sporcu_page-1)*PER_PAGE, sporcu_page*PER_PAGE);
+
+  const tbody = document.getElementById('sporcu-tbody');
+  if (!slice.length) {
+    tbody.innerHTML = `<tr><td colspan="10"><div class="empty"><span class="icon">👤</span><p>Sporcu bulunamadı.</p></div></td></tr>`;
+  } else {
+    tbody.innerHTML = slice.map(s => {
+      const init = (s.ad||'?')[0].toUpperCase();
+      const dogumYili = s.dogum ? new Date(s.dogum).getFullYear() : (s.dogumYili || '');
+      const badge = s.durum === 'Pasif'
+        ? `<span class="badge badge-gray">Pasif</span>`
+        : `<span class="badge badge-green">Aktif</span>`;
+      return `<tr>
+        <td><div class="cell-name"><div class="avatar">${init}</div><div><div style="font-weight:500;">${s.ad||''}</div></div></div></td>
+        <td><span style="font-size:0.8em;color:var(--muted);">${s.grup||'—'}</span></td>
+        <td>${s.tel||'—'}</td>
+        <td>${s.veliAd||'—'}</td>
+        <td>${s.veliTel||'—'}</td>
+        <td>${dogumYili||'—'}</td>
+        <td>${s.boy?s.boy+'cm':'—'}${s.kilo?' / '+s.kilo+'kg':''}</td>
+        <td>${s.forma||'—'}</td>
+        <td>${badge}</td>
+        <td>
+          <div style="display:flex;gap:4px;">
+            <button class="btn btn-ghost btn-sm admin-only" onclick="editSporcu('${s.id}')">✏️</button>
+            <button class="btn btn-ghost btn-sm admin-only" onclick="toggleDurum('${s.id}','${s.durum||'Aktif'}')">${s.durum==='Pasif'?'▶️':'⏸️'}</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+    // admin-only visibility
+    if (currentUser?.role !== 'admin') {
+      tbody.querySelectorAll('.admin-only').forEach(el => el.style.display='none');
+    }
+  }
+
+  // Pagination
+  const pg = document.getElementById('sporcu-pagination');
+  pg.innerHTML = `<div class="page-info">${total} sporcu • Sayfa ${sporcu_page}/${pages}</div>`;
+  for (let i = 1; i <= pages; i++) {
+    pg.innerHTML += `<button class="page-btn ${i===sporcu_page?'active':''}" onclick="sporcu_page=${i};renderSporcu()">${i}</button>`;
+  }
+}
+
+function openSporcuModal(id) {
+  editingId = id || null;
+  document.getElementById('sporcu-modal-title').textContent = id ? 'Sporcuyu Düzenle' : 'Yeni Sporcu';
+  ['s-ad','s-dogum','s-tc','s-tel','s-boy','s-kilo','s-forma-ucret','s-notlar'].forEach(f => {
+    document.getElementById(f).value = '';
+  });
+  document.getElementById('s-forma').value = '';
+  document.getElementById('s-grup').value = '';
+  document.getElementById('s-durum').value = 'Aktif';
+  document.getElementById('s-kayit').value = new Date().toISOString().split('T')[0];
+  document.getElementById('s-veli-ad').value = '';
+  document.getElementById('s-veli-tel').value = '';
+
+  if (id) {
+    const s = sporcular.find(x => x.id === id);
+    if (s) {
+      document.getElementById('s-ad').value = s.ad || '';
+      document.getElementById('s-dogum').value = s.dogum || '';
+      document.getElementById('s-tc').value = s.tc || '';
+      document.getElementById('s-tel').value = s.tel || '';
+      document.getElementById('s-boy').value = s.boy || '';
+      document.getElementById('s-kilo').value = s.kilo || '';
+      document.getElementById('s-forma').value = s.forma || '';
+      document.getElementById('s-forma-ucret').value = s.formaUcret || '';
+      document.getElementById('s-grup').value = s.grup || '';
+      document.getElementById('s-kayit').value = s.kayit || '';
+      document.getElementById('s-aidat').value = s.aidat || '';
+      document.getElementById('s-durum').value = s.durum || 'Aktif';
+      document.getElementById('s-veli-ad').value = s.veliAd || '';
+      document.getElementById('s-veli-tel').value = s.veliTel || '';
+      document.getElementById('s-notlar').value = s.notlar || '';
+    }
+  }
+  document.getElementById('sporcu-modal').classList.add('open');
+}
+
+function closeSporcu() { document.getElementById('sporcu-modal').classList.remove('open'); }
+
+async function saveSporcu() {
+  const ad = document.getElementById('s-ad').value.trim();
+  const grup = document.getElementById('s-grup').value;
+  if (!ad) { showToast('Ad Soyad zorunlu!','error'); return; }
+  if (!grup) { showToast('Grup zorunlu!','error'); return; }
+
+  const data = {
+    ad, grup,
+    dogum: document.getElementById('s-dogum').value,
+    dogumYili: document.getElementById('s-dogum').value ? new Date(document.getElementById('s-dogum').value).getFullYear() : '',
+    tc: document.getElementById('s-tc').value.trim(),
+    tel: document.getElementById('s-tel').value.trim(),
+    boy: document.getElementById('s-boy').value,
+    kilo: document.getElementById('s-kilo').value,
+    forma: document.getElementById('s-forma').value,
+    formaUcret: document.getElementById('s-forma-ucret').value,
+    kayit: document.getElementById('s-kayit').value,
+    aidat: document.getElementById('s-aidat').value,
+    durum: document.getElementById('s-durum').value,
+    veliAd: document.getElementById('s-veli-ad').value.trim(),
+    veliTel: document.getElementById('s-veli-tel').value.trim(),
+    notlar: document.getElementById('s-notlar').value.trim(),
+    guncelleme: new Date().toISOString()
+  };
+
+  if (editingId) {
+    await db.ref('kulup/sporcular/' + editingId).update(data);
+    showToast('Sporcu güncellendi ✓','success');
+  } else {
+    await db.ref('kulup/sporcular').push(data);
+    showToast('Sporcu eklendi ✓','success');
+  }
+  closeSporcu();
+  await loadSporcular();
+  fillGrupFilters();
+}
+
+function editSporcu(id) { openSporcuModal(id); }
+
+async function toggleDurum(id, current) {
+  const yeni = current === 'Pasif' ? 'Aktif' : 'Pasif';
+  await db.ref('kulup/sporcular/' + id + '/durum').set(yeni);
+  showToast(yeni === 'Pasif' ? 'Sporcu pasife alındı' : 'Sporcu aktif edildi','success');
+  await loadSporcular();
+}
+
+/* ═══════════════════════════════════════════════════════
+   YOKLAMA
+═══════════════════════════════════════════════════════ */
+function initYoklamaGruplar() {
+  fillGrupFilters();
+}
+
+let yoklamaState = {}; // { sporcuId: true/false }
+
+async function loadYoklama() {
+  const grup   = document.getElementById('yok-grup').value;
+  const tarih  = document.getElementById('yok-tarih').value;
+  const body   = document.getElementById('yoklama-body');
+
+  if (!grup || !tarih) {
+    body.innerHTML = `<div class="empty"><span class="icon">📋</span><p>Grup ve tarih seçerek yoklamaya başlayın.</p></div>`;
+    return;
+  }
+
+  // Sadece aktif sporcular
+  const liste = sporcular.filter(s => s.grup === grup && s.durum !== 'Pasif');
+  if (!liste.length) {
+    body.innerHTML = `<div class="empty"><span class="icon">👤</span><p>Bu grupta aktif sporcu yok.</p></div>`;
+    return;
+  }
+
+  // Mevcut yoklama yükle
+  const key = tarih.replace(/-/g,'');
+  const grupKey = grup.replace(/[^a-zA-Z0-9]/g,'_');
+  const snap = await db.ref(`kulup/yoklama/${grupKey}/${key}`).once('value');
+  const kayitli = snap.val() || {};
+  yoklamaState = {};
+  liste.forEach(s => { yoklamaState[s.id] = kayitli[s.id] !== undefined ? kayitli[s.id] : null; });
+
+  const gelenler  = Object.values(yoklamaState).filter(v => v === true).length;
+  const gelmeyen  = Object.values(yoklamaState).filter(v => v === false).length;
+  const isaretlenmemis = liste.length - gelenler - gelmeyen;
+
+  body.innerHTML = `
+    <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+      <div style="background:#D1FAE5;color:#065F46;padding:8px 16px;border-radius:8px;font-size:0.85em;font-weight:500;">✓ Geldi: ${gelenler}</div>
+      <div style="background:#FEE2E2;color:#991B1B;padding:8px 16px;border-radius:8px;font-size:0.85em;font-weight:500;">✗ Gelmedi: ${gelmeyen}</div>
+      <div style="background:var(--bg);color:var(--muted);padding:8px 16px;border-radius:8px;font-size:0.85em;font-weight:500;">— İşaretlenmedi: ${isaretlenmemis}</div>
+    </div>
+    <div id="yok-liste" style="display:flex;flex-direction:column;gap:8px;"></div>
+    <div style="margin-top:20px;display:flex;gap:8px;">
+      <button class="btn btn-primary" onclick="saveYoklama('${grupKey}','${key}','${grup}')">💾 Kaydet</button>
+      <button class="btn btn-secondary" onclick="hepsiniisle(true)">✓ Tümünü Geldi İşaretle</button>
+    </div>
+  `;
+
+  renderYoklamaListe(liste);
+}
+
+function renderYoklamaListe(liste) {
+  const container = document.getElementById('yok-liste');
+  if (!container) return;
+  container.innerHTML = liste.map(s => {
+    const durum = yoklamaState[s.id];
+    return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:12px 16px;display:flex;align-items:center;gap:12px;transition:border-color 0.15s;" id="yok-card-${s.id}">
+      <div class="avatar" style="flex-shrink:0;">${(s.ad||'?')[0]}</div>
+      <div style="flex:1;">
+        <div style="font-weight:500;font-size:0.9em;">${s.ad}</div>
+        <div style="font-size:0.75em;color:var(--muted);">${s.veliTel||''}</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="setYok('${s.id}',true)"
+          style="width:44px;height:44px;border-radius:50%;border:2px solid ${durum===true?'var(--green)':'var(--border)'};
+                 background:${durum===true?'var(--green)':'transparent'};color:${durum===true?'#fff':'var(--muted)'};
+                 font-size:1.1em;cursor:pointer;transition:all 0.15s;">✓</button>
+        <button onclick="setYok('${s.id}',false)"
+          style="width:44px;height:44px;border-radius:50%;border:2px solid ${durum===false?'#b91c1c':'var(--border)'};
+                 background:${durum===false?'#b91c1c':'transparent'};color:${durum===false?'#fff':'var(--muted)'};
+                 font-size:1.1em;cursor:pointer;transition:all 0.15s;">✗</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setYok(id, val) {
+  yoklamaState[id] = yoklamaState[id] === val ? null : val;
+  // Butonu görsel güncelle
+  const card = document.getElementById('yok-card-' + id);
+  if (!card) return;
+  const btns = card.querySelectorAll('button');
+  const durum = yoklamaState[id];
+  btns[0].style.background = durum===true?'var(--green)':'transparent';
+  btns[0].style.borderColor = durum===true?'var(--green)':'var(--border)';
+  btns[0].style.color = durum===true?'#fff':'var(--muted)';
+  btns[1].style.background = durum===false?'#b91c1c':'transparent';
+  btns[1].style.borderColor = durum===false?'#b91c1c':'var(--border)';
+  btns[1].style.color = durum===false?'#fff':'var(--muted)';
+}
+
+function hepsiniisle(val) {
+  Object.keys(yoklamaState).forEach(id => { yoklamaState[id] = val; });
+  const liste = sporcular.filter(s => s.grup === document.getElementById('yok-grup').value && s.durum !== 'Pasif');
+  renderYoklamaListe(liste);
+}
+
+async function saveYoklama(grupKey, key, grupAdi) {
+  const payload = {};
+  Object.entries(yoklamaState).forEach(([id, val]) => { if (val !== null) payload[id] = val; });
+  await db.ref(`kulup/yoklama/${grupKey}/${key}`).set(payload);
+
+  // WhatsApp mesajı hazırla (gelmeyen veliler)
+  const gelenme = Object.entries(yoklamaState)
+    .filter(([,v]) => v === false)
+    .map(([id]) => sporcular.find(s => s.id === id))
+    .filter(Boolean);
+
+  if (gelenme.length) {
+    const tarih = document.getElementById('yok-tarih').value;
+    const d = new Date(tarih);
+    const tarihStr = d.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'});
+    let waHtml = `<div style="margin-top:16px;padding:14px;background:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0;">
+      <div style="font-size:0.82em;font-weight:600;color:#065F46;margin-bottom:10px;">📱 Gönderilmedi bildirimi — ${tarihStr}</div>`;
+    gelenme.forEach(s => {
+      if (!s.veliTel) return;
+      const tel = s.veliTel.replace(/\D/g,'').replace(/^0/,'90');
+      const msg = encodeURIComponent(`Sayın ${s.veliAd||'Veli'}, ${tarihStr} tarihli antrenmanımıza ${s.ad} katılamamıştır. Bilgilerinize sunarız. — Vaveyla SK`);
+      waHtml += `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #d1fae5;">
+        <span style="font-size:0.82em;">${s.ad} → ${s.veliAd||''}</span>
+        <a href="https://wa.me/${tel}?text=${msg}" target="_blank"
+           style="background:#25D366;color:#fff;padding:5px 12px;border-radius:6px;font-size:0.78em;text-decoration:none;font-weight:500;">
+          WhatsApp Gönder
+        </a>
+      </div>`;
+    });
+    waHtml += '</div>';
+    document.getElementById('yoklama-body').insertAdjacentHTML('beforeend', waHtml);
+  }
+
+  showToast('Yoklama kaydedildi ✓','success');
+  loadYoklama();
+}
+
+/* ═══════════════════════════════════════════════════════
+   AİDAT
+═══════════════════════════════════════════════════════ */
+async function loadAidat() {
+  const ay   = document.getElementById('aidat-ay').value;
+  const grup = document.getElementById('aidat-grup').value;
+  if (!ay) return;
+
+  const aktifler = sporcular.filter(s => s.durum !== 'Pasif' && (!grup || s.grup === grup));
+  const snap = await db.ref('kulup/aidat/' + ay.replace('-','')).once('value');
+  const kayitlar = snap.val() || {};
+
+  const tbody = document.getElementById('aidat-tbody');
+  tbody.innerHTML = aktifler.map(s => {
+    const k = kayitlar[s.id] || {};
+    const odendi = k.odendi || false;
+    const badge = odendi
+      ? `<span class="badge badge-green">Ödedi</span>`
+      : `<span class="badge badge-red">Ödemedi</span>`;
+    return `<tr>
+      <td><div class="cell-name"><div class="avatar">${(s.ad||'?')[0]}</div>${s.ad}</div></td>
+      <td style="font-size:0.8em;color:var(--muted);">${s.grup||'—'}</td>
+      <td>${s.aidat?'₺'+s.aidat:'—'}</td>
+      <td>
+        <select onchange="updateAidat('${ay}','${s.id}','odendi',this.value==='true')"
+          style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;background:var(--bg);">
+          <option value="false" ${!odendi?'selected':''}>Ödemedi</option>
+          <option value="true"  ${odendi?'selected':''}>Ödedi</option>
+        </select>
+      </td>
+      <td><input type="date" value="${k.tarih||''}" onchange="updateAidat('${ay}','${s.id}','tarih',this.value)"
+          style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;background:var(--bg);"></td>
+      <td><input type="text" value="${k.odeyen||''}" placeholder="Ödeyenin adı" onblur="updateAidat('${ay}','${s.id}','odeyen',this.value)"
+          style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;width:140px;background:var(--bg);"></td>
+      <td><input type="text" value="${k.not||''}" placeholder="Not..." onblur="updateAidat('${ay}','${s.id}','not',this.value)"
+          style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;width:140px;background:var(--bg);"></td>
+      <td>${badge}</td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="8"><div class="empty"><span class="icon">💰</span><p>Sporcu bulunamadı.</p></div></td></tr>`;
+}
+
+async function updateAidat(ay, sporcuId, field, value) {
+  await db.ref(`kulup/aidat/${ay.replace('-','')}/${sporcuId}/${field}`).set(value);
+}
+
+/* ═══════════════════════════════════════════════════════
+   KASA
+═══════════════════════════════════════════════════════ */
+async function loadKasa() {
+  const snap = await db.ref('kulup/kasa').once('value');
+  const data = snap.val() || {};
+  const list = Object.entries(data).map(([id,v])=>({id,...v}))
+    .sort((a,b) => (b.tarih||'').localeCompare(a.tarih||''));
+
+  const gelir = list.filter(x=>x.tur==='gelir').reduce((s,x)=>s+(+x.tutar||0),0);
+  const gider = list.filter(x=>x.tur==='gider').reduce((s,x)=>s+(+x.tutar||0),0);
+  document.getElementById('kasa-stats').innerHTML = `
+    <div class="stat-card green"><div class="stat-value">₺${gelir.toLocaleString('tr')}</div><div class="stat-label">Toplam Gelir</div></div>
+    <div class="stat-card red"><div class="stat-value">₺${gider.toLocaleString('tr')}</div><div class="stat-label">Toplam Gider</div></div>
+    <div class="stat-card"><div class="stat-value">₺${(gelir-gider).toLocaleString('tr')}</div><div class="stat-label">Net Bakiye</div></div>
+  `;
+
+  document.getElementById('kasa-tbody').innerHTML = list.map(x => `
+    <tr>
+      <td>${x.tarih||'—'}</td>
+      <td>${x.aciklama||'—'}</td>
+      <td><span class="badge ${x.tur==='gelir'?'badge-green':'badge-red'}">${x.tur==='gelir'?'Gelir':'Gider'}</span></td>
+      <td style="font-weight:600;color:${x.tur==='gelir'?'var(--green)':'var(--orange)'};">₺${(+x.tutar||0).toLocaleString('tr')}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="delKasa('${x.id}')">🗑</button></td>
+    </tr>
+  `).join('') || `<tr><td colspan="5"><div class="empty"><span class="icon">🏦</span><p>Henüz hareket yok.</p></div></td></tr>`;
+}
+
+function openKasaModal() { document.getElementById('kasa-modal').classList.add('open'); }
+function closeKasa() { document.getElementById('kasa-modal').classList.remove('open'); }
+async function saveKasa() {
+  const d = {
+    tarih: document.getElementById('k-tarih').value,
+    tur: document.getElementById('k-tur').value,
+    aciklama: document.getElementById('k-aciklama').value.trim(),
+    tutar: document.getElementById('k-tutar').value,
+  };
+  if (!d.aciklama || !d.tutar) { showToast('Açıklama ve tutar zorunlu!','error'); return; }
+  await db.ref('kulup/kasa').push(d);
+  showToast('Hareket eklendi ✓','success');
+  closeKasa();
+  loadKasa();
+}
+async function delKasa(id) {
+  if (!confirm('Silinsin mi?')) return;
+  await db.ref('kulup/kasa/'+id).remove();
+  loadKasa();
+}
+
+/* ═══════════════════════════════════════════════════════
+   MESAJ
+═══════════════════════════════════════════════════════ */
+function loadMesaj() {
+  document.getElementById('mesaj-body').innerHTML = `
+    <div style="display:grid;gap:16px;">
+      <div style="background:var(--bg);border-radius:10px;padding:16px;">
+        <div style="font-weight:600;font-size:0.88em;margin-bottom:10px;">📅 Ay Başı Mesajı (1. gün)</div>
+        <textarea id="msg-ay-basi" rows="3" style="width:100%;border:1px solid var(--border);border-radius:7px;padding:8px;font-size:0.83em;background:#fff;"
+          placeholder="Sayın velimiz, ... aidatını lütfen yatırınız."></textarea>
+        <div style="margin-top:10px;">
+          <button class="btn btn-secondary btn-sm" onclick="gonderMesaj('ay-basi')">📋 Kopyala ve Gönder</button>
+        </div>
+      </div>
+      <div style="background:var(--bg);border-radius:10px;padding:16px;">
+        <div style="font-weight:600;font-size:0.88em;margin-bottom:10px;">📅 Ay Ortası Mesajı (15. gün)</div>
+        <textarea id="msg-ay-orta" rows="3" style="width:100%;border:1px solid var(--border);border-radius:7px;padding:8px;font-size:0.83em;background:#fff;"
+          placeholder="Sayın velimiz, son aidat hatırlatması..."></textarea>
+        <div style="margin-top:10px;">
+          <button class="btn btn-secondary btn-sm" onclick="gonderMesaj('ay-orta')">📋 Kopyala ve Gönder</button>
+        </div>
+      </div>
+      <div style="background:var(--bg);border-radius:10px;padding:16px;">
+        <div style="font-weight:600;font-size:0.88em;margin-bottom:10px;">🔔 Gecikme Mesajı (Ödemeyen velilere)</div>
+        <textarea id="msg-gecikme" rows="3" style="width:100%;border:1px solid var(--border);border-radius:7px;padding:8px;font-size:0.83em;background:#fff;"
+          placeholder="Sayın velimiz, aidatınız henüz gelmemiştir..."></textarea>
+        <div style="margin-top:10px;">
+          <button class="btn btn-primary btn-sm" onclick="gonderGecikme()">📨 Ödemeyen Velilere Gönder</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function gonderMesaj(tip) {
+  const id = tip === 'ay-basi' ? 'msg-ay-basi' : 'msg-ay-orta';
+  const msg = document.getElementById(id).value.trim();
+  if (!msg) { showToast('Mesaj boş!','error'); return; }
+  navigator.clipboard?.writeText(msg);
+  showToast('Mesaj kopyalandı — WhatsApp grubuna yapıştırın ✓','success');
+}
+
+async function gonderGecikme() {
+  const msg = document.getElementById('msg-gecikme').value.trim();
+  if (!msg) { showToast('Mesaj boş!','error'); return; }
+  const ay = document.getElementById('aidat-ay')?.value;
+  if (!ay) { showToast('Önce Aidat sayfasından ay seçin','error'); return; }
+  const snap = await db.ref('kulup/aidat/'+ay.replace('-','')).once('value');
+  const kayitlar = snap.val() || {};
+  const odemeyen = sporcular.filter(s => s.durum!=='Pasif' && !kayitlar[s.id]?.odendi && s.veliTel);
+  if (!odemeyen.length) { showToast('Ödemeyen veli yok ✓','success'); return; }
+
+  const links = odemeyen.map(s => {
+    const tel = s.veliTel.replace(/\D/g,'').replace(/^0/,'90');
+    const txt = encodeURIComponent(msg.replace('{sporcu}', s.ad).replace('{veli}', s.veliAd||''));
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+      <span style="font-size:0.82em;">${s.ad} → ${s.veliAd||s.veliTel}</span>
+      <a href="https://wa.me/${tel}?text=${txt}" target="_blank"
+         style="background:#25D366;color:#fff;padding:4px 12px;border-radius:6px;font-size:0.78em;text-decoration:none;font-weight:500;">WhatsApp</a>
+    </div>`;
+  }).join('');
+
+  document.getElementById('mesaj-body').insertAdjacentHTML('beforeend',
+    `<div style="margin-top:16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;">
+      <div style="font-weight:600;color:#065F46;font-size:0.85em;margin-bottom:10px;">${odemeyen.length} veli — tek tek gönder</div>
+      ${links}
+    </div>`
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════════ */
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
