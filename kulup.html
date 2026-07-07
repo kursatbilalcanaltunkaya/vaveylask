@@ -350,6 +350,9 @@
       <button class="nav-item" onclick="goTo('yoklama')" id="nav-yoklama">
         <span class="icon">📋</span> Yoklama
       </button>
+      <button class="nav-item" onclick="goTo('istatistik')" id="nav-istatistik">
+        <span class="icon">📊</span> İstatistikler
+      </button>
       <button class="nav-item admin-only" onclick="goTo('aidat')" id="nav-aidat">
         <span class="icon">💰</span> Aidat Takibi
       </button>
@@ -738,7 +741,7 @@ function doLogout() {
 /* ═══════════════════════════════════════════════════════
    NAVIGATION
 ═══════════════════════════════════════════════════════ */
-const PAGES = { sporcular:'Sporcular', yoklama:'Yoklama', aidat:'Aidat Takibi', kasa:'Kasa', mesaj:'Mesajlar' };
+const PAGES = { sporcular:'Sporcular', yoklama:'Yoklama', istatistik:'Yoklama İstatistikleri', aidat:'Aidat Takibi', kasa:'Kasa', mesaj:'Mesajlar' };
 let currentPage = 'sporcular';
 
 function goTo(page) {
@@ -753,6 +756,7 @@ function goTo(page) {
   document.getElementById('page-title').textContent = PAGES[page] || page;
   updateTopbarActions(page);
   if (page === 'yoklama') initYoklamaGruplar();
+  if (page === 'istatistik') loadIstatistik();
   if (page === 'aidat')   loadAidat();
   if (page === 'kasa')    loadKasa();
   if (page === 'mesaj')   loadMesaj();
@@ -779,7 +783,27 @@ let editingId = null;
 async function initApp() {
   await loadSporcular();
   fillGrupFilters();
+  fillIstDropdowns();
   setDefaultDates();
+}
+
+function fillIstDropdowns() {
+  const grups = [...new Set(sporcular.map(s => s.grup).filter(Boolean))].sort();
+  const ig = document.getElementById('ist-grup');
+  if (ig) {
+    ig.innerHTML = '<option value="">Grup seçin...</option>';
+    grups.forEach(g => ig.innerHTML += `<option value="${g}">${g}</option>`);
+  }
+  const ia = document.getElementById('ist-ay');
+  if (ia) {
+    ia.innerHTML = '';
+    for (let i = 0; i < 6; i++) {
+      const d = new Date(); d.setMonth(d.getMonth() - i);
+      const val = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+      const label = d.toLocaleDateString('tr-TR',{month:'long',year:'numeric'});
+      ia.innerHTML += `<option value="${val}">${label}</option>`;
+    }
+  }
 }
 
 function setDefaultDates() {
@@ -823,7 +847,7 @@ function renderSporcuStats() {
 
 function fillGrupFilters() {
   const grups = [...new Set(sporcular.map(s => s.grup).filter(Boolean))].sort();
-  ['filter-grup','aidat-grup','yoklama-grup-filter'].forEach(id => {
+  ['filter-grup','aidat-grup','yoklama-grup-filter','ist-grup'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
     const cur = el.value;
@@ -1224,6 +1248,125 @@ async function loadAidat() {
           style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;width:140px;background:var(--bg);"></td>
     </tr>`;
   }).join('') || `<tr><td colspan="8"><div class="empty"><span class="icon">💰</span><p>${filterDurum ? 'Bu filtreye uyan sporcu yok.' : 'Sporcu bulunamadı.'}</p></div></td></tr>`;
+}
+
+/* ═══════════════════════════════════════════════════════
+   İSTATİSTİK
+═══════════════════════════════════════════════════════ */
+async function loadIstatistik() {
+  const grup = document.getElementById('ist-grup').value;
+  const ay   = document.getElementById('ist-ay').value;
+  const body = document.getElementById('ist-body');
+  const ozet = document.getElementById('ist-ozet');
+
+  if (!grup || !ay) {
+    body.innerHTML = `<div class="empty"><span class="icon">📊</span><p>Grup ve ay seçerek istatistikleri görün.</p></div>`;
+    ozet.style.display = 'none';
+    return;
+  }
+
+  body.innerHTML = `<div class="loading">⏳ Yükleniyor...</div>`;
+
+  // Seçili aydaki tüm günleri bul
+  const [yil, ayNo] = ay.split('-').map(Number);
+  const grupKey = grup.replace(/[^a-zA-Z0-9]/g,'_');
+  const snap = await db.ref(`kulup/yoklama/${grupKey}`).once('value');
+  const tumYoklama = snap.val() || {};
+
+  // Ay içindeki günleri filtrele
+  const ayStr = ay.replace('-',''); // 202507
+  const ayGunler = Object.keys(tumYoklama).filter(k => k.startsWith(ayStr));
+  const toplamGun = ayGunler.length;
+
+  // Aktif sporcular
+  const liste = sporcular.filter(s => s.grup === grup && s.durum !== 'Pasif');
+
+  if (!liste.length) {
+    body.innerHTML = `<div class="empty"><span class="icon">👤</span><p>Bu grupta aktif sporcu yok.</p></div>`;
+    return;
+  }
+
+  // Her sporcu için istatistik hesapla
+  const sporcuStats = liste.map(s => {
+    let geldi = 0, gelmedi = 0, isaretlenmemis = 0;
+    ayGunler.forEach(gun => {
+      const val = tumYoklama[gun]?.[s.id];
+      if (val === true)  geldi++;
+      else if (val === false) gelmedi++;
+      else isaretlenmemis++;
+    });
+    const toplam = geldi + gelmedi;
+    const yuzde = toplam > 0 ? Math.round((geldi / toplam) * 100) : null;
+    return { ...s, geldi, gelmedi, isaretlenmemis, toplam, yuzde };
+  }).sort((a, b) => (b.yuzde ?? -1) - (a.yuzde ?? -1));
+
+  // Özet
+  const ortYuzde = sporcuStats.filter(s=>s.yuzde!==null).length
+    ? Math.round(sporcuStats.filter(s=>s.yuzde!==null).reduce((t,s)=>t+(s.yuzde||0),0) / sporcuStats.filter(s=>s.yuzde!==null).length)
+    : 0;
+  const riskli = sporcuStats.filter(s => s.yuzde !== null && s.yuzde < 70).length;
+
+  ozet.style.display = 'block';
+  ozet.innerHTML = `<div class="stat-grid" style="margin-bottom:0;">
+    <div class="stat-card"><div class="stat-value">${toplamGun}</div><div class="stat-label">Antrenman Günü</div></div>
+    <div class="stat-card green"><div class="stat-value">%${ortYuzde}</div><div class="stat-label">Ortalama Devam</div></div>
+    <div class="stat-card red"><div class="stat-value">${riskli}</div><div class="stat-label">%70 Altı Sporcu</div></div>
+    <div class="stat-card"><div class="stat-value">${liste.length}</div><div class="stat-label">Toplam Sporcu</div></div>
+  </div>`;
+
+  if (toplamGun === 0) {
+    body.innerHTML = `<div class="empty"><span class="icon">📅</span><p>Bu ay henüz yoklama kaydı yok.</p></div>`;
+    return;
+  }
+
+  // Tablo
+  body.innerHTML = `
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">${grup} — ${new Date(yil,ayNo-1).toLocaleDateString('tr-TR',{month:'long',year:'numeric'})}</div>
+      <div style="font-size:0.8em;color:var(--muted);">${toplamGun} antrenman günü</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Sporcu</th>
+            <th>Geldi</th>
+            <th>Gelmedi</th>
+            <th>Toplam</th>
+            <th>Devam %</th>
+            <th>Durum</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${sporcuStats.map(s => {
+            const pct = s.yuzde;
+            const barColor = pct === null ? '#e5e7eb' : pct >= 80 ? '#10b981' : pct >= 60 ? '#f59e0b' : '#ef4444';
+            const badge = pct === null
+              ? `<span class="badge badge-gray">Veri yok</span>`
+              : pct >= 80 ? `<span class="badge badge-green">İyi</span>`
+              : pct >= 60 ? `<span class="badge badge-orange" style="background:#FEF3C7;color:#92400E;">Orta</span>`
+              : `<span class="badge badge-red">Düşük</span>`;
+            return `<tr>
+              <td><div class="cell-name"><div class="avatar">${(s.ad||'?')[0]}</div><span style="font-weight:500;">${s.ad}</span></div></td>
+              <td style="color:var(--green);font-weight:600;">✓ ${s.geldi}</td>
+              <td style="color:#b91c1c;font-weight:600;">✗ ${s.gelmedi}</td>
+              <td>${s.toplam}</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div style="flex:1;background:#f3f4f6;border-radius:99px;height:6px;min-width:60px;">
+                    <div style="width:${pct??0}%;background:${barColor};height:100%;border-radius:99px;transition:width 0.4s;"></div>
+                  </div>
+                  <span style="font-weight:700;font-size:0.88em;min-width:34px;">${pct !== null ? '%'+pct : '—'}</span>
+                </div>
+              </td>
+              <td>${badge}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
 }
 
 async function updateAidat(ay, sporcuId, field, value) {
