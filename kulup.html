@@ -1181,14 +1181,15 @@ function editSporcu(id) { openSporcuModal(id); }
 
 async function toggleDurum(id, current) {
   const yeni = current === 'Pasif' ? 'Aktif' : 'Pasif';
+  const bugun = new Date().toISOString().split('T')[0];
   const updates = { durum: yeni };
   if (yeni === 'Pasif') {
-    updates.pasifTarihi = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    updates.pasifTarihi = bugun;
   } else {
-    updates.pasifTarihi = null;
+    updates.pasifTarihi = '';  // boş string, null değil
   }
   await db.ref('kulup/sporcular/' + id).update(updates);
-  showToast(yeni === 'Pasif' ? 'Sporcu pasife alındı' : 'Sporcu aktif edildi','success');
+  showToast(yeni === 'Pasif' ? 'Sporcu pasife alındı — ' + bugun + ' tarihinden itibaren yoklamada görünmeyecek' : 'Sporcu aktif edildi','success');
   await loadSporcular();
 }
 
