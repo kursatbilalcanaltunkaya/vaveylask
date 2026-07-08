@@ -445,7 +445,7 @@
                   <th>Veli Tel</th>
                   <th onclick="sortSporcu('dogumYili')">Doğum Yılı ↕</th>
                   <th>Boy / Kilo</th>
-                  <th>Forma</th>
+                  <th onclick="sortSporcu('kayit')">Kayıt Tarihi ↕</th>
                   <th onclick="sortSporcu('durum')">Durum ↕</th>
                   <th></th>
                 </tr>
@@ -1020,7 +1020,7 @@ function renderSporcu() {
         <td>${s.veliTel||'—'}</td>
         <td>${dogumYili||'—'}</td>
         <td>${s.boy?s.boy+'cm':'—'}${s.kilo?' / '+s.kilo+'kg':''}</td>
-        <td>${s.forma||'—'}</td>
+        <td style="font-size:0.82em;">${s.kayit ? new Date(s.kayit).toLocaleDateString('tr-TR') : '—'}</td>
         <td>${badge}</td>
         <td>
           <div style="display:flex;gap:4px;">
@@ -1600,9 +1600,9 @@ async function loadIstatistik() {
               </span>`
             ).join('');
             return `<tr style="cursor:pointer;" onclick="toggleDetay('${detayId}')">
-              <td><div class="cell-name"><div class="avatar">${(s.ad||'?')[0]}</div>
+              <td><div class="cell-name">${getAvatarHtml(s,36)}
                 <div><div style="font-weight:500;">${s.ad}</div>
-                <div style="font-size:0.72em;color:var(--muted);">detay için tıkla</div></div>
+                <div style="font-size:0.72em;color:var(--muted);">detay için tıkla ▾</div></div>
               </div></td>
               <td style="color:var(--green);font-weight:600;">✓ ${s.geldi}</td>
               <td style="color:#b91c1c;font-weight:600;">✗ ${s.gelmedi}</td>
