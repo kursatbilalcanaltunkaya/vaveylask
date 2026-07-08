@@ -229,7 +229,7 @@
   .badge-orange { background: #FEF3C7; color: #92400E; }
 
   .avatar {
-    width: 30px; height: 30px; border-radius: 50%;
+    width: 36px; height: 36px; border-radius: 50%;
     background: var(--gold); color: var(--red);
     display: inline-flex; align-items: center; justify-content: center;
     font-size: 0.75em; font-weight: 700; flex-shrink: 0;
@@ -620,7 +620,7 @@
         <div class="form-group full" style="align-items:center;">
           <label>Fotoğraf</label>
           <div style="display:flex;align-items:center;gap:14px;">
-            <div id="foto-preview" style="width:64px;height:64px;border-radius:50%;background:var(--bg);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:1.8em;overflow:hidden;">📷</div>
+            <div id="foto-preview" style="width:90px;height:90px;border-radius:50%;background:var(--bg);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:1.8em;overflow:hidden;">📷</div>
             <div>
               <input type="file" id="s-foto" accept="image/*" onchange="previewFoto(this)" style="display:none;">
               <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('s-foto').click()">Fotoğraf Seç</button>
@@ -1174,7 +1174,13 @@ function editSporcu(id) { openSporcuModal(id); }
 
 async function toggleDurum(id, current) {
   const yeni = current === 'Pasif' ? 'Aktif' : 'Pasif';
-  await db.ref('kulup/sporcular/' + id + '/durum').set(yeni);
+  const updates = { durum: yeni };
+  if (yeni === 'Pasif') {
+    updates.pasifTarihi = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  } else {
+    updates.pasifTarihi = null;
+  }
+  await db.ref('kulup/sporcular/' + id).update(updates);
   showToast(yeni === 'Pasif' ? 'Sporcu pasife alındı' : 'Sporcu aktif edildi','success');
   await loadSporcular();
 }
@@ -1651,9 +1657,17 @@ async function loadGruplar() {
 
   const el = document.getElementById('gruplar-listesi');
   el.innerHTML = gruplar.map((g,i) => `
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);font-size:0.88em;">
-      <span style="font-weight:500;">${g}</span>
-      <button class="btn btn-danger btn-sm" onclick="grupSil(${i})">Sil</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);font-size:0.88em;" id="grup-row-${i}">
+      <span style="font-weight:500;" id="grup-label-${i}">${g}</span>
+      <div id="grup-display-${i}" style="display:flex;gap:6px;">
+        <button class="btn btn-secondary btn-sm" onclick="grupDuzenleBasla(${i},'${g.replace(/'/g,"\\'")}')">Düzenle</button>
+        <button class="btn btn-danger btn-sm" onclick="grupSil(${i})">Sil</button>
+      </div>
+      <div id="grup-edit-${i}" style="display:none;gap:6px;align-items:center;">
+        <input type="text" id="grup-edit-input-${i}" value="${g}" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.85em;width:200px;">
+        <button class="btn btn-primary btn-sm" onclick="grupDuzenleKaydet(${i})">Kaydet</button>
+        <button class="btn btn-ghost btn-sm" onclick="grupDuzenleIptal(${i})">İptal</button>
+      </div>
     </div>`).join('') || '<p style="color:var(--muted);font-size:0.85em;">Henüz grup yok.</p>';
 
   // Sporcu formundaki grup select'i güncelle
@@ -1673,6 +1687,38 @@ async function grupEkle() {
   input.value = '';
   showToast('Grup eklendi ✓','success');
   loadGruplar();
+  fillGrupFilters();
+}
+
+function grupDuzenleBasla(idx, ad) {
+  document.getElementById('grup-display-'+idx).style.display = 'none';
+  document.getElementById('grup-edit-'+idx).style.display = 'flex';
+  document.getElementById('grup-edit-input-'+idx).focus();
+}
+function grupDuzenleIptal(idx) {
+  document.getElementById('grup-display-'+idx).style.display = 'flex';
+  document.getElementById('grup-edit-'+idx).style.display = 'none';
+}
+async function grupDuzenleKaydet(idx) {
+  const yeniAd = document.getElementById('grup-edit-input-'+idx).value.trim();
+  if (!yeniAd) { showToast('Grup adı boş olamaz!','error'); return; }
+  const snap = await db.ref('kulup/gruplar').once('value');
+  let gruplar = snap.val() || [];
+  if (!Array.isArray(gruplar)) gruplar = Object.values(gruplar);
+  const eskiAd = gruplar[idx];
+  gruplar[idx] = yeniAd;
+  await db.ref('kulup/gruplar').set(gruplar);
+  // Sporculardaki grup adını güncelle
+  const sporcuSnap = await db.ref('kulup/sporcular').once('value');
+  const sporcuData = sporcuSnap.val() || {};
+  const updates = {};
+  Object.entries(sporcuData).forEach(([id,s]) => {
+    if (s.grup === eskiAd) updates['kulup/sporcular/'+id+'/grup'] = yeniAd;
+  });
+  if (Object.keys(updates).length) await db.ref().update(updates);
+  showToast('Grup adı güncellendi ✓','success');
+  loadGruplar();
+  await loadSporcular();
   fillGrupFilters();
 }
 
