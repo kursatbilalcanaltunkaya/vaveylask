@@ -44,7 +44,20 @@
     top: 0; left: 0;
     height: 100vh;
     z-index: 100;
+    transition: width 0.25s;
+    overflow: hidden;
   }
+  .sidebar.collapsed { width: 56px; }
+  .sidebar.collapsed .nav-label,
+  .sidebar.collapsed .sidebar-brand .logo,
+  .sidebar.collapsed .sidebar-brand .sub,
+  .sidebar.collapsed .nav-item span:last-child,
+  .sidebar.collapsed .user-name,
+  .sidebar.collapsed .user-role,
+  .sidebar.collapsed .btn-logout { display: none; }
+  .sidebar.collapsed .nav-item { justify-content: center; padding: 10px; }
+  .sidebar.collapsed .sidebar-brand { justify-content: center; }
+  .sidebar.collapsed + .main { margin-left: 56px; }
 
   .sidebar-brand {
     padding: 24px 20px 20px;
@@ -92,6 +105,7 @@
   /* ── Main ────────────────────────────────────────────── */
   .main {
     margin-left: 220px;
+    transition: margin-left 0.25s;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -128,8 +142,8 @@
     width: 360px;
   }
   .login-logo { text-align: center; margin-bottom: 28px; }
-  .login-logo .emblem { font-size: 2.4em; display: block; margin-bottom: 8px; }
-  .login-logo h1 { font-size: 1.2em; font-weight: 700; color: var(--red); }
+  .login-logo .emblem { font-size: 3em; display: block; margin-bottom: 10px; }
+  .login-logo h1 { font-size: 1.6em; font-weight: 800; color: var(--red); letter-spacing: 1px; }
   .login-logo p  { font-size: 0.8em; color: var(--muted); margin-top: 2px; }
 
   /* ── Cards / Stats ───────────────────────────────────── */
@@ -337,9 +351,15 @@
 
   <!-- Sidebar -->
   <aside class="sidebar">
-    <div class="sidebar-brand">
-      <div class="logo">🏐 Vaveyla SK</div>
-      <div class="sub">Kulüp Yönetimi</div>
+    <div class="sidebar-brand" style="display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div class="logo" style="font-size:1.3em;letter-spacing:1px;">🏐 VAVEYLA SK</div>
+        <div class="sub">Kulüp Yönetimi</div>
+      </div>
+      <button onclick="toggleSidebar()" title="Menüyü gizle/göster"
+        style="background:rgba(255,255,255,0.1);border:none;color:#FFD700;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:1.1em;display:flex;align-items:center;justify-content:center;">
+        ☰
+      </button>
     </div>
 
     <div class="nav-section">
@@ -365,6 +385,9 @@
       </button>
       <button class="nav-item" onclick="goTo('mesaj')" id="nav-mesaj">
         <span class="icon">💬</span> Mesajlar
+      </button>
+      <button class="nav-item" onclick="goTo('gruplar')" id="nav-gruplar">
+        <span class="icon">🗂️</span> Gruplar
       </button>
     </div>
 
@@ -442,11 +465,18 @@
           <div class="panel-header">
             <div class="panel-title">Yoklama</div>
             <div class="toolbar">
-              <select class="filter" id="yok-grup" onchange="loadYoklama()">
+              <select class="filter" id="yok-grup" onchange="updateYoklamaTakvim();loadYoklama()">
                 <option value="">Grup seçin...</option>
               </select>
-              <input type="date" id="yok-tarih" class="filter" onchange="loadYoklama()">
+              <div style="position:relative;">
+                <input type="date" id="yok-tarih" class="filter" onchange="loadYoklama()" style="padding-right:8px;">
+                <div id="yok-takvim-info" style="font-size:0.72em;color:var(--green);margin-top:2px;text-align:right;"></div>
+              </div>
             </div>
+          </div>
+          <div id="yok-gun-strip" style="padding:8px 20px;border-bottom:1px solid var(--border);background:#FAFAF8;display:none;">
+            <div style="font-size:0.72em;color:var(--muted);margin-bottom:5px;">Bu ay yoklama alınan günler:</div>
+            <div id="yok-gun-badges" style="display:flex;flex-wrap:wrap;gap:4px;"></div>
           </div>
           <div id="yoklama-body" style="padding:20px;">
             <div class="empty"><span class="icon">📋</span><p>Grup ve tarih seçerek yoklamaya başlayın.</p></div>
@@ -546,6 +576,22 @@
         </div>
       </div>
 
+      <!-- ─── GRUPLAR ─────────────────────────────────────── -->
+      <div id="screen-gruplar" class="screen">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Grup Yönetimi</div>
+          </div>
+          <div style="padding:20px;">
+            <div style="display:flex;gap:10px;margin-bottom:20px;">
+              <input type="text" id="yeni-grup-input" placeholder="Yeni grup adı..." class="search-box" style="border:1px solid var(--border);border-radius:7px;padding:8px 12px;font-size:0.85em;flex:1;">
+              <button class="btn btn-primary" onclick="grupEkle()">+ Ekle</button>
+            </div>
+            <div id="gruplar-listesi"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- ─── MESAJ ──────────────────────────────────────── -->
       <div id="screen-mesaj" class="screen">
         <div class="panel" style="margin-bottom:20px;">
@@ -571,6 +617,18 @@
     <div class="modal-body">
       <div class="form-grid">
         <div class="form-section">Sporcu Bilgileri</div>
+        <div class="form-group full" style="align-items:center;">
+          <label>Fotoğraf</label>
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div id="foto-preview" style="width:64px;height:64px;border-radius:50%;background:var(--bg);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:1.8em;overflow:hidden;">📷</div>
+            <div>
+              <input type="file" id="s-foto" accept="image/*" onchange="previewFoto(this)" style="display:none;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('s-foto').click()">Fotoğraf Seç</button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="clearFoto()" style="color:var(--muted);">Kaldır</button>
+              <div style="font-size:0.72em;color:var(--muted);margin-top:4px;">Max 200KB, JPG/PNG</div>
+            </div>
+          </div>
+        </div>
         <div class="form-group">
           <label>Ad Soyad *</label>
           <input type="text" id="s-ad" placeholder="Ahsen Ela SAVAŞ">
@@ -654,9 +712,12 @@
         </div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeSporcu()">İptal</button>
-      <button class="btn btn-primary" onclick="saveSporcu()">Kaydet</button>
+    <div class="modal-footer" style="justify-content:space-between;">
+      <button class="btn btn-danger" id="btn-sporcu-sil" style="display:none;" onclick="silSporcu()">🗑 Sporcuyu Sil</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary" onclick="closeSporcu()">İptal</button>
+        <button class="btn btn-primary" onclick="saveSporcu()">Kaydet</button>
+      </div>
     </div>
   </div>
 </div>
@@ -727,6 +788,10 @@ const PASSWORDS = {
 };
 let currentUser = null;
 
+function toggleSidebar() {
+  document.querySelector('.sidebar').classList.toggle('collapsed');
+}
+
 function doLogin() {
   const pw = document.getElementById('login-pass').value;
   const err = document.getElementById('login-err');
@@ -760,7 +825,7 @@ function doLogout() {
 /* ═══════════════════════════════════════════════════════
    NAVIGATION
 ═══════════════════════════════════════════════════════ */
-const PAGES = { sporcular:'Sporcular', yoklama:'Yoklama', istatistik:'Yoklama İstatistikleri', aidat:'Aidat Takibi', kasa:'Kasa', mesaj:'Mesajlar' };
+const PAGES = { sporcular:'Sporcular', yoklama:'Yoklama', istatistik:'Yoklama İstatistikleri', aidat:'Aidat Takibi', kasa:'Kasa', mesaj:'Mesajlar', gruplar:'Grup Yönetimi' };
 let currentPage = 'sporcular';
 
 function goTo(page) {
@@ -776,6 +841,7 @@ function goTo(page) {
   updateTopbarActions(page);
   if (page === 'yoklama') initYoklamaGruplar();
   if (page === 'istatistik') loadIstatistik();
+  if (page === 'gruplar') loadGruplar();
   if (page === 'aidat')   loadAidat();
   if (page === 'kasa')    loadKasa();
   if (page === 'mesaj')   loadMesaj();
@@ -801,9 +867,21 @@ let editingId = null;
 
 async function initApp() {
   await loadSporcular();
+  await initGruplar();
   fillGrupFilters();
   fillIstDropdowns();
   setDefaultDates();
+}
+
+async function initGruplar() {
+  const snap = await db.ref('kulup/gruplar').once('value');
+  let gruplar = snap.val();
+  if (!gruplar) {
+    await db.ref('kulup/gruplar').set(VARSAYILAN_GRUPLAR);
+    gruplar = VARSAYILAN_GRUPLAR;
+  }
+  if (!Array.isArray(gruplar)) gruplar = Object.values(gruplar);
+  updateGrupSelect(gruplar);
 }
 
 function fillIstDropdowns() {
@@ -920,12 +998,15 @@ function renderSporcu() {
   } else {
     tbody.innerHTML = slice.map(s => {
       const init = (s.ad||'?')[0].toUpperCase();
+      const avatarHtml = s.foto
+        ? `<div class="avatar" style="overflow:hidden;"><img src="${s.foto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></div>`
+        : `<div class="avatar">${init}</div>`;
       const dogumYili = s.dogum ? new Date(s.dogum).getFullYear() : (s.dogumYili || '');
       const badge = s.durum === 'Pasif'
         ? `<span class="badge badge-gray">Pasif</span>`
         : `<span class="badge badge-green">Aktif</span>`;
       return `<tr>
-        <td><div class="cell-name"><div class="avatar">${init}</div><div><div style="font-weight:500;">${s.ad||''}</div></div></div></td>
+        <td><div class="cell-name">${avatarHtml}<div><div style="font-weight:500;">${s.ad||''}</div></div></div></td>
         <td><span style="font-size:0.8em;color:var(--muted);">${s.grup||'—'}</span></td>
         <td>${s.tel||'—'}</td>
         <td>${s.veliAd||'—'}</td>
@@ -956,6 +1037,26 @@ function renderSporcu() {
   }
 }
 
+function previewFoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 300*1024) { showToast('Fotoğraf çok büyük! Max 300KB','error'); input.value=''; return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const prev = document.getElementById('foto-preview');
+    prev.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
+    prev.dataset.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearFoto() {
+  const prev = document.getElementById('foto-preview');
+  prev.innerHTML = '📷';
+  prev.dataset.src = '';
+  document.getElementById('s-foto').value = '';
+}
+
 function openSporcuModal(id) {
   editingId = id || null;
   document.getElementById('sporcu-modal-title').textContent = id ? 'Sporcuyu Düzenle' : 'Yeni Sporcu';
@@ -969,6 +1070,10 @@ function openSporcuModal(id) {
   document.getElementById('s-veli-ad').value = '';
   document.getElementById('s-veli-tel').value = '';
 
+  document.getElementById('btn-sporcu-sil').style.display = id ? 'inline-flex' : 'none';
+  const prev = document.getElementById('foto-preview');
+  prev.innerHTML = '📷'; prev.dataset.src = '';
+  document.getElementById('s-foto').value = '';
   if (id) {
     const s = sporcular.find(x => x.id === id);
     if (s) {
@@ -987,12 +1092,30 @@ function openSporcuModal(id) {
       document.getElementById('s-veli-ad').value = s.veliAd || '';
       document.getElementById('s-veli-tel').value = s.veliTel || '';
       document.getElementById('s-notlar').value = s.notlar || '';
+      if (s.foto) {
+        const p = document.getElementById('foto-preview');
+        p.innerHTML = `<img src="${s.foto}" style="width:100%;height:100%;object-fit:cover;">`;
+        p.dataset.src = s.foto;
+      }
     }
   }
   document.getElementById('sporcu-modal').classList.add('open');
 }
 
 function closeSporcu() { document.getElementById('sporcu-modal').classList.remove('open'); }
+
+async function silSporcu() {
+  if (!editingId) return;
+  const s = sporcular.find(x => x.id === editingId);
+  if (!confirm(`"${s?.ad}" adlı sporcunun TÜM bilgileri silinecek. Bu işlem geri alınamaz!
+
+Devam etmek istiyor musunuz?`)) return;
+  await db.ref('kulup/sporcular/' + editingId).remove();
+  showToast('Sporcu silindi','success');
+  closeSporcu();
+  await loadSporcular();
+  fillGrupFilters();
+}
 
 async function saveSporcu() {
   const ad = document.getElementById('s-ad').value.trim();
@@ -1002,6 +1125,7 @@ async function saveSporcu() {
 
   const data = {
     ad, grup,
+    foto: (document.getElementById('foto-preview').dataset.src) || '',
     dogum: document.getElementById('s-dogum').value,
     dogumYili: document.getElementById('s-dogum').value ? new Date(document.getElementById('s-dogum').value).getFullYear() : '',
     tc: document.getElementById('s-tc').value.trim(),
@@ -1020,6 +1144,21 @@ async function saveSporcu() {
   };
 
   if (editingId) {
+    // Grup değiştiyse yoklama kayıtlarını taşı
+    const eski = sporcular.find(x => x.id === editingId);
+    if (eski && eski.grup !== data.grup) {
+      const eskiKey = eski.grup.replace(/[^a-zA-Z0-9]/g,'_');
+      const yeniKey = data.grup.replace(/[^a-zA-Z0-9]/g,'_');
+      const yokSnap = await db.ref(`kulup/yoklama/${eskiKey}`).once('value');
+      const yokData = yokSnap.val() || {};
+      // Her günde bu sporcunun kaydını yeni gruba kopyala
+      for (const [gun, kayit] of Object.entries(yokData)) {
+        if (kayit[editingId] !== undefined) {
+          await db.ref(`kulup/yoklama/${yeniKey}/${gun}/${editingId}`).set(kayit[editingId]);
+          await db.ref(`kulup/yoklama/${eskiKey}/${gun}/${editingId}`).remove();
+        }
+      }
+    }
     await db.ref('kulup/sporcular/' + editingId).update(data);
     showToast('Sporcu güncellendi ✓','success');
   } else {
@@ -1043,6 +1182,43 @@ async function toggleDurum(id, current) {
 /* ═══════════════════════════════════════════════════════
    YOKLAMA
 ═══════════════════════════════════════════════════════ */
+async function updateYoklamaTakvim() {
+  const grup = document.getElementById('yok-grup').value;
+  const tarih = document.getElementById('yok-tarih').value;
+  const strip = document.getElementById('yok-gun-strip');
+  const badges = document.getElementById('yok-gun-badges');
+  if (!grup) { strip.style.display='none'; return; }
+
+  const grupKey = grup.replace(/[^a-zA-Z0-9]/g,'_');
+  const snap = await db.ref(`kulup/yoklama/${grupKey}`).once('value');
+  const tumYoklama = snap.val() || {};
+
+  // Bu aydaki günleri bul
+  const secilenTarih = tarih || new Date().toISOString().split('T')[0];
+  const ayStr = secilenTarih.substring(0,7).replace('-',''); // 202507
+  const ayGunler = Object.keys(tumYoklama).filter(k => k.startsWith(ayStr)).sort();
+
+  if (!ayGunler.length) { strip.style.display='none'; return; }
+
+  strip.style.display = 'block';
+  badges.innerHTML = ayGunler.map(g => {
+    const gun = g.substring(6,8)+'.'+g.substring(4,6);
+    const isSelected = tarih && g === tarih.replace(/-/g,'');
+    return `<span onclick="secGun('${g}')" style="cursor:pointer;padding:3px 9px;border-radius:5px;font-size:0.78em;font-weight:600;
+      background:${isSelected?'var(--red)':'var(--green)'};color:white;transition:all 0.15s;">${gun}</span>`;
+  }).join('');
+
+  document.getElementById('yok-takvim-info').textContent = `${ayGunler.length} yoklama günü`;
+}
+
+function secGun(gun) {
+  // YYYYMMDD → YYYY-MM-DD
+  const formatted = gun.substring(0,4)+'-'+gun.substring(4,6)+'-'+gun.substring(6,8);
+  document.getElementById('yok-tarih').value = formatted;
+  loadYoklama();
+  updateYoklamaTakvim();
+}
+
 function initYoklamaGruplar() {
   fillGrupFilters();
 }
@@ -1054,13 +1230,15 @@ async function loadYoklama() {
   const tarih  = document.getElementById('yok-tarih').value;
   const body   = document.getElementById('yoklama-body');
 
+  updateYoklamaTakvim();
   if (!grup || !tarih) {
     body.innerHTML = `<div class="empty"><span class="icon">📋</span><p>Grup ve tarih seçerek yoklamaya başlayın.</p></div>`;
     return;
   }
 
   // Sadece aktif sporcular
-  const liste = sporcular.filter(s => s.grup === grup && s.durum !== 'Pasif');
+  // İstatistikte aktif+pasif sporcular görünsün
+  const liste = sporcular.filter(s => s.grup === grup);
   if (!liste.length) {
     body.innerHTML = `<div class="empty"><span class="icon">👤</span><p>Bu grupta aktif sporcu yok.</p></div>`;
     return;
@@ -1085,9 +1263,10 @@ async function loadYoklama() {
       <div style="background:var(--bg);color:var(--muted);padding:8px 16px;border-radius:8px;font-size:0.85em;font-weight:500;">— İşaretlenmedi: ${isaretlenmemis}</div>
     </div>
     <div id="yok-liste" style="display:flex;flex-direction:column;gap:8px;"></div>
-    <div style="margin-top:20px;display:flex;gap:8px;">
+    <div style="margin-top:20px;display:flex;gap:8px;flex-wrap:wrap;">
       <button class="btn btn-primary" onclick="saveYoklama('${grupKey}','${key}','${grup}')">💾 Kaydet</button>
-      <button class="btn btn-secondary" onclick="hepsiniisle(true)">✓ Tümünü Geldi İşaretle</button>
+      <button class="btn btn-secondary" onclick="hepsiniisle(true)">✓ Tümünü Geldi</button>
+      <button class="btn btn-danger" onclick="yoklamaGunuSil('${grupKey}','${key}')">🗑 Bu Günü Sil</button>
     </div>
   `;
 
@@ -1132,6 +1311,14 @@ function setYok(id, val) {
   btns[1].style.background = durum===false?'#b91c1c':'transparent';
   btns[1].style.borderColor = durum===false?'#b91c1c':'var(--border)';
   btns[1].style.color = durum===false?'#fff':'var(--muted)';
+}
+
+async function yoklamaGunuSil(grupKey, key) {
+  const tarih = key.substring(6,8)+'.'+key.substring(4,6)+'.'+key.substring(0,4);
+  if (!confirm(`${tarih} tarihli yoklama tamamen silinecek. Emin misiniz?`)) return;
+  await db.ref(`kulup/yoklama/${grupKey}/${key}`).remove();
+  showToast('Yoklama silindi','success');
+  loadYoklama();
 }
 
 function hepsiniisle(val) {
@@ -1202,7 +1389,7 @@ async function loadAidat() {
 
   const filterDurum = document.getElementById('filter-aidat-durum')?.value || '';
   const searchQ = (document.getElementById('aidat-search')?.value || '').toLowerCase();
-  let aktifler = sporcular.filter(s => s.durum !== 'Pasif' && (!grup || s.grup === grup));
+  let aktifler = sporcular.filter(s => (!grup || s.grup === grup));
   if (searchQ) aktifler = aktifler.filter(s => (s.ad||'').toLowerCase().includes(searchQ));
   const snap = await db.ref('kulup/aidat/' + ay.replace('-','')).once('value');
   const kayitlar = snap.val() || {};
@@ -1300,7 +1487,8 @@ async function loadIstatistik() {
   const toplamGun = ayGunler.length;
 
   // Aktif sporcular
-  const liste = sporcular.filter(s => s.grup === grup && s.durum !== 'Pasif');
+  // İstatistikte aktif+pasif sporcular görünsün
+  const liste = sporcular.filter(s => s.grup === grup);
 
   if (!liste.length) {
     body.innerHTML = `<div class="empty"><span class="icon">👤</span><p>Bu grupta aktif sporcu yok.</p></div>`;
@@ -1440,6 +1628,72 @@ function toggleDetay(id) {
 
 async function updateAidat(ay, sporcuId, field, value) {
   await db.ref(`kulup/aidat/${ay.replace('-','')}/${sporcuId}/${field}`).set(value);
+}
+
+/* ═══════════════════════════════════════════════════════
+   GRUP YÖNETİMİ
+═══════════════════════════════════════════════════════ */
+const VARSAYILAN_GRUPLAR = [
+  '1- Kulüp Voleybol','2- Büyük Akademi Voleybol','3- Küçük Akademi Voleybol',
+  '4- Büyük Voleybol S.O.O.G.','5- Küçük Voleybol S.O.O.G.',
+  '6- Voleybol S.O.O.R.','7- Kadın Voleybol','8- Basketbol'
+];
+
+async function loadGruplar() {
+  const snap = await db.ref('kulup/gruplar').once('value');
+  let gruplar = snap.val();
+  if (!gruplar) {
+    // İlk kez - varsayılanları kaydet
+    await db.ref('kulup/gruplar').set(VARSAYILAN_GRUPLAR);
+    gruplar = VARSAYILAN_GRUPLAR;
+  }
+  if (!Array.isArray(gruplar)) gruplar = Object.values(gruplar);
+
+  const el = document.getElementById('gruplar-listesi');
+  el.innerHTML = gruplar.map((g,i) => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);font-size:0.88em;">
+      <span style="font-weight:500;">${g}</span>
+      <button class="btn btn-danger btn-sm" onclick="grupSil(${i})">Sil</button>
+    </div>`).join('') || '<p style="color:var(--muted);font-size:0.85em;">Henüz grup yok.</p>';
+
+  // Sporcu formundaki grup select'i güncelle
+  updateGrupSelect(gruplar);
+}
+
+async function grupEkle() {
+  const input = document.getElementById('yeni-grup-input');
+  const ad = input.value.trim();
+  if (!ad) return;
+  const snap = await db.ref('kulup/gruplar').once('value');
+  let gruplar = snap.val() || [];
+  if (!Array.isArray(gruplar)) gruplar = Object.values(gruplar);
+  if (gruplar.includes(ad)) { showToast('Bu grup zaten var!','error'); return; }
+  gruplar.push(ad);
+  await db.ref('kulup/gruplar').set(gruplar);
+  input.value = '';
+  showToast('Grup eklendi ✓','success');
+  loadGruplar();
+  fillGrupFilters();
+}
+
+async function grupSil(idx) {
+  const snap = await db.ref('kulup/gruplar').once('value');
+  let gruplar = snap.val() || [];
+  if (!Array.isArray(gruplar)) gruplar = Object.values(gruplar);
+  if (!confirm(`"${gruplar[idx]}" grubunu silmek istiyor musunuz?`)) return;
+  gruplar.splice(idx,1);
+  await db.ref('kulup/gruplar').set(gruplar);
+  showToast('Grup silindi','success');
+  loadGruplar();
+  fillGrupFilters();
+}
+
+function updateGrupSelect(gruplar) {
+  const sel = document.getElementById('s-grup');
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Seçin</option>';
+  gruplar.forEach(g => sel.innerHTML += `<option value="${g}"${g===cur?' selected':''}>${g}</option>`);
 }
 
 /* ═══════════════════════════════════════════════════════
