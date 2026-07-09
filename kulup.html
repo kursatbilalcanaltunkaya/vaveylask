@@ -542,6 +542,7 @@
                   <th>Ödeme Tarihi & Saati</th>
                   <th>Ödeyenin Adı</th>
                   <th>Ödenen Tutar (₺)</th>
+                  <th>Kayıt Tarihi</th>
                   <th>Notlar</th>
                 </tr>
               </thead>
@@ -1464,6 +1465,7 @@ async function loadAidat() {
           style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;width:140px;background:var(--bg);"></td>
       <td><input type="number" value="${k.tutar||''}" placeholder="0" onblur="updateAidat('${ay}','${s.id}','tutar',this.value)"
           style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;width:90px;background:var(--bg);"></td>
+      <td style="font-size:0.82em;color:var(--muted);">${s.kayit ? new Date(s.kayit).toLocaleDateString('tr-TR') : '—'}</td>
       <td><input type="text" value="${k.not||''}" placeholder="Not..." onblur="updateAidat('${ay}','${s.id}','not',this.value)"
           style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;width:140px;background:var(--bg);"></td>
     </tr>`;
