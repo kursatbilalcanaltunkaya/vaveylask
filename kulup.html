@@ -1252,9 +1252,14 @@ async function loadYoklama() {
     return;
   }
 
-  // Sadece aktif sporcular
-  // İstatistikte aktif+pasif sporcular görünsün
-  const liste = sporcular.filter(s => s.grup === grup);
+  // Pasif sporcuları filtrele: pasifTarihi seçilen tarihten küçük veya eşitse gösterme
+  const liste = sporcular.filter(s => {
+    if (s.grup !== grup) return false;
+    if (!s.durum || s.durum === 'Aktif') return true;
+    // Pasif: sadece pasifleşme tarihinden önceki yoklamalarda göster
+    if (!s.pasifTarihi) return false;
+    return tarih < s.pasifTarihi;
+  });
   if (!liste.length) {
     body.innerHTML = `<div class="empty"><span class="icon">👤</span><p>Bu grupta aktif sporcu yok.</p></div>`;
     return;
