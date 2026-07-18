@@ -1368,12 +1368,8 @@ async function saveYoklama(grupKey, key, grupAdi) {
     const sablonSnap = await db.ref('kulup/mesajlar/yoklamaSablon').once('value');
     const sablon = sablonSnap.val() || 'Sayın {veli}, {tarih} tarihinde gerçekleştirilen antrenmanımıza {sporcu} katılamamıştır. Bilgilerinize sunarız. — Vaveyla SK';
 
-    let waHtml = `<div style="margin-top:16px;padding:16px;background:#f0fdf4;border-radius:10px;border:1px solid #bbf7d0;">
-      <div style="font-size:0.85em;font-weight:700;color:#065F46;margin-bottom:12px;">📱 Devamsızlık Bildirimi — ${tarihStr}</div>
-      <div style="font-size:0.75em;color:#666;margin-bottom:10px;padding:8px;background:white;border-radius:6px;border:1px solid #d1fae5;">
-        <strong>Şablon:</strong> ${sablon}
-      </div>`;
-
+    // Linkleri hazırla
+    const waLinks = [];
     gelenme.forEach(s => {
       if (!s.veliTel) return;
       const tel = s.veliTel.replace(/\D/g,'').replace(/^0/,'90');
@@ -1381,13 +1377,41 @@ async function saveYoklama(grupKey, key, grupAdi) {
         .replace(/{sporcu}/g, s.ad)
         .replace(/{veli}/g, s.veliAd || 'Veli')
         .replace(/{tarih}/g, tarihStr);
-      const msg = encodeURIComponent(mesaj);
+      waLinks.push({ s, tel, url: `https://wa.me/${tel}?text=${encodeURIComponent(mesaj)}` });
+    });
+
+    // "Tümüne Gönder" fonksiyonu - sırayla aç (300ms arayla)
+    const tumLinks = waLinks.map(l => l.url);
+    window._waTopluGonder = function() {
+      if (!tumLinks.length) return;
+      showToast('WhatsApp pencereleri açılıyor...','success');
+      tumLinks.forEach((url, i) => {
+        setTimeout(() => window.open(url, '_blank'), i * 600);
+      });
+    };
+
+    let waHtml = `<div style="margin-top:16px;padding:16px;background:#f0fdf4;border-radius:10px;border:1px solid #bbf7d0;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+        <div style="font-size:0.85em;font-weight:700;color:#065F46;">📱 Devamsızlık Bildirimi — ${tarihStr} (${waLinks.length} kişi)</div>
+        ${waLinks.length > 1 ? `<button onclick="window._waTopluGonder()"
+          style="background:#25D366;color:#fff;padding:8px 18px;border-radius:8px;font-size:0.82em;font-weight:700;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;">
+          💬 Tümüne Gönder (${waLinks.length})
+        </button>` : ''}
+      </div>
+      <div style="font-size:0.75em;color:#666;margin-bottom:10px;padding:8px;background:white;border-radius:6px;border:1px solid #d1fae5;">
+        <strong>Şablon:</strong> ${sablon}
+      </div>`;
+
+    waLinks.forEach(({s, url}) => {
       waHtml += `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #d1fae5;gap:10px;">
-        <div>
-          <div style="font-size:0.85em;font-weight:600;">${s.ad}</div>
-          <div style="font-size:0.75em;color:#666;">${s.veliAd||''} — ${s.veliTel}</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          ${getAvatarHtml(s, 32)}
+          <div>
+            <div style="font-size:0.85em;font-weight:600;">${s.ad}</div>
+            <div style="font-size:0.75em;color:#666;">${s.veliAd||''} — ${s.veliTel}</div>
+          </div>
         </div>
-        <a href="https://wa.me/${tel}?text=${msg}" target="_blank"
+        <a href="${url}" target="_blank"
            style="background:#25D366;color:#fff;padding:7px 16px;border-radius:7px;font-size:0.82em;text-decoration:none;font-weight:600;white-space:nowrap;flex-shrink:0;">
           💬 WhatsApp
         </a>
