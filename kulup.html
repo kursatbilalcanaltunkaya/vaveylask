@@ -1380,20 +1380,43 @@ async function saveYoklama(grupKey, key, grupAdi) {
       waLinks.push({ s, tel, url: `https://wa.me/${tel}?text=${encodeURIComponent(mesaj)}` });
     });
 
-    // "Tümüne Gönder" fonksiyonu - sırayla aç (300ms arayla)
+    // "Tümüne Gönder" - kullanıcı tıklayınca sırayla gönderir
     const tumLinks = waLinks.map(l => l.url);
+    let _waIndex = 0;
     window._waTopluGonder = function() {
       if (!tumLinks.length) return;
-      showToast('WhatsApp pencereleri açılıyor...','success');
-      tumLinks.forEach((url, i) => {
-        setTimeout(() => window.open(url, '_blank'), i * 600);
-      });
+      _waIndex = 0;
+      window._waSonrakiGonder();
+    };
+    window._waSonrakiGonder = function() {
+      if (_waIndex >= tumLinks.length) {
+        showToast('Tüm mesajlar gönderildi ✓','success');
+        return;
+      }
+      const kalan = tumLinks.length - _waIndex;
+      window.open(tumLinks[_waIndex], '_blank');
+      _waIndex++;
+      if (_waIndex < tumLinks.length) {
+        showToast(`Mesaj gönderildi. Kalan: ${kalan-1} kişi — Sonraki için tekrar bas`,'success');
+        // Butonu güncelle
+        const btn = document.getElementById('wa-toplu-btn');
+        if (btn) {
+          btn.textContent = _waIndex < tumLinks.length
+            ? \`💬 Sonraki Kişiyi Gönder (\${tumLinks.length - _waIndex} kaldı)\`
+            : '✓ Tümü Gönderildi';
+          btn.onclick = window._waSonrakiGonder;
+        }
+      } else {
+        const btn = document.getElementById('wa-toplu-btn');
+        if (btn) { btn.textContent = '✓ Tümü Gönderildi'; btn.style.background='#666'; btn.onclick=null; }
+        showToast('Tüm mesajlar gönderildi ✓','success');
+      }
     };
 
     let waHtml = `<div style="margin-top:16px;padding:16px;background:#f0fdf4;border-radius:10px;border:1px solid #bbf7d0;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
         <div style="font-size:0.85em;font-weight:700;color:#065F46;">📱 Devamsızlık Bildirimi — ${tarihStr} (${waLinks.length} kişi)</div>
-        ${waLinks.length > 1 ? `<button onclick="window._waTopluGonder()"
+        ${waLinks.length > 1 ? `<button id="wa-toplu-btn" onclick="window._waTopluGonder()"
           style="background:#25D366;color:#fff;padding:8px 18px;border-radius:8px;font-size:0.82em;font-weight:700;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;">
           💬 Tümüne Gönder (${waLinks.length})
         </button>` : ''}
