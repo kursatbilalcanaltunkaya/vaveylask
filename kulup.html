@@ -1398,7 +1398,8 @@ async function saveYoklama(grupKey, key, grupAdi) {
   }
 
   showToast('Yoklama kaydedildi ✓','success');
-  loadYoklama();
+  // loadYoklama() çağırmıyoruz — WhatsApp linkleri silinmesin
+  updateYoklamaTakvim(); // sadece takvimi güncelle
 }
 
 /* ═══════════════════════════════════════════════════════
