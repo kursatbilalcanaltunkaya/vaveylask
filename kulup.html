@@ -1363,17 +1363,33 @@ async function saveYoklama(grupKey, key, grupAdi) {
     const tarih = document.getElementById('yok-tarih').value;
     const d = new Date(tarih);
     const tarihStr = d.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'});
-    let waHtml = `<div style="margin-top:16px;padding:14px;background:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0;">
-      <div style="font-size:0.82em;font-weight:600;color:#065F46;margin-bottom:10px;">📱 Gönderilmedi bildirimi — ${tarihStr}</div>`;
+
+    // Şablonu Firebase'den çek
+    const sablonSnap = await db.ref('kulup/mesajlar/yoklamaSablon').once('value');
+    const sablon = sablonSnap.val() || 'Sayın {veli}, {tarih} tarihinde gerçekleştirilen antrenmanımıza {sporcu} katılamamıştır. Bilgilerinize sunarız. — Vaveyla SK';
+
+    let waHtml = `<div style="margin-top:16px;padding:16px;background:#f0fdf4;border-radius:10px;border:1px solid #bbf7d0;">
+      <div style="font-size:0.85em;font-weight:700;color:#065F46;margin-bottom:12px;">📱 Devamsızlık Bildirimi — ${tarihStr}</div>
+      <div style="font-size:0.75em;color:#666;margin-bottom:10px;padding:8px;background:white;border-radius:6px;border:1px solid #d1fae5;">
+        <strong>Şablon:</strong> ${sablon}
+      </div>`;
+
     gelenme.forEach(s => {
       if (!s.veliTel) return;
       const tel = s.veliTel.replace(/\D/g,'').replace(/^0/,'90');
-      const msg = encodeURIComponent(`Sayın ${s.veliAd||'Veli'}, ${tarihStr} tarihli antrenmanımıza ${s.ad} katılamamıştır. Bilgilerinize sunarız. — Vaveyla SK`);
-      waHtml += `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #d1fae5;">
-        <span style="font-size:0.82em;">${s.ad} → ${s.veliAd||''}</span>
+      const mesaj = sablon
+        .replace(/{sporcu}/g, s.ad)
+        .replace(/{veli}/g, s.veliAd || 'Veli')
+        .replace(/{tarih}/g, tarihStr);
+      const msg = encodeURIComponent(mesaj);
+      waHtml += `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #d1fae5;gap:10px;">
+        <div>
+          <div style="font-size:0.85em;font-weight:600;">${s.ad}</div>
+          <div style="font-size:0.75em;color:#666;">${s.veliAd||''} — ${s.veliTel}</div>
+        </div>
         <a href="https://wa.me/${tel}?text=${msg}" target="_blank"
-           style="background:#25D366;color:#fff;padding:5px 12px;border-radius:6px;font-size:0.78em;text-decoration:none;font-weight:500;">
-          WhatsApp Gönder
+           style="background:#25D366;color:#fff;padding:7px 16px;border-radius:7px;font-size:0.82em;text-decoration:none;font-weight:600;white-space:nowrap;flex-shrink:0;">
+          💬 WhatsApp
         </a>
       </div>`;
     });
@@ -1813,9 +1829,28 @@ async function delKasa(id) {
 /* ═══════════════════════════════════════════════════════
    MESAJ
 ═══════════════════════════════════════════════════════ */
-function loadMesaj() {
+async function loadMesaj() {
+  // Kayıtlı şablonu yükle
+  const snap = await db.ref('kulup/mesajlar/yoklamaSablon').once('value');
+  const sablon = snap.val() || 'Sayın {veli}, {tarih} tarihinde gerçekleştirilen antrenmanımıza {sporcu} katılamamıştır. Bilgilerinize sunarız. — Vaveyla SK';
   document.getElementById('mesaj-body').innerHTML = `
     <div style="display:grid;gap:16px;">
+
+      <!-- Yoklama Devamsızlık Mesajı -->
+      <div style="background:var(--bg);border-radius:10px;padding:16px;border-left:3px solid var(--green);">
+        <div style="font-weight:600;font-size:0.88em;margin-bottom:4px;">🏐 Yoklama Devamsızlık Mesajı</div>
+        <div style="font-size:0.75em;color:var(--muted);margin-bottom:10px;">
+          Kullanılabilir değişkenler: <code>{sporcu}</code> = sporcu adı, <code>{tarih}</code> = antrenman tarihi, <code>{veli}</code> = veli adı
+        </div>
+        <textarea id="msg-yoklama" rows="4" style="width:100%;border:1px solid var(--border);border-radius:7px;padding:8px;font-size:0.83em;background:#fff;"
+          placeholder="Sayın {veli}, {tarih} tarihinde gerçekleştirilen antrenmanımıza {sporcu} katılamamıştır. Bilgilerinize sunarız. — Vaveyla SK">${sablon}</</textarea>
+        <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+          <button class="btn btn-primary btn-sm" onclick="saveYoklamaMesajSablonu()">💾 Şablonu Kaydet</button>
+          <span id="yoklama-sablon-ok" style="font-size:0.78em;color:var(--green);display:none;">✓ Kaydedildi</span>
+        </div>
+      </div>
+
+      <!-- Ay Başı Mesajı -->
       <div style="background:var(--bg);border-radius:10px;padding:16px;">
         <div style="font-weight:600;font-size:0.88em;margin-bottom:10px;">📅 Ay Başı Mesajı (1. gün)</div>
         <textarea id="msg-ay-basi" rows="3" style="width:100%;border:1px solid var(--border);border-radius:7px;padding:8px;font-size:0.83em;background:#fff;"
@@ -1824,6 +1859,8 @@ function loadMesaj() {
           <button class="btn btn-secondary btn-sm" onclick="gonderMesaj('ay-basi')">📋 Kopyala ve Gönder</button>
         </div>
       </div>
+
+      <!-- Ay Ortası Mesajı -->
       <div style="background:var(--bg);border-radius:10px;padding:16px;">
         <div style="font-weight:600;font-size:0.88em;margin-bottom:10px;">📅 Ay Ortası Mesajı (15. gün)</div>
         <textarea id="msg-ay-orta" rows="3" style="width:100%;border:1px solid var(--border);border-radius:7px;padding:8px;font-size:0.83em;background:#fff;"
@@ -1832,6 +1869,8 @@ function loadMesaj() {
           <button class="btn btn-secondary btn-sm" onclick="gonderMesaj('ay-orta')">📋 Kopyala ve Gönder</button>
         </div>
       </div>
+
+      <!-- Gecikme Mesajı -->
       <div style="background:var(--bg);border-radius:10px;padding:16px;">
         <div style="font-weight:600;font-size:0.88em;margin-bottom:10px;">🔔 Gecikme Mesajı (Ödemeyen velilere)</div>
         <textarea id="msg-gecikme" rows="3" style="width:100%;border:1px solid var(--border);border-radius:7px;padding:8px;font-size:0.83em;background:#fff;"
@@ -1842,6 +1881,15 @@ function loadMesaj() {
       </div>
     </div>
   `;
+}
+
+async function saveYoklamaMesajSablonu() {
+  const sablon = document.getElementById('msg-yoklama').value.trim();
+  if (!sablon) { showToast('Şablon boş olamaz!','error'); return; }
+  await db.ref('kulup/mesajlar/yoklamaSablon').set(sablon);
+  const ok = document.getElementById('yoklama-sablon-ok');
+  if (ok) { ok.style.display='inline'; setTimeout(()=>ok.style.display='none',2000); }
+  showToast('Şablon kaydedildi ✓','success');
 }
 
 function gonderMesaj(tip) {
