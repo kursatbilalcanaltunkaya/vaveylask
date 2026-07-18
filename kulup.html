@@ -1402,7 +1402,7 @@ async function saveYoklama(grupKey, key, grupAdi) {
         const btn = document.getElementById('wa-toplu-btn');
         if (btn) {
           btn.textContent = _waIndex < tumLinks.length
-            ? \`💬 Sonraki Kişiyi Gönder (\${tumLinks.length - _waIndex} kaldı)\`
+            ? '💬 Sonraki Kişiyi Gönder (' + (tumLinks.length - _waIndex) + ' kaldı)'
             : '✓ Tümü Gönderildi';
           btn.onclick = window._waSonrakiGonder;
         }
