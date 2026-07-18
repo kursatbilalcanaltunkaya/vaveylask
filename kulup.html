@@ -1383,33 +1383,25 @@ async function saveYoklama(grupKey, key, grupAdi) {
     // "Tümüne Gönder" - kullanıcı tıklayınca sırayla gönderir
     const tumLinks = waLinks.map(l => l.url);
     let _waIndex = 0;
+    let _waIndex = 0;
     window._waTopluGonder = function() {
-      if (!tumLinks.length) return;
       _waIndex = 0;
       window._waSonrakiGonder();
     };
     window._waSonrakiGonder = function() {
       if (_waIndex >= tumLinks.length) {
+        const btn = document.getElementById('wa-toplu-btn');
+        if (btn) { btn.textContent = '✓ Tümü Gönderildi'; btn.style.background='#888'; }
         showToast('Tüm mesajlar gönderildi ✓','success');
         return;
       }
-      const kalan = tumLinks.length - _waIndex;
-      window.open(tumLinks[_waIndex], '_blank');
+      // Aynı sekmede aç - mobilde de çalışır
+      location.href = tumLinks[_waIndex];
       _waIndex++;
-      if (_waIndex < tumLinks.length) {
-        showToast(`Mesaj gönderildi. Kalan: ${kalan-1} kişi — Sonraki için tekrar bas`,'success');
-        // Butonu güncelle
-        const btn = document.getElementById('wa-toplu-btn');
-        if (btn) {
-          btn.textContent = _waIndex < tumLinks.length
-            ? '💬 Sonraki Kişiyi Gönder (' + (tumLinks.length - _waIndex) + ' kaldı)'
-            : '✓ Tümü Gönderildi';
-          btn.onclick = window._waSonrakiGonder;
-        }
-      } else {
-        const btn = document.getElementById('wa-toplu-btn');
-        if (btn) { btn.textContent = '✓ Tümü Gönderildi'; btn.style.background='#666'; btn.onclick=null; }
-        showToast('Tüm mesajlar gönderildi ✓','success');
+      // Butonu güncelle
+      const btn = document.getElementById('wa-toplu-btn');
+      if (btn && _waIndex < tumLinks.length) {
+        btn.textContent = '💬 Sonraki Kişiyi Gönder (' + (tumLinks.length - _waIndex) + ' kaldı)';
       }
     };
 
