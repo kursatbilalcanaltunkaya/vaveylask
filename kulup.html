@@ -1384,18 +1384,24 @@ async function saveYoklama(grupKey, key, grupAdi) {
     html += '<div style="font-size:0.75em;color:#555;margin-bottom:14px;padding:8px;background:white;border-radius:6px;"><strong>Şablon:</strong> ' + sablon + '</div>';
 
     mesajlar.forEach(function(m, i) {
-      html += '<div style="background:white;border-radius:10px;padding:14px;margin-bottom:10px;border:1px solid #d1fae5;">';
-      html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">';
+      var btnId = 'wa-btn-' + i;
+      html += '<div style="background:white;border-radius:10px;padding:12px 14px;margin-bottom:8px;border:1px solid #d1fae5;display:flex;align-items:center;justify-content:space-between;gap:12px;">';
+      // Avatar
       if (m.foto) {
-        html += '<img src="'+m.foto+'" style="width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;">';
+        html += '<img src="'+m.foto+'" style="width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0;">';
       } else {
-        html += '<div style="width:40px;height:40px;border-radius:50%;background:#E8B84B;color:#8B0000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1em;flex-shrink:0;">'+(m.ad[0]||'?')+'</div>';
+        html += '<div style="width:38px;height:38px;border-radius:50%;background:#E8B84B;color:#8B0000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1em;flex-shrink:0;">'+(m.ad[0]||'?')+'</div>';
       }
-      html += '<div><div style="font-weight:700;font-size:0.9em;">'+m.ad+'</div>';
-      html += '<div style="font-size:0.75em;color:#666;">'+m.veliAd+' — '+m.veliTel+'</div></div></div>';
-      html += '<a href="'+m.url+'" target="_blank" rel="noopener noreferrer" ';
-      html += 'style="display:block;text-align:center;background:#25D366;color:#fff;padding:13px;border-radius:8px;';
-      html += 'font-size:0.95em;font-weight:700;text-decoration:none;">💬 WhatsApp\'a Gönder</a>';
+      // İsim
+      html += '<div style="flex:1;min-width:0;">';
+      html += '<div style="font-weight:700;font-size:0.88em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+m.ad+'</div>';
+      html += '<div style="font-size:0.73em;color:#666;">'+m.veliAd+' — '+m.veliTel+'</div>';
+      html += '</div>';
+      // Buton - onclick ile renk değişir
+      html += '<a id="'+btnId+'" href="'+m.url+'" target="_blank" rel="noopener noreferrer" ';
+      html += 'onclick="var b=document.getElementById(''+btnId+'');b.style.background='#128C7E';b.textContent='✓ Gönderildi';" ';
+      html += 'style="background:#25D366;color:#fff;padding:9px 14px;border-radius:8px;';
+      html += 'font-size:0.82em;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;">💬 Gönder</a>';
       html += '</div>';
     });
     html += '</div>';
