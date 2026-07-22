@@ -800,34 +800,6 @@ function getAvatarHtml(s, size) {
   return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:var(--gold);color:var(--red);display:flex;align-items:center;justify-content:center;font-size:${Math.round(size*0.38)}px;font-weight:700;flex-shrink:0;">${init}</div>`;
 }
 
-function waGonder(idx) {
-  var btn = document.getElementById('wa-btn-' + idx);
-  if (!btn) return;
-  var url = btn.getAttribute('data-url');
-  // Butonu hemen güncelle
-  btn.style.background = '#128C7E';
-  btn.innerHTML = '✓ Gönderildi';
-  btn.disabled = true;
-  // localStorage'a kaydet - geri dönünce hatırlasın
-  try { localStorage.setItem('wa_sent_' + idx, '1'); } catch(e) {}
-  // WhatsApp'a git
-  location.href = url;
-}
-
-function waGonderSonrasiKontrol() {
-  // Sayfa yüklenince gönderilmiş butonları işaretle
-  var btns = document.querySelectorAll('[id^="wa-btn-"]');
-  btns.forEach(function(btn) {
-    var idx = btn.id.replace('wa-btn-','');
-    try {
-      if (localStorage.getItem('wa_sent_' + idx) === '1') {
-        btn.style.background = '#128C7E';
-        btn.innerHTML = '✓ Gönderildi';
-        btn.disabled = true;
-      }
-    } catch(e) {}
-  });
-}
 
 function toggleSidebar() {
   document.querySelector('.sidebar').classList.toggle('collapsed');
@@ -1394,77 +1366,43 @@ async function saveYoklama(grupKey, key, grupAdi) {
     const d = new Date(tarih);
     const tarihStr = d.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'});
 
-    // Şablonu Firebase'den çek
     const sablonSnap = await db.ref('kulup/mesajlar/yoklamaSablon').once('value');
     const sablon = sablonSnap.val() || 'Sayın {veli}, {tarih} tarihinde gerçekleştirilen antrenmanımıza {sporcu} katılamamıştır. Bilgilerinize sunarız. — Vaveyla SK';
 
-    // Linkleri hazırla
-    const waLinks = [];
+    // Her sporcu için mesaj hazırla
+    const mesajlar = [];
     gelenme.forEach(s => {
       if (!s.veliTel) return;
       const tel = s.veliTel.replace(/\D/g,'').replace(/^0/,'90');
-      const mesaj = sablon
-        .replace(/{sporcu}/g, s.ad)
-        .replace(/{veli}/g, s.veliAd || 'Veli')
-        .replace(/{tarih}/g, tarihStr);
-      waLinks.push({ s, tel, url: `https://wa.me/${tel}?text=${encodeURIComponent(mesaj)}` });
+      const metin = sablon.replace(/{sporcu}/g,s.ad).replace(/{veli}/g,s.veliAd||'Veli').replace(/{tarih}/g,tarihStr);
+      mesajlar.push({ ad: s.ad, veliAd: s.veliAd||'', veliTel: s.veliTel, foto: s.foto||'', url: 'https://wa.me/'+tel+'?text='+encodeURIComponent(metin) });
     });
 
-    // "Tümüne Gönder" - kullanıcı tıklayınca sırayla gönderir
-    const tumLinks = waLinks.map(l => l.url);
-    let _waIndex = 0;
-    window._waTopluGonder = function() {
-      _waIndex = 0;
-      window._waSonrakiGonder();
-    };
-    window._waSonrakiGonder = function() {
-      if (_waIndex >= tumLinks.length) {
-        const btn = document.getElementById('wa-toplu-btn');
-        if (btn) { btn.textContent = '✓ Tümü Gönderildi'; btn.style.background='#888'; }
-        showToast('Tüm mesajlar gönderildi ✓','success');
-        return;
-      }
-      // Aynı sekmede aç - mobilde de çalışır
-      location.href = tumLinks[_waIndex];
-      _waIndex++;
-      // Butonu güncelle
-      const btn = document.getElementById('wa-toplu-btn');
-      if (btn && _waIndex < tumLinks.length) {
-        btn.textContent = '💬 Sonraki Kişiyi Gönder (' + (tumLinks.length - _waIndex) + ' kaldı)';
-      }
-    };
+    // HTML oluştur
+    let html = '<div style="margin-top:16px;padding:16px;background:#f0fdf4;border-radius:12px;border:1px solid #bbf7d0;">';
+    html += '<div style="font-size:0.88em;font-weight:700;color:#065F46;margin-bottom:8px;">📱 Devamsızlık Bildirimi — ' + tarihStr + '</div>';
+    html += '<div style="font-size:0.75em;color:#555;margin-bottom:14px;padding:8px;background:white;border-radius:6px;"><strong>Şablon:</strong> ' + sablon + '</div>';
 
-    let waHtml = `<div style="margin-top:16px;padding:16px;background:#f0fdf4;border-radius:10px;border:1px solid #bbf7d0;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-        <div style="font-size:0.85em;font-weight:700;color:#065F46;">📱 Devamsızlık Bildirimi — ${tarihStr} (${waLinks.length} kişi)</div>
-  
-      </div>
-      <div style="font-size:0.75em;color:#666;margin-bottom:10px;padding:8px;background:white;border-radius:6px;border:1px solid #d1fae5;">
-        <strong>Şablon:</strong> ${sablon}
-      </div>`;
-
-    waLinks.forEach(({s, url}) => {
-      waHtml += `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #d1fae5;gap:10px;">
-        <div style="display:flex;align-items:center;gap:10px;">
-          ${getAvatarHtml(s, 32)}
-          <div>
-            <div style="font-size:0.85em;font-weight:600;">${s.ad}</div>
-            <div style="font-size:0.75em;color:#666;">${s.veliAd||''} — ${s.veliTel}</div>
-          </div>
-        </div>
-        <a href="${url}"
-           style="background:#25D366;color:#fff;padding:10px 18px;border-radius:7px;font-size:0.85em;text-decoration:none;font-weight:700;white-space:nowrap;flex-shrink:0;display:inline-block;">
-          💬 WhatsApp'a Gönder
-        </a>
-      </div>`;
+    mesajlar.forEach(function(m, i) {
+      html += '<div style="background:white;border-radius:10px;padding:14px;margin-bottom:10px;border:1px solid #d1fae5;">';
+      html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">';
+      if (m.foto) {
+        html += '<img src="'+m.foto+'" style="width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;">';
+      } else {
+        html += '<div style="width:40px;height:40px;border-radius:50%;background:#E8B84B;color:#8B0000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1em;flex-shrink:0;">'+(m.ad[0]||'?')+'</div>';
+      }
+      html += '<div><div style="font-weight:700;font-size:0.9em;">'+m.ad+'</div>';
+      html += '<div style="font-size:0.75em;color:#666;">'+m.veliAd+' — '+m.veliTel+'</div></div></div>';
+      html += '<a href="'+m.url+'" target="_blank" rel="noopener noreferrer" ';
+      html += 'style="display:block;text-align:center;background:#25D366;color:#fff;padding:13px;border-radius:8px;';
+      html += 'font-size:0.95em;font-weight:700;text-decoration:none;">💬 WhatsApp'a Gönder</a>';
+      html += '</div>';
     });
-    waHtml += '</div>';
-    document.getElementById('yoklama-body').insertAdjacentHTML('beforeend', waHtml);
-    setTimeout(waGonderSonrasiKontrol, 100);
+    html += '</div>';
+
+    document.getElementById('yoklama-body').insertAdjacentHTML('beforeend', html);
   }
 
-  // Önceki WA gönderim takibini temizle
-  try { for(var i=0;i<20;i++) localStorage.removeItem('wa_sent_'+i); } catch(e) {}
   showToast('Yoklama kaydedildi ✓','success');
   // loadYoklama() çağırmıyoruz — WhatsApp linkleri silinmesin
   updateYoklamaTakvim(); // sadece takvimi güncelle
