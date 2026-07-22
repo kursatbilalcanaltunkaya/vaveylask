@@ -1399,9 +1399,9 @@ async function saveYoklama(grupKey, key, grupAdi) {
       html += '</div>';
       // Buton - onclick ile renk değişir
       html += '<a id="'+btnId+'" href="'+m.url+'" target="_blank" rel="noopener noreferrer" ';
-      html += 'onclick="var b=document.getElementById(''+btnId+'');b.style.background='#128C7E';b.textContent='✓ Gönderildi';" ';
+      html += "onclick="var b=document.getElementById('"+btnId+"');b.style.background='#128C7E';b.textContent='\u2713 G\u00f6nderildi';" ";
       html += 'style="background:#25D366;color:#fff;padding:9px 14px;border-radius:8px;';
-      html += 'font-size:0.82em;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;">💬 Gönder</a>';
+      html += 'font-size:0.82em;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;">&#128172; Gönder</a>';
       html += '</div>';
     });
     html += '</div>';
