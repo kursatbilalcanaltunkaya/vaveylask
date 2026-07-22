@@ -804,10 +804,18 @@ function waGonder(idx) {
   var btn = document.getElementById('wa-btn-' + idx);
   if (!btn) return;
   var url = btn.getAttribute('data-url');
+  // Önce butonu güncelle
   btn.style.background = '#128C7E';
   btn.textContent = '✓ Gönderildi';
   btn.disabled = true;
-  window.open(url, '_blank');
+  // Sonra linke git - kullanıcı etkileşimiyle açılıyor, engellenemez
+  var a = document.createElement('a');
+  a.href = url;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 function toggleSidebar() {
