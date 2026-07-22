@@ -1332,6 +1332,7 @@ function setYok(id, val) {
   btns[1].style.background = durum===false?'#b91c1c':'transparent';
   btns[1].style.borderColor = durum===false?'#b91c1c':'var(--border)';
   btns[1].style.color = durum===false?'#fff':'var(--muted)';
+  if (typeof guncelleSayim === 'function') guncelleSayim();
 }
 
 async function yoklamaGunuSil(grupKey, key) {
@@ -1425,9 +1426,9 @@ async function saveYoklama(grupKey, key, grupAdi) {
             <div style="font-size:0.75em;color:#666;">${s.veliAd||''} — ${s.veliTel}</div>
           </div>
         </div>
-        <a href="${url}" target="_blank"
-           style="background:#25D366;color:#fff;padding:7px 16px;border-radius:7px;font-size:0.82em;text-decoration:none;font-weight:600;white-space:nowrap;flex-shrink:0;">
-          💬 WhatsApp
+        <a href="${url}"
+           style="background:#25D366;color:#fff;padding:10px 18px;border-radius:7px;font-size:0.85em;text-decoration:none;font-weight:700;white-space:nowrap;flex-shrink:0;display:inline-block;">
+          💬 WhatsApp'a Gönder
         </a>
       </div>`;
     });
