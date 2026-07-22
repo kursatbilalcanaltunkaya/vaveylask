@@ -800,6 +800,17 @@ function getAvatarHtml(s, size) {
   return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:var(--gold);color:var(--red);display:flex;align-items:center;justify-content:center;font-size:${Math.round(size*0.38)}px;font-weight:700;flex-shrink:0;">${init}</div>`;
 }
 
+function waGonder(idx, url) {
+  var btn = document.getElementById('wa-btn-' + idx);
+  if (btn) {
+    btn.style.background = '#128C7E';
+    btn.textContent = '✓ Gönderildi';
+  }
+  setTimeout(function() {
+    window.open(url, '_blank');
+  }, 100);
+}
+
 function toggleSidebar() {
   document.querySelector('.sidebar').classList.toggle('collapsed');
 }
