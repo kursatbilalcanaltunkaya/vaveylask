@@ -804,18 +804,29 @@ function waGonder(idx) {
   var btn = document.getElementById('wa-btn-' + idx);
   if (!btn) return;
   var url = btn.getAttribute('data-url');
-  // Önce butonu güncelle
+  // Butonu hemen güncelle
   btn.style.background = '#128C7E';
-  btn.textContent = '✓ Gönderildi';
+  btn.innerHTML = '✓ Gönderildi';
   btn.disabled = true;
-  // Sonra linke git - kullanıcı etkileşimiyle açılıyor, engellenemez
-  var a = document.createElement('a');
-  a.href = url;
-  a.target = '_blank';
-  a.rel = 'noopener';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  // localStorage'a kaydet - geri dönünce hatırlasın
+  try { localStorage.setItem('wa_sent_' + idx, '1'); } catch(e) {}
+  // WhatsApp'a git
+  location.href = url;
+}
+
+function waGonderSonrasiKontrol() {
+  // Sayfa yüklenince gönderilmiş butonları işaretle
+  var btns = document.querySelectorAll('[id^="wa-btn-"]');
+  btns.forEach(function(btn) {
+    var idx = btn.id.replace('wa-btn-','');
+    try {
+      if (localStorage.getItem('wa_sent_' + idx) === '1') {
+        btn.style.background = '#128C7E';
+        btn.innerHTML = '✓ Gönderildi';
+        btn.disabled = true;
+      }
+    } catch(e) {}
+  });
 }
 
 function toggleSidebar() {
@@ -1449,8 +1460,11 @@ async function saveYoklama(grupKey, key, grupAdi) {
     });
     waHtml += '</div>';
     document.getElementById('yoklama-body').insertAdjacentHTML('beforeend', waHtml);
+    setTimeout(waGonderSonrasiKontrol, 100);
   }
 
+  // Önceki WA gönderim takibini temizle
+  try { for(var i=0;i<20;i++) localStorage.removeItem('wa_sent_'+i); } catch(e) {}
   showToast('Yoklama kaydedildi ✓','success');
   // loadYoklama() çağırmıyoruz — WhatsApp linkleri silinmesin
   updateYoklamaTakvim(); // sadece takvimi güncelle
