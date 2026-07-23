@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vaveyla SK — Veli Takip Sistemi</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --red: #8B0000; --gold: #E8B84B; --bg: #F7F5F2;
+    --surface: #fff; --border: #E8E4DE; --text: #1A1A1A;
+    --muted: #7A7570; --green: #2D7D46;
+  }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg); color: var(--text);
+    min-height: 100vh; font-size: 14px;
+  }
+
+  /* Arka plan arma */
+  body::before {
+    content: '';
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70vmin; height: 70vmin;
+    background: url("amblem_png.png") center/contain no-repeat;
+    opacity: 0.05; pointer-events: none; z-index: 0;
+  }
+
+  .page { position: relative; z-index: 1; }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #8B0000, #6B0000);
+    color: var(--gold); text-align: center;
+    padding: 30px 20px 24px;
+  }
+  .header img { width: 80px; height: 80px; object-fit: contain; margin-bottom: 10px; }
+  .header h1 { font-size: 1.4em; font-weight: 800; letter-spacing: 1px; line-height: 1.3; }
+  .header p  { font-size: 0.85em; opacity: 0.8; margin-top: 4px; }
+
+  /* Ana içerik */
+  .main { max-width: 600px; margin: 0 auto; padding: 24px 16px; }
+
+  /* TC giriş kartı */
+  .tc-card {
+    background: var(--surface); border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    padding: 28px 24px; margin-bottom: 20px;
+  }
+  .tc-card h2 { font-size: 1em; font-weight: 600; color: var(--red); margin-bottom:16px; }
+  .tc-input-row { display: flex; gap: 10px; }
+  .tc-input {
+    flex: 1; border: 2px solid var(--border); border-radius: 10px;
+    padding: 12px 16px; font-size: 1.1em; outline: none;
+    transition: border 0.2s; text-align: center; letter-spacing: 2px;
+  }
+  .tc-input:focus { border-color: var(--red); }
+  .tc-btn {
+    background: var(--red); color: var(--gold); border: none;
+    padding: 12px 22px; border-radius: 10px; font-weight: 700;
+    font-size: 1em; cursor: pointer; white-space: nowrap;
+  }
+  .tc-btn:hover { background: #6B0000; }
+  .tc-error { color: #b91c1c; font-size: 0.82em; margin-top: 8px; display: none; }
+
+  /* Sporcu bilgi kartı */
+  .sporcu-kart {
+    background: var(--surface); border-radius: 14px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    padding: 20px 20px 16px; margin-bottom: 16px; display: none;
+  }
+  .sporcu-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+  .sporcu-foto {
+    width: 64px; height: 64px; border-radius: 50%;
+    object-fit: cover; flex-shrink: 0;
+    background: var(--gold); color: var(--red);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6em; font-weight: 700;
+  }
+  .sporcu-adi { font-size: 1.1em; font-weight: 700; }
+  .sporcu-grup { font-size: 0.8em; color: var(--muted); margin-top: 2px; }
+
+  /* Seçim butonları */
+  .sekme-btns { display: flex; gap: 10px; margin-bottom: 16px; }
+  .sekme-btn {
+    flex: 1; padding: 12px; border-radius: 10px; border: 2px solid var(--border);
+    background: var(--surface); font-weight: 600; font-size: 0.9em;
+    cursor: pointer; transition: all 0.2s; color: var(--muted);
+  }
+  .sekme-btn.active { background: var(--red); color: var(--gold); border-color: var(--red); }
+
+  /* İçerik paneli */
+  .panel {
+    background: var(--surface); border-radius: 14px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    overflow: hidden; display: none;
+  }
+  .panel.active { display: block; }
+  .panel-header {
+    padding: 14px 18px; border-bottom: 1px solid var(--border);
+    font-weight: 600; font-size: 0.92em; color: var(--red);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  /* Ay seçimi */
+  .ay-select {
+    border: 1px solid var(--border); border-radius: 7px;
+    padding: 6px 10px; font-size: 0.82em; background: var(--bg); outline: none;
+  }
+
+  /* Yoklama günleri */
+  .gun-grid { padding: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .gun-chip {
+    padding: 6px 12px; border-radius: 8px; font-size: 0.82em; font-weight: 600;
+  }
+  .gun-chip.geldi   { background: #D1FAE5; color: #065F46; }
+  .gun-chip.gelmedi { background: #FEE2E2; color: #991B1B; }
+  .gun-chip.bos     { background: #F3F4F6; color: #9CA3AF; }
+
+  .yok-ozet {
+    display: flex; gap: 12px; padding: 14px 16px;
+    border-top: 1px solid var(--border); flex-wrap: wrap;
+  }
+  .yok-ozet-item { font-size: 0.82em; font-weight: 600; }
+
+  /* Aidat listesi */
+  .aidat-item {
+    padding: 14px 18px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  }
+  .aidat-item:last-child { border-bottom: none; }
+  .aidat-ay { font-weight: 600; font-size: 0.9em; }
+  .aidat-meta { font-size: 0.75em; color: var(--muted); margin-top: 2px; }
+  .aidat-badge {
+    padding: 4px 10px; border-radius: 20px; font-size: 0.75em; font-weight: 600;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .badge-odedi   { background: #D1FAE5; color: #065F46; }
+  .badge-odemedi { background: #FEE2E2; color: #991B1B; }
+  .badge-diger   { background: #FEF3C7; color: #92400E; }
+
+  .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
+  .empty .icon { font-size: 2em; display: block; margin-bottom: 8px; }
+  .loading { text-align: center; padding: 30px; color: var(--muted); }
+
+  @media (max-width: 480px) {
+    .header h1 { font-size: 1.1em; }
+    .tc-input-row { flex-direction: column; }
+    .tc-btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <img src="amblem_png.png" alt="Vaveyla SK">
+    <h1>KÖRFEZ VAVEYLA SPOR KULÜBÜ<br>VELİ TAKİP SİSTEMİ</h1>
+    <p>TC Kimlik No ile sorgulayın</p>
+  </div>
+
+  <div class="main">
+
+    <!-- TC Giriş -->
+    <div class="tc-card">
+      <h2>🔍 Sporcu Sorgula</h2>
+      <div class="tc-input-row">
+        <input type="number" id="tc-input" class="tc-input" placeholder="TC Kimlik No" maxlength="11"
+          oninput="if(this.value.length>11)this.value=this.value.slice(0,11)">
+        <button class="tc-btn" onclick="tcSorgula()">Sorgula</button>
+      </div>
+      <div class="tc-error" id="tc-error">TC kimlik numarası bulunamadı.</div>
+    </div>
+
+    <!-- Sporcu Kart -->
+    <div class="sporcu-kart" id="sporcu-kart">
+      <div class="sporcu-header">
+        <div id="sporcu-foto-el" class="sporcu-foto">?</div>
+        <div>
+          <div class="sporcu-adi" id="sporcu-adi-el"></div>
+          <div class="sporcu-grup" id="sporcu-grup-el"></div>
+        </div>
+      </div>
+
+      <div class="sekme-btns">
+        <button class="sekme-btn active" onclick="showSekme('yoklama',this)">📋 Yoklama</button>
+        <button class="sekme-btn" onclick="showSekme('aidat',this)">💰 Aidat</button>
+      </div>
+
+      <!-- Yoklama Paneli -->
+      <div class="panel active" id="panel-yoklama">
+        <div class="panel-header">
+          <span>Yoklama Kaydı</span>
+          <select class="ay-select" id="yok-ay-sel" onchange="loadVeliYoklama()"></select>
+        </div>
+        <div id="veli-yok-body" class="loading">⏳</div>
+      </div>
+
+      <!-- Aidat Paneli -->
+      <div class="panel" id="panel-aidat">
+        <div class="panel-header"><span>Aidat Ödemeleri</span></div>
+        <div id="veli-aidat-body" class="loading">⏳</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyDUXWJ2Q1ywTh90ewPfD_BuH5Rsjqu00Y4",
+  authDomain:"vaveylask-862c2.firebaseapp.com",
+  databaseURL:"https://vaveylask-862c2-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"vaveylask-862c2",
+  storageBucket:"vaveylask-862c2.firebasestorage.app",
+  messagingSenderId:"539195972878",
+  appId:"1:539195972878:web:27c776639df321ec670b5f"
+});
+const db = firebase.database();
+</script>
+<script>
+let mevcutSporcu = null;
+
+// TC ile sorgula
+async function tcSorgula() {
+  const tc = document.getElementById('tc-input').value.trim();
+  const err = document.getElementById('tc-error');
+  const kart = document.getElementById('sporcu-kart');
+  err.style.display = 'none';
+  kart.style.display = 'none';
+  if (!tc || tc.length < 10) { err.style.display='block'; err.textContent='Geçerli bir TC giriniz.'; return; }
+
+  const snap = await db.ref('kulup/sporcular').once('value');
+  const data = snap.val() || {};
+  const found = Object.entries(data).find(([id,s]) => s.tc === tc);
+
+  if (!found) { err.style.display='block'; err.textContent='Bu TC kimlik numarasına ait sporcu bulunamadı.'; return; }
+
+  const [id, sporcu] = found;
+  mevcutSporcu = { id, ...sporcu };
+
+  // Sporcu kartı doldur
+  const fotoEl = document.getElementById('sporcu-foto-el');
+  if (sporcu.foto) {
+    fotoEl.innerHTML = '<img src="'+sporcu.foto+'" style="width:64px;height:64px;border-radius:50%;object-fit:cover;">';
+    fotoEl.style.background = 'none';
+  } else {
+    fotoEl.textContent = (sporcu.ad||'?')[0].toUpperCase();
+    fotoEl.style.background = 'var(--gold)';
+  }
+  document.getElementById('sporcu-adi-el').textContent = sporcu.ad || '';
+  document.getElementById('sporcu-grup-el').textContent = sporcu.grup || '';
+  kart.style.display = 'block';
+
+  // Ay dropdownları doldur
+  fillAySelect();
+  loadVeliYoklama();
+  loadVeliAidat();
+}
+
+document.getElementById('tc-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') tcSorgula();
+});
+
+function fillAySelect() {
+  const sel = document.getElementById('yok-ay-sel');
+  sel.innerHTML = '';
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(); d.setMonth(d.getMonth() - i);
+    const val = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+    const label = d.toLocaleDateString('tr-TR', {month:'long', year:'numeric'});
+    sel.innerHTML += '<option value="'+val+'">'+label+'</option>';
+  }
+}
+
+function showSekme(sekme, btn) {
+  document.querySelectorAll('.sekme-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-'+sekme).classList.add('active');
+}
+
+// Yoklama yükle
+async function loadVeliYoklama() {
+  if (!mevcutSporcu) return;
+  const ay = document.getElementById('yok-ay-sel').value;
+  const body = document.getElementById('veli-yok-body');
+  body.innerHTML = '<div class="loading">⏳ Yükleniyor...</div>';
+
+  const grupKey = (mevcutSporcu.grup || '').replace(/[^a-zA-Z0-9]/g,'_');
+  const ayStr = ay.replace('-','');
+  const snap = await db.ref('kulup/yoklama/' + grupKey).once('value');
+  const tumYok = snap.val() || {};
+
+  // O aydaki günler
+  const ayGunler = Object.keys(tumYok).filter(k => k.startsWith(ayStr)).sort();
+  if (!ayGunler.length) {
+    body.innerHTML = '<div class="empty"><span class="icon">📅</span><p>Bu ay yoklama kaydı yok.</p></div>';
+    return;
+  }
+
+  let geldi = 0, gelmedi = 0;
+  let html = '<div class="gun-grid">';
+  ayGunler.forEach(gun => {
+    const d = gun.substring(6,8) + '.' + gun.substring(4,6);
+    const val = tumYok[gun]?.[mevcutSporcu.id];
+    if (val === true)       { html += '<span class="gun-chip geldi">✓ ' + d + '</span>'; geldi++; }
+    else if (val === false) { html += '<span class="gun-chip gelmedi">✗ ' + d + '</span>'; gelmedi++; }
+    else                    { html += '<span class="gun-chip bos">— ' + d + '</span>'; }
+  });
+  html += '</div>';
+  html += '<div class="yok-ozet">';
+  html += '<span class="yok-ozet-item" style="color:#065F46;">✓ Geldi: ' + geldi + '</span>';
+  html += '<span class="yok-ozet-item" style="color:#991B1B;">✗ Gelmedi: ' + gelmedi + '</span>';
+  const pct = geldi+gelmedi > 0 ? Math.round(geldi/(geldi+gelmedi)*100) : 0;
+  html += '<span class="yok-ozet-item" style="color:var(--muted);">Devam: %' + pct + '</span>';
+  html += '</div>';
+
+  body.innerHTML = html;
+}
+
+// Aidat yükle
+async function loadVeliAidat() {
+  if (!mevcutSporcu) return;
+  const body = document.getElementById('veli-aidat-body');
+  body.innerHTML = '<div class="loading">⏳ Yükleniyor...</div>';
+
+  const DURUM_LABEL = {
+    'odedi':'Ödedi', 'ay-orta':'Ay Ortasında Geldi', 'indirimli':'İndirimli Ödedi',
+    'eksik':'Eksik Ödedi', 'bu-ay-odemeyecek':'Bu Ay Ödemeyecek',
+    'odemedi':'Ödemedi', 'odeyemeyecek':'Ödeyemeyecek'
+  };
+
+  // Son 12 ayı çek
+  const aylar = [];
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(); d.setMonth(d.getMonth() - i);
+    const key = d.getFullYear() + String(d.getMonth()+1).padStart(2,'0');
+    const label = d.toLocaleDateString('tr-TR', {month:'long', year:'numeric'});
+    aylar.push({ key, label });
+  }
+
+  const snap = await db.ref('kulup/aidat').once('value');
+  const tumAidat = snap.val() || {};
+
+  let html = '';
+  let kayitVar = false;
+
+  aylar.forEach(({key, label}) => {
+    const kayit = tumAidat[key]?.[mevcutSporcu.id];
+    if (!kayit) return;
+    kayitVar = true;
+    const durum = kayit.durum || 'odemedi';
+    const durumLabel = DURUM_LABEL[durum] || durum;
+    const badgeClass = durum === 'odedi' ? 'badge-odedi' : durum === 'odemedi' || durum === 'odeyemeyecek' ? 'badge-odemedi' : 'badge-diger';
+    let meta = '';
+    if (kayit.tarih) meta += kayit.tarih;
+    if (kayit.saat) meta += ' ' + kayit.saat;
+    if (kayit.odeyen) meta += ' — ' + kayit.odeyen;
+    if (kayit.tutar) meta += ' — ₺' + kayit.tutar;
+
+    html += '<div class="aidat-item">';
+    html += '<div><div class="aidat-ay">' + label + '</div>';
+    if (meta) html += '<div class="aidat-meta">' + meta + '</div>';
+    html += '</div>';
+    html += '<span class="aidat-badge ' + badgeClass + '">' + durumLabel + '</span>';
+    html += '</div>';
+  });
+
+  body.innerHTML = kayitVar ? html : '<div class="empty"><span class="icon">💰</span><p>Henüz aidat kaydı yok.</p></div>';
+}
+
+// TC input sadece sayı
+document.getElementById('tc-input').addEventListener('input', function() {
+  this.value = this.value.replace(/\D/g,'').slice(0,11);
+});
+</script>
+</body>
+</html>
