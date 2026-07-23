@@ -135,7 +135,17 @@
   #login-screen {
     display: flex; align-items: center; justify-content: center;
     min-height: 100vh; background: var(--bg);
+    position: relative; overflow: hidden;
   }
+  #login-screen::before {
+    content: '';
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px; height: 500px;
+    background: url("amblem_png.png") center/contain no-repeat;
+    opacity: 0.06; pointer-events: none; z-index: 0;
+  }
+  .login-card { position: relative; z-index: 1; }
   .login-card {
     background: var(--surface); border-radius: 16px;
     box-shadow: var(--shadow); padding: 40px 36px;
@@ -328,7 +338,7 @@
 <div id="login-screen">
   <div class="login-card">
     <div class="login-logo">
-      <span class="emblem">🏐</span>
+      <img src="amblem_png.png" alt="Vaveyla SK" style="width:90px;height:90px;object-fit:contain;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto;">
       <h1>Vaveyla SK</h1>
       <p>Kulüp Yönetim Paneli</p>
     </div>
@@ -381,7 +391,7 @@
     <div class="nav-section admin-only">
       <div class="nav-label">Yönetim</div>
       <button class="nav-item" onclick="goTo('kasa')" id="nav-kasa">
-        <span class="icon">🏦</span> Kasa
+        <span class="icon">📣</span> Hatırlatma
       </button>
       <button class="nav-item" onclick="goTo('mesaj')" id="nav-mesaj">
         <span class="icon">💬</span> Mesajlar
@@ -724,43 +734,6 @@
   </div>
 </div>
 
-<!-- ─── KASA MODAL ────────────────────────────────────────── -->
-<div class="modal-overlay" id="kasa-modal">
-  <div class="modal" style="max-width:440px;">
-    <div class="modal-header">
-      <div class="modal-title">Kasa Hareketi Ekle</div>
-      <button class="btn btn-ghost" onclick="closeKasa()">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Tarih</label>
-          <input type="date" id="k-tarih">
-        </div>
-        <div class="form-group">
-          <label>Tür</label>
-          <select id="k-tur">
-            <option value="gelir">Gelir</option>
-            <option value="gider">Gider</option>
-          </select>
-        </div>
-        <div class="form-group full">
-          <label>Açıklama</label>
-          <input type="text" id="k-aciklama" placeholder="Aidat, malzeme, saha kirası...">
-        </div>
-        <div class="form-group">
-          <label>Tutar (₺)</label>
-          <input type="number" id="k-tutar" placeholder="0">
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeKasa()">İptal</button>
-      <button class="btn btn-primary" onclick="saveKasa()">Kaydet</button>
-    </div>
-  </div>
-</div>
-
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
@@ -838,7 +811,7 @@ function doLogout() {
 /* ═══════════════════════════════════════════════════════
    NAVIGATION
 ═══════════════════════════════════════════════════════ */
-const PAGES = { sporcular:'Sporcular', yoklama:'Yoklama', istatistik:'Yoklama İstatistikleri', aidat:'Aidat Takibi', kasa:'Kasa', mesaj:'Mesajlar', gruplar:'Grup Yönetimi' };
+const PAGES = { sporcular:'Sporcular', yoklama:'Yoklama', istatistik:'Yoklama İstatistikleri', aidat:'Aidat Takibi', kasa:'Aidat Hatırlatma', mesaj:'Mesajlar', gruplar:'Grup Yönetimi' };
 let currentPage = 'sporcular';
 
 function goTo(page) {
@@ -856,7 +829,25 @@ function goTo(page) {
   if (page === 'istatistik') loadIstatistik();
   if (page === 'gruplar') loadGruplar();
   if (page === 'aidat')   loadAidat();
-  if (page === 'kasa')    loadKasa();
+  if (page === 'kasa') {
+    // Hat ay dropdown doldur
+    const ha = document.getElementById('hat-ay');
+    if (ha && !ha.options.length) {
+      for (let i=0;i<12;i++) {
+        const d2=new Date(); d2.setMonth(d2.getMonth()-i);
+        const val=d2.getFullYear()+'-'+String(d2.getMonth()+1).padStart(2,'0');
+        const label=d2.toLocaleDateString('tr-TR',{month:'long',year:'numeric'});
+        ha.innerHTML+=`<option value="${val}">${label}</option>`;
+      }
+    }
+    // hat-grup doldur
+    const hg = document.getElementById('hat-grup');
+    if (hg && hg.options.length <= 1) {
+      const grps = [...new Set(sporcular.map(s=>s.grup).filter(Boolean))].sort();
+      grps.forEach(g => hg.innerHTML += `<option value="${g}">${g}</option>`);
+    }
+    loadHatirlatma();
+  }
   if (page === 'mesaj')   loadMesaj();
 }
 
@@ -1399,8 +1390,6 @@ async function saveYoklama(grupKey, key, grupAdi) {
       html += '</div>';
       // Buton - onclick ile renk değişir
       html += '<a id="'+btnId+'" href="'+m.url+'" target="_blank" rel="noopener" style="background:#25D366;color:#fff;padding:9px 14px;border-radius:8px;font-size:0.82em;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;">💬 Gönder</a>';
-      html += 'style="background:#25D366;color:#fff;padding:9px 14px;border-radius:8px;';
-      html += 'font-size:0.82em;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;">&#128172; Gönder</a>';
       html += '</div>';
     });
     html += '</div>';
