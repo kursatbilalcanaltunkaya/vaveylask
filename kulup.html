@@ -349,7 +349,7 @@
     <div id="login-err" style="color:#b91c1c;font-size:0.8em;margin-bottom:10px;display:none;">Yanlış şifre.</div>
     <button class="btn btn-primary" style="width:100%;justify-content:center;padding:10px;" onclick="doLogin()">Giriş Yap</button>
     <div style="text-align:center;margin-top:14px;">
-      <a href="index.html" style="font-size:0.8em;color:var(--muted);text-decoration:none;">← Turnuva sayfasına dön</a>
+      <a href="index.html" style="font-size:0.8em;color:var(--muted);text-decoration:none;">← Turnuva sayfasına dön</a><br><a href="veli.html" target="_blank" style="font-size:0.8em;color:var(--red);text-decoration:none;margin-top:6px;display:inline-block;">👥 Veli Takip Sayfası →</a>
     </div>
   </div>
 </div>
@@ -566,24 +566,21 @@
       </div>
 
       <!-- ─── KASA ───────────────────────────────────────── -->
+      <!-- AİDAT HATIRLATMA -->
       <div id="screen-kasa" class="screen">
-        <div class="stat-grid" id="kasa-stats"></div>
         <div class="panel">
           <div class="panel-header">
-            <div class="panel-title">Kasa Hareketleri</div>
+            <div class="panel-title">Aidat Hatırlatma</div>
             <div class="toolbar">
-              <button class="btn btn-primary" onclick="openKasaModal()">+ Hareket Ekle</button>
+              <select class="filter" id="hat-ay" onchange="loadHatirlatma()"></select>
+              <select class="filter" id="hat-grup" onchange="loadHatirlatma()">
+                <option value="">Tüm Gruplar</option>
+              </select>
             </div>
           </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr><th>Tarih</th><th>Açıklama</th><th>Tür</th><th>Tutar</th><th></th></tr>
-              </thead>
-              <tbody id="kasa-tbody">
-                <tr><td colspan="5" class="loading">⏳ Yükleniyor...</td></tr>
-              </tbody>
-            </table>
+          <div id="hat-ozet" style="padding:14px 20px;border-bottom:1px solid var(--border);"></div>
+          <div id="hat-body" style="padding:16px 20px;">
+            <div class="empty"><span class="icon">📣</span><p>Ay seçerek ödemeyenleri görün.</p></div>
           </div>
         </div>
       </div>
