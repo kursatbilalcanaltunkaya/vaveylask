@@ -142,7 +142,7 @@
     position: fixed; top: 50%; left: 50%;
     transform: translate(-50%, -50%);
     width: 500px; height: 500px;
-    background: url("amblem_png.png") center/contain no-repeat;
+    background: url("amblem%20png.png") center/contain no-repeat;
     opacity: 0.06; pointer-events: none; z-index: 0;
   }
   .login-card { position: relative; z-index: 1; }
@@ -338,7 +338,7 @@
 <div id="login-screen">
   <div class="login-card">
     <div class="login-logo">
-      <img src="amblem_png.png" alt="Vaveyla SK" style="width:90px;height:90px;object-fit:contain;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto;">
+      <img src="amblem%20png.png" alt="Vaveyla SK" style="width:90px;height:90px;object-fit:contain;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto;">
       <h1>Vaveyla SK</h1>
       <p>Kulüp Yönetim Paneli</p>
     </div>
@@ -908,15 +908,16 @@ function setDefaultDates() {
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('yok-tarih').value = today;
   document.getElementById('s-kayit').value = today;
-  document.getElementById('k-tarih').value = today;
   // Aidat ay dropdown
   const ayEl = document.getElementById('aidat-ay');
-  ayEl.innerHTML = '';
-  for (let i = 0; i < 12; i++) {
-    const d = new Date(); d.setMonth(d.getMonth() - i);
-    const val = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
-    const label = d.toLocaleDateString('tr-TR', {month:'long', year:'numeric'});
-    ayEl.innerHTML += `<option value="${val}">${label}</option>`;
+  if (ayEl) {
+    ayEl.innerHTML = '';
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(); d.setMonth(d.getMonth() - i);
+      const val = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+      const label = d.toLocaleDateString('tr-TR', {month:'long', year:'numeric'});
+      ayEl.innerHTML += `<option value="${val}">${label}</option>`;
+    }
   }
 }
 
