@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vaveyla SK — Kulüp Yönetimi</title>
+<title>Vaveyla SK — Yönetim Paneli</title>
+<meta name="description" content="Körfez Vaveyla Spor Kulübü yönetim paneli.">
+<meta name="robots" content="noindex">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -827,9 +829,10 @@ function goTo(page) {
   if (page === 'gruplar') loadGruplar();
   if (page === 'aidat')   loadAidat();
   if (page === 'kasa') {
-    // Hat ay dropdown doldur
+    // Hat ay dropdown her seferinde doldur
     const ha = document.getElementById('hat-ay');
-    if (ha && !ha.options.length) {
+    if (ha) {
+      ha.innerHTML = '';
       for (let i=0;i<12;i++) {
         const d2=new Date(); d2.setMonth(d2.getMonth()-i);
         const val=d2.getFullYear()+'-'+String(d2.getMonth()+1).padStart(2,'0');
@@ -839,7 +842,8 @@ function goTo(page) {
     }
     // hat-grup doldur
     const hg = document.getElementById('hat-grup');
-    if (hg && hg.options.length <= 1) {
+    if (hg) {
+      hg.innerHTML = '<option value="">Tüm Gruplar</option>';
       const grps = [...new Set(sporcular.map(s=>s.grup).filter(Boolean))].sort();
       grps.forEach(g => hg.innerHTML += `<option value="${g}">${g}</option>`);
     }
