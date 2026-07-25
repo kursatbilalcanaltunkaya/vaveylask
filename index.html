@@ -1,671 +1,389 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vaveyla Spor Kulübü Voleybol Turnuvası 2026</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #8B0000 0%, #4a0000 100%); color: #333; min-height: 100vh; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 10px 50px rgba(0,0,0,0.3); overflow: hidden; }
-        header { background: linear-gradient(135deg, #8B0000 0%, #6B0000 100%); color: #FFD700; padding: 40px 20px; text-align: center; position: relative; }
-        h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-        .subtitle { font-size: 1.2em; opacity: 0.9; }
-        .header-links { position: absolute; top: 20px; right: 20px; display: flex; gap: 8px; }
-        .admin-link { background: #FFD700; color: #8B0000; padding: 9px 16px; border-radius: 8px; text-decoration: none; font-weight: bold; transition: all 0.3s; font-size: 0.9em; }
-        .admin-link:hover { background: #FFC700; transform: translateY(-2px); }
-        .kulup-link { background: rgba(255,255,255,0.15); color: #FFD700; padding: 9px 16px; border-radius: 8px; text-decoration: none; font-weight: bold; transition: all 0.3s; font-size: 0.9em; border: 1px solid rgba(255,215,0,0.4); }
-        .kulup-link:hover { background: rgba(255,255,255,0.25); transform: translateY(-2px); }
-        .live-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.15); color: #FFD700; padding: 5px 12px; border-radius: 20px; font-size: 0.85em; margin-top: 10px; }
-        .live-dot { width: 8px; height: 8px; background: #4CAF50; border-radius: 50%; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vaveyla SK — Veli Takip Sistemi</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --red: #8B0000; --gold: #E8B84B; --bg: #F7F5F2;
+    --surface: #fff; --border: #E8E4DE; --text: #1A1A1A;
+    --muted: #7A7570; --green: #2D7D46;
+  }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg); color: var(--text);
+    min-height: 100vh; font-size: 14px;
+  }
 
-        /* Ana nav */
-        nav { background: #FFD700; display: flex; justify-content: center; flex-wrap: wrap; }
-        nav button { background: none; border: none; padding: 18px 22px; color: #8B0000; font-size: 1em; font-weight: bold; cursor: pointer; transition: all 0.3s; border-bottom: 3px solid transparent; }
-        nav button:hover { background: rgba(139,0,0,0.1); }
-        nav button.active { background: rgba(139,0,0,0.15); border-bottom: 3px solid #8B0000; }
+  /* Arka plan arma */
+  body::before {
+    content: '';
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70vmin; height: 70vmin;
+    background: url("amblem%20png.png") center/contain no-repeat; background-color: transparent;
+    opacity: 0.05; pointer-events: none; z-index: 0;
+  }
 
-        .content { padding: 30px 20px; }
-        .section { display: none; }
-        .section.active { display: block; animation: fadeIn 0.4s; }
-        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-        h2 { color: #8B0000; font-size: 1.8em; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 3px solid #FFD700; }
+  .page { position: relative; z-index: 1; }
 
-        /* Grup sekmeleri */
-        .group-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
-        .group-tab { background: #eee; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; color: #555; font-size: 0.95em; transition: all 0.2s; }
-        .group-tab:hover { background: #ddd; }
-        .group-tab.active { background: #8B0000; color: #FFD700; }
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #8B0000, #6B0000);
+    color: var(--gold); text-align: center;
+    padding: 30px 20px 24px; position: relative;
+  }
+  .header img { width: 80px; height: 80px; object-fit: contain; margin-bottom: 10px; }
+  .header h1 { font-size: 1.4em; font-weight: 800; letter-spacing: 1px; line-height: 1.3; }
+  .header p  { font-size: 0.85em; opacity: 0.8; margin-top: 4px; }
 
-        /* Puan tablosu */
-        .standings-table { width: 100%; border-collapse: collapse; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
-        .standings-table th { background: #8B0000; color: #FFD700; padding: 13px 10px; text-align: center; font-size: 0.85em; white-space: nowrap; }
-        .standings-table th:nth-child(2) { text-align: left; }
-        .standings-table td { padding: 12px 10px; border-bottom: 1px solid #f0f0f0; text-align: center; font-size: 0.9em; }
-        .standings-table td:nth-child(2) { text-align: left; font-weight: 600; }
-        .standings-table tr:last-child td { border-bottom: none; }
-        .standings-table tr:hover td { background: #fafafa; }
-        .rank-1 td { background: rgba(255,215,0,0.15) !important; }
-        .rank-2 td { background: rgba(192,192,192,0.12) !important; }
-        .rank-3 td { background: rgba(205,127,50,0.08) !important; }
-        .qualified-row td:first-child { border-left: 4px solid #28a745; }
-        .maybe-row td:first-child { border-left: 4px solid #ffc107; }
+  /* Ana içerik */
+  .main { max-width: 600px; margin: 0 auto; padding: 24px 16px; }
 
-        .qualify-banner { background: #fff8e1; border: 2px solid #FFD700; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; font-size: 0.9em; }
-        .qualify-legend { display: flex; gap: 16px; margin-top: 10px; font-size: 0.83em; flex-wrap: wrap; }
-        .q-green { color: #28a745; font-weight: bold; }
-        .q-yellow { color: #e6a200; font-weight: bold; }
+  /* TC giriş kartı */
+  .tc-card {
+    background: var(--surface); border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    padding: 28px 24px; margin-bottom: 20px;
+  }
+  .tc-card h2 { font-size: 1em; font-weight: 600; color: var(--red); margin-bottom:16px; }
+  .tc-input-row { display: flex; gap: 10px; }
+  .tc-input {
+    flex: 1; border: 2px solid var(--border); border-radius: 10px;
+    padding: 12px 16px; font-size: 1.1em; outline: none;
+    transition: border 0.2s; text-align: center; letter-spacing: 2px;
+  }
+  .tc-input:focus { border-color: var(--red); }
+  .tc-btn {
+    background: var(--red); color: var(--gold); border: none;
+    padding: 12px 22px; border-radius: 10px; font-weight: 700;
+    font-size: 1em; cursor: pointer; white-space: nowrap;
+  }
+  .tc-btn:hover { background: #6B0000; }
+  .tc-error { color: #b91c1c; font-size: 0.82em; margin-top: 8px; display: none; }
 
-        /* Fikstür */
-        .fixture-card { background: #f9f9f9; border-radius: 10px; padding: 15px; margin-bottom: 12px; border-left: 4px solid #FFD700; }
-        .fixture-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
-        .fixture-badge { background: #FFD700; color: #8B0000; padding: 3px 10px; border-radius: 5px; font-size: 0.8em; font-weight: bold; }
-        .fixture-badge.salon { background: #8B0000; color: #FFD700; }
-        .fixture-teams { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-        .fixture-team { font-weight: 600; font-size: 1em; flex: 1; }
-        .fixture-team.right { text-align: right; }
-        .fixture-vs { background: #ddd; color: #555; padding: 6px 14px; border-radius: 8px; font-weight: bold; }
+  /* Sporcu bilgi kartı */
+  .sporcu-kart {
+    background: var(--surface); border-radius: 14px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    padding: 20px 20px 16px; margin-bottom: 16px; display: none;
+  }
+  .sporcu-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+  .sporcu-foto {
+    width: 64px; height: 64px; border-radius: 50%;
+    object-fit: cover; flex-shrink: 0;
+    background: var(--gold); color: var(--red);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6em; font-weight: 700;
+  }
+  .sporcu-adi { font-size: 1.1em; font-weight: 700; }
+  .sporcu-grup { font-size: 0.8em; color: var(--muted); margin-top: 2px; }
 
-        /* Sonuç */
-        .result-card { background: #f9f9f9; border-radius: 12px; padding: 18px; margin-bottom: 14px; border-left: 4px solid #8B0000; }
-        .result-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-        .result-badge { background: #FFD700; color: #8B0000; padding: 3px 10px; border-radius: 5px; font-size: 0.8em; font-weight: bold; }
-        .result-badge.salon { background: #8B0000; color: #FFD700; }
-        .result-main { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
-        .result-team { font-weight: 700; font-size: 1.05em; flex: 1; }
-        .result-team.right { text-align: right; }
-        .result-score { background: #8B0000; color: #FFD700; padding: 8px 18px; border-radius: 8px; font-weight: bold; font-size: 1.2em; white-space: nowrap; }
-        .sets-grid { display:flex; gap:6px; flex-wrap:wrap; }
-        .sets-grid.sets-right { justify-content:flex-end; }
-        .sets-row { display:flex; align-items:flex-start; margin-top:10px; gap:0; }
-        .sets-col { flex:1; }
-        .sets-col-right { display:flex; justify-content:flex-end; }
-        .set-box { background: white; border-radius: 8px; padding: 6px 12px; text-align: center; min-width: 68px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-        .set-label { font-size: 0.7em; color: #888; font-weight: 600; text-transform: uppercase; display: block; }
-        .set-score { font-size: 1em; font-weight: 700; color: #333; }
+  /* Seçim butonları */
+  .sekme-btns { display: flex; gap: 10px; margin-bottom: 16px; }
+  .sekme-btn {
+    flex: 1; padding: 12px; border-radius: 10px; border: 2px solid var(--border);
+    background: var(--surface); font-weight: 600; font-size: 0.9em;
+    cursor: pointer; transition: all 0.2s; color: var(--muted);
+  }
+  .sekme-btn.active { background: var(--red); color: var(--gold); border-color: var(--red); }
 
-        /* Takım kartları */
+  /* İçerik paneli */
+  .panel {
+    background: var(--surface); border-radius: 14px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    overflow: hidden; display: none;
+  }
+  .panel.active { display: block; }
+  .panel-header {
+    padding: 14px 18px; border-bottom: 1px solid var(--border);
+    font-weight: 600; font-size: 0.92em; color: var(--red);
+    display: flex; align-items: center; justify-content: space-between;
+  }
 
-        /* Üst Tur - Round sekmeleri */
-        .round-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
-        .round-tab { background: #eee; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; color: #555; font-size: 0.95em; transition: all 0.2s; }
-        .round-tab:hover { background: #ddd; }
-        .round-tab.active { background: #8B0000; color: #FFD700; }
+  /* Ay seçimi */
+  .ay-select {
+    border: 1px solid var(--border); border-radius: 7px;
+    padding: 6px 10px; font-size: 0.82em; background: var(--bg); outline: none;
+  }
 
-        /* Bracket görsel */
-        .bracket-container { overflow-x: auto; padding: 10px 0; }
-        .bracket { display: flex; gap: 0; align-items: stretch; min-width: 600px; }
-        .bracket-round { display: flex; flex-direction: column; flex: 1; }
-        .bracket-round-title { text-align: center; font-weight: bold; color: #8B0000; background: #fff8e1; padding: 8px; border-radius: 8px 8px 0 0; border: 2px solid #FFD700; border-bottom: none; font-size: 0.9em; margin: 0 6px; }
-        .bracket-matches { display: flex; flex-direction: column; justify-content: space-around; flex: 1; padding: 10px 6px; gap: 15px; }
-        .bracket-match { background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.12); overflow: hidden; border: 2px solid #eee; }
-        .bracket-match.played { border-color: #8B0000; }
-        .bracket-team { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid #f0f0f0; font-size: 0.9em; }
-        .bracket-team:last-child { border-bottom: none; }
-        .bracket-team.winner { background: rgba(255,215,0,0.2); font-weight: bold; color: #8B0000; }
-        .bracket-team-name { font-weight: 600; flex: 1; }
-        .bracket-team-score { font-weight: bold; font-size: 1.1em; min-width: 20px; text-align: right; }
-        .bracket-tbd { color: #bbb; font-style: italic; }
+  /* Yoklama günleri */
+  .gun-grid { padding: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .gun-chip {
+    padding: 6px 12px; border-radius: 8px; font-size: 0.82em; font-weight: 600;
+  }
+  .gun-chip.geldi   { background: #D1FAE5; color: #065F46; }
+  .gun-chip.gelmedi { background: #FEE2E2; color: #991B1B; }
+  .gun-chip.bos     { background: #F3F4F6; color: #9CA3AF; }
 
-        /* Liste görünümü */
-        .playoff-card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); border-left: 4px solid #8B0000; }
-        .playoff-round-label { display: inline-block; background: #8B0000; color: #FFD700; padding: 3px 12px; border-radius: 5px; font-size: 0.8em; font-weight: bold; margin-bottom: 12px; }
-        .playoff-main { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-        .playoff-team { font-weight: 700; font-size: 1.05em; flex: 1; }
-        .playoff-team.right { text-align: right; }
-        .playoff-score { background: #8B0000; color: #FFD700; padding: 8px 18px; border-radius: 8px; font-weight: bold; font-size: 1.1em; white-space: nowrap; }
-        .playoff-vs { background: #eee; color: #555; padding: 8px 14px; border-radius: 8px; font-weight: bold; }
-        .playoff-meta { font-size: 0.82em; color: #888; margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .yok-ozet {
+    display: flex; gap: 12px; padding: 14px 16px;
+    border-top: 1px solid var(--border); flex-wrap: wrap;
+  }
+  .yok-ozet-item { font-size: 0.82em; font-weight: 600; }
 
-        .view-toggle { display: flex; gap: 8px; margin-bottom: 16px; }
-        .view-btn { background: #eee; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; color: #555; transition: all 0.2s; }
-        .view-btn.active { background: #8B0000; color: #FFD700; }
-        .team-card { background: #f9f9f9; padding: 12px 16px; border-radius: 10px; margin-bottom: 8px; border-left: 4px solid #FFD700; font-weight: 600; color: #8B0000; }
+  /* Aidat listesi */
+  .aidat-item {
+    padding: 14px 18px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  }
+  .aidat-item:last-child { border-bottom: none; }
+  .aidat-ay { font-weight: 600; font-size: 0.9em; }
+  .aidat-meta { font-size: 0.75em; color: var(--muted); margin-top: 2px; }
+  .aidat-badge {
+    padding: 4px 10px; border-radius: 20px; font-size: 0.75em; font-weight: 600;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .badge-odedi   { background: #D1FAE5; color: #065F46; }
+  .badge-odemedi { background: #FEE2E2; color: #991B1B; }
+  .badge-diger   { background: #FEF3C7; color: #92400E; }
 
-        .empty-msg { text-align: center; color: #888; padding: 40px 20px; font-size: 1em; }
+  .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
+  .empty .icon { font-size: 2em; display: block; margin-bottom: 8px; }
+  .loading { text-align: center; padding: 30px; color: var(--muted); }
 
-        footer { background: #333; color: white; text-align: center; padding: 20px; }
-
-        @media (max-width: 768px) {
-            .header-links { position: relative; top: 0; right: 0; margin-top: 10px; justify-content: center; }
-            h1 { font-size: 1.8em; }
-            .fixture-teams { flex-direction: column; align-items: flex-start; }
-            .fixture-team.right, .result-team.right { text-align: left; }
-            .standings-table th, .standings-table td { padding: 9px 6px; font-size: 0.8em; }
-        }
-    </style>
+  @media (max-width: 480px) {
+    .header h1 { font-size: 1.1em; }
+    .tc-input-row { flex-direction: column; }
+    .tc-btn { width: 100%; }
+  }
+</style>
 </head>
 <body>
-<div class="container">
-    <header>
-        <div class="header-links">
-            <a href="kulup.html" class="kulup-link">👥 Kulüp</a>
-            <a href="admin.html" class="admin-link">🔐 Admin</a>
-        </div>
-        <h1>🏐 Vaveyla Spor Kulübü</h1>
-        <p class="subtitle">Voleybol Turnuvası 2026</p>
-        <div class="live-badge"><div class="live-dot"></div>Canlı Güncelleme</div>
-    </header>
-    <nav>
-        <button class="active" onclick="showSection('takimlar',this)">Takımlar</button>
-        <button onclick="showSection('puan-durumu',this)">Puan Durumu</button>
-        <button onclick="showSection('fikstur',this)">Fikstür</button>
-        <button onclick="showSection('sonuclar',this)">Maç Sonuçları</button>
-    </nav>
-    <div class="content">
-        <div id="takimlar" class="section active">
-            <h2>Katılımcı Takımlar</h2>
-            <div class="group-tabs" id="teams-group-tabs"></div>
-            <div id="teams-container"><p class="empty-msg">⏳ Yükleniyor...</p></div>
-        </div>
-        <div id="puan-durumu" class="section">
-            <h2>Puan Durumu</h2>
-            <div class="group-tabs" id="standings-group-tabs"></div>
-            <div id="standings-container"><p class="empty-msg">⏳ Yükleniyor...</p></div>
-        </div>
-        <div id="fikstur" class="section">
-            <h2>Fikstür</h2>
-            <div class="group-tabs" id="fixtures-group-tabs"></div>
-            <div id="fixtures-container"><p class="empty-msg">⏳ Yükleniyor...</p></div>
-        </div>
-        </div>
-        <div id="sonuclar" class="section">
-            <h2>Maç Sonuçları</h2>
-            <div class="group-tabs" id="results-group-tabs"></div>
-            <div id="results-container"><p class="empty-msg">⏳ Yükleniyor...</p></div>
-        </div>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <img src="amblem%20png.png" alt="Vaveyla SK"
+      onerror="this.style.display='none'"
+      style="width:80px;height:80px;object-fit:contain;display:block;margin:0 auto 10px;">
+    <h1>KÖRFEZ VAVEYLA SPOR KULÜBÜ<br>VELİ TAKİP SİSTEMİ</h1>
+    <p>TC Kimlik No ile sorgulayın</p>
+    <a href="kulup.html" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.15);
+      color:var(--gold);padding:7px 14px;border-radius:7px;text-decoration:none;font-size:0.78em;font-weight:600;">
+      🔐 Kulüp Paneli
+    </a>
+  </div>
+
+  <div class="main">
+
+    <!-- TC Giriş -->
+    <div class="tc-card">
+      <h2>🔍 Sporcu Sorgula</h2>
+      <div class="tc-input-row">
+        <input type="number" id="tc-input" class="tc-input" placeholder="TC Kimlik No" maxlength="11"
+          oninput="if(this.value.length>11)this.value=this.value.slice(0,11)">
+        <button class="tc-btn" onclick="tcSorgula()">Sorgula</button>
+      </div>
+      <div class="tc-error" id="tc-error">TC kimlik numarası bulunamadı.</div>
     </div>
-    <footer><p>&copy; 2026 Vaveyla Spor Kulübü - Tüm Hakları Saklıdır</p></footer>
+
+    <!-- Sporcu Kart -->
+    <div class="sporcu-kart" id="sporcu-kart">
+      <div class="sporcu-header">
+        <div id="sporcu-foto-el" class="sporcu-foto">?</div>
+        <div>
+          <div class="sporcu-adi" id="sporcu-adi-el"></div>
+          <div class="sporcu-grup" id="sporcu-grup-el"></div>
+        </div>
+      </div>
+
+      <div class="sekme-btns">
+        <button class="sekme-btn active" onclick="showSekme('yoklama',this)">📋 Yoklama</button>
+        <button class="sekme-btn" onclick="showSekme('aidat',this)">💰 Aidat</button>
+      </div>
+
+      <!-- Yoklama Paneli -->
+      <div class="panel active" id="panel-yoklama">
+        <div class="panel-header">
+          <span>Yoklama Kaydı</span>
+          <select class="ay-select" id="yok-ay-sel" onchange="loadVeliYoklama()"></select>
+        </div>
+        <div id="veli-yok-body" class="loading">⏳</div>
+      </div>
+
+      <!-- Aidat Paneli -->
+      <div class="panel" id="panel-aidat">
+        <div class="panel-header"><span>Aidat Ödemeleri</span></div>
+        <div id="veli-aidat-body" class="loading">⏳</div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
 firebase.initializeApp({
-    apiKey: "AIzaSyDUXWJ2Q1ywTh90ewPfD_BuH5Rsjqu00Y4",
-    authDomain: "vaveylask-862c2.firebaseapp.com",
-    databaseURL: "https://vaveylask-862c2-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "vaveylask-862c2",
-    storageBucket: "vaveylask-862c2.firebasestorage.app",
-    messagingSenderId: "539195972878",
-    appId: "1:539195972878:web:27c776639df321ec670b5f"
+  apiKey:"AIzaSyDUXWJ2Q1ywTh90ewPfD_BuH5Rsjqu00Y4",
+  authDomain:"vaveylask-862c2.firebaseapp.com",
+  databaseURL:"https://vaveylask-862c2-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"vaveylask-862c2",
+  storageBucket:"vaveylask-862c2.firebasestorage.app",
+  messagingSenderId:"539195972878",
+  appId:"1:539195972878:web:27c776639df321ec670b5f"
 });
-const database = firebase.database();
+const db = firebase.database();
 </script>
 <script>
-// Seçili grupları sakla
-const activeGroups = { takimlar: null, 'puan-durumu': null, fikstur: null, sonuclar: null };
-let ustTurView = 'bracket'; // 'bracket' veya 'list'
-let globalData = null;
+let mevcutSporcu = null;
 
-function showSection(id, btn) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    if (btn) btn.classList.add('active');
+// TC ile sorgula
+async function tcSorgula() {
+  const tc = document.getElementById('tc-input').value.trim();
+  const err = document.getElementById('tc-error');
+  const kart = document.getElementById('sporcu-kart');
+  err.style.display = 'none';
+  kart.style.display = 'none';
+  if (!tc || tc.length < 10) { err.style.display='block'; err.textContent='Geçerli bir TC giriniz.'; return; }
+
+  const snap = await db.ref('kulup/sporcular').once('value');
+  const data = snap.val() || {};
+  const found = Object.entries(data).find(([id,s]) => s.tc === tc);
+
+  if (!found) { err.style.display='block'; err.textContent='Bu TC kimlik numarasına ait sporcu bulunamadı.'; return; }
+
+  const [id, sporcu] = found;
+  mevcutSporcu = { id, ...sporcu };
+
+  // Sporcu kartı doldur
+  const fotoEl = document.getElementById('sporcu-foto-el');
+  if (sporcu.foto) {
+    fotoEl.innerHTML = '<img src="'+sporcu.foto+'" style="width:64px;height:64px;border-radius:50%;object-fit:cover;">';
+    fotoEl.style.background = 'none';
+  } else {
+    fotoEl.textContent = (sporcu.ad||'?')[0].toUpperCase();
+    fotoEl.style.background = 'var(--gold)';
+  }
+  document.getElementById('sporcu-adi-el').textContent = sporcu.ad || '';
+  document.getElementById('sporcu-grup-el').textContent = sporcu.grup || '';
+  kart.style.display = 'block';
+
+  // Ay dropdownları doldur
+  fillAySelect();
+  loadVeliYoklama();
+  loadVeliAidat();
 }
 
-// Voleybol puan hesaplama: 3-0/3-1 → 3 puan | 3-2 → 2 puan | 2-3 → 1 puan | 0-3/1-3 → 0 puan
-function calcPts(s1, s2) {
-    s1 = parseInt(s1); s2 = parseInt(s2);
-    if (s1 > s2) return s1 - s2 >= 2 && (s1 === 3 && s2 <= 1) ? { t1: 3, t2: 0 }
-                      : (s1 === 3 && s2 === 2) ? { t1: 2, t2: 1 } : { t1: 3, t2: 0 };
-    else         return s2 - s1 >= 2 && (s2 === 3 && s1 <= 1) ? { t1: 0, t2: 3 }
-                      : (s2 === 3 && s1 === 2) ? { t1: 1, t2: 2 } : { t1: 0, t2: 3 };
+document.getElementById('tc-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') tcSorgula();
+});
+
+function fillAySelect() {
+  const sel = document.getElementById('yok-ay-sel');
+  sel.innerHTML = '';
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(); d.setMonth(d.getMonth() - i);
+    const val = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+    const label = d.toLocaleDateString('tr-TR', {month:'long', year:'numeric'});
+    sel.innerHTML += '<option value="'+val+'">'+label+'</option>';
+  }
 }
 
-// Daha temiz voleybol puanlaması: kazanan 3-0 veya 3-1 → 3p, 3-2 → 2p; kaybeden 3-2 → 1p, diğer → 0p
-function volleyPts(s1, s2) {
-    s1 = parseInt(s1); s2 = parseInt(s2);
-    if (s1 === 3) {
-        if (s2 <= 1) return { t1: 3, t2: 0 };   // 3-0 veya 3-1
-        if (s2 === 2) return { t1: 2, t2: 1 };   // 3-2
-    } else if (s2 === 3) {
-        if (s1 <= 1) return { t1: 0, t2: 3 };   // 0-3 veya 1-3
-        if (s1 === 2) return { t1: 1, t2: 2 };   // 2-3
-    }
-    return { t1: 0, t2: 0 };
+function showSekme(sekme, btn) {
+  document.querySelectorAll('.sekme-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-'+sekme).classList.add('active');
 }
 
-function getGroups(data) {
-    const set = new Set();
-    // groups array'den
-    if (data.groups) {
-        const grpArr = Array.isArray(data.groups) ? data.groups : Object.values(data.groups);
-        grpArr.forEach(g => { if (g) set.add(String(g)); });
-    }
-    // teams objelerinden (groupA, groupB, groupC...)
-    if (data.teams && typeof data.teams === 'object') {
-        Object.keys(data.teams).forEach(k => {
-            if (k.startsWith('group')) {
-                const g = k.replace('group', '');
-                const arr = data.teams[k];
-                const len = Array.isArray(arr) ? arr.length : (arr ? Object.keys(arr).length : 0);
-                if (len > 0) set.add(g);
-            }
-        });
-    }
-    // maçlardan
-    (data.matches||[]).forEach(m => { if (m && m.group) set.add(String(m.group)); });
-    // hiç bulunamazsa default
-    if (!set.size) { set.add('A'); set.add('B'); }
-    return [...set].sort();
+// Yoklama yükle
+async function loadVeliYoklama() {
+  if (!mevcutSporcu) return;
+  const ay = document.getElementById('yok-ay-sel').value;
+  const body = document.getElementById('veli-yok-body');
+  body.innerHTML = '<div class="loading">⏳ Yükleniyor...</div>';
+
+  const grupKey = (mevcutSporcu.grup || '').replace(/[^a-zA-Z0-9]/g,'_');
+  const ayStr = ay.replace('-','');
+  const snap = await db.ref('kulup/yoklama/' + grupKey).once('value');
+  const tumYok = snap.val() || {};
+
+  // O aydaki günler
+  const ayGunler = Object.keys(tumYok).filter(k => k.startsWith(ayStr)).sort();
+  if (!ayGunler.length) {
+    body.innerHTML = '<div class="empty"><span class="icon">📅</span><p>Bu ay yoklama kaydı yok.</p></div>';
+    return;
+  }
+
+  let geldi = 0, gelmedi = 0;
+  let html = '<div class="gun-grid">';
+  ayGunler.forEach(gun => {
+    const d = gun.substring(6,8) + '.' + gun.substring(4,6);
+    const val = tumYok[gun]?.[mevcutSporcu.id];
+    if (val === true)       { html += '<span class="gun-chip geldi">✓ ' + d + '</span>'; geldi++; }
+    else if (val === false) { html += '<span class="gun-chip gelmedi">✗ ' + d + '</span>'; gelmedi++; }
+    else                    { html += '<span class="gun-chip bos">— ' + d + '</span>'; }
+  });
+  html += '</div>';
+  html += '<div class="yok-ozet">';
+  html += '<span class="yok-ozet-item" style="color:#065F46;">✓ Geldi: ' + geldi + '</span>';
+  html += '<span class="yok-ozet-item" style="color:#991B1B;">✗ Gelmedi: ' + gelmedi + '</span>';
+  const pct = geldi+gelmedi > 0 ? Math.round(geldi/(geldi+gelmedi)*100) : 0;
+  html += '<span class="yok-ozet-item" style="color:var(--muted);">Devam: %' + pct + '</span>';
+  html += '</div>';
+
+  body.innerHTML = html;
 }
 
-function getTeams(g, data) {
-    if (!data.teams) return [];
-    const arr = data.teams['group'+g];
-    if (!arr) return [];
-    return Array.isArray(arr) ? arr : Object.values(arr);
+// Aidat yükle
+async function loadVeliAidat() {
+  if (!mevcutSporcu) return;
+  const body = document.getElementById('veli-aidat-body');
+  body.innerHTML = '<div class="loading">⏳ Yükleniyor...</div>';
+
+  const DURUM_LABEL = {
+    'odedi':'Ödedi', 'ay-orta':'Ay Ortasında Geldi', 'indirimli':'İndirimli Ödedi',
+    'eksik':'Eksik Ödedi', 'bu-ay-odemeyecek':'Bu Ay Ödemeyecek',
+    'odemedi':'Ödemedi', 'odeyemeyecek':'Ödeyemeyecek'
+  };
+
+  // Son 12 ayı çek
+  const aylar = [];
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(); d.setMonth(d.getMonth() - i);
+    const key = d.getFullYear() + String(d.getMonth()+1).padStart(2,'0');
+    const label = d.toLocaleDateString('tr-TR', {month:'long', year:'numeric'});
+    aylar.push({ key, label });
+  }
+
+  const snap = await db.ref('kulup/aidat').once('value');
+  const tumAidat = snap.val() || {};
+
+  let html = '';
+  let kayitVar = false;
+
+  aylar.forEach(({key, label}) => {
+    const kayit = tumAidat[key]?.[mevcutSporcu.id];
+    if (!kayit) return;
+    kayitVar = true;
+    const durum = kayit.durum || 'odemedi';
+    const durumLabel = DURUM_LABEL[durum] || durum;
+    const badgeClass = durum === 'odedi' ? 'badge-odedi' : durum === 'odemedi' || durum === 'odeyemeyecek' ? 'badge-odemedi' : 'badge-diger';
+    let meta = '';
+    if (kayit.tarih) meta += kayit.tarih;
+    if (kayit.saat) meta += ' ' + kayit.saat;
+    if (kayit.odeyen) meta += ' — ' + kayit.odeyen;
+    if (kayit.tutar) meta += ' — ₺' + kayit.tutar;
+
+    html += '<div class="aidat-item">';
+    html += '<div><div class="aidat-ay">' + label + '</div>';
+    if (meta) html += '<div class="aidat-meta">' + meta + '</div>';
+    html += '</div>';
+    html += '<span class="aidat-badge ' + badgeClass + '">' + durumLabel + '</span>';
+    html += '</div>';
+  });
+
+  body.innerHTML = kayitVar ? html : '<div class="empty"><span class="icon">💰</span><p>Henüz aidat kaydı yok.</p></div>';
 }
 
-function calcStandings(g, data) {
-    const st = {};
-    getTeams(g, data).forEach(t => { st[t] = { played:0, won:0, lost:0, sw:0, sl:0, pts:0 }; });
-    const groupMatches = (data.matches||[]).filter(m => m.group===g && m.played);
-    groupMatches.forEach(m => {
-        if (!st[m.team1]) st[m.team1] = { played:0, won:0, lost:0, sw:0, sl:0, pts:0 };
-        if (!st[m.team2]) st[m.team2] = { played:0, won:0, lost:0, sw:0, sl:0, pts:0 };
-        const p = volleyPts(m.score1, m.score2);
-        const s1 = parseInt(m.score1), s2 = parseInt(m.score2);
-        st[m.team1].played++; st[m.team2].played++;
-        st[m.team1].sw += s1; st[m.team1].sl += s2;
-        st[m.team2].sw += s2; st[m.team2].sl += s1;
-        st[m.team1].pts += p.t1; st[m.team2].pts += p.t2;
-        if (s1 > s2) { st[m.team1].won++; st[m.team2].lost++; }
-        else { st[m.team2].won++; st[m.team1].lost++; }
-    });
-
-    // Kendi aralarındaki maç sonuçları (tiebreaker için)
-    function getH2H(teamA, teamB) {
-        const h = { pts:{[teamA]:0,[teamB]:0}, sw:{[teamA]:0,[teamB]:0}, sl:{[teamA]:0,[teamB]:0} };
-        groupMatches.filter(m => (m.team1===teamA&&m.team2===teamB)||(m.team1===teamB&&m.team2===teamA)).forEach(m => {
-            const p = volleyPts(m.score1, m.score2);
-            const s1 = parseInt(m.score1), s2 = parseInt(m.score2);
-            if (m.team1===teamA) {
-                h.pts[teamA]+=p.t1; h.pts[teamB]+=p.t2;
-                h.sw[teamA]+=s1; h.sw[teamB]+=s2;
-                h.sl[teamA]+=s2; h.sl[teamB]+=s1;
-            } else {
-                h.pts[teamA]+=p.t2; h.pts[teamB]+=p.t1;
-                h.sw[teamA]+=s2; h.sw[teamB]+=s1;
-                h.sl[teamA]+=s1; h.sl[teamB]+=s2;
-            }
-        });
-        return h;
-    }
-
-    const teams = Object.entries(st).map(([team, s]) => ({
-        team, ...s,
-        avg: s.sw - s.sl,
-        setRatio: s.sl > 0 ? s.sw / s.sl : (s.sw > 0 ? 999 : 0)
-    }));
-
-    teams.sort((a, b) => {
-        // 1. Puan
-        if (b.pts !== a.pts) return b.pts - a.pts;
-        // 2. Kazanılan maç sayısı
-        if (b.won !== a.won) return b.won - a.won;
-        // 3. Set oranı (sw/sl)
-        if (Math.abs(b.setRatio - a.setRatio) > 0.0001) return b.setRatio - a.setRatio;
-        // 4. Karşılıklı maç puanı (h2h)
-        const h = getH2H(a.team, b.team);
-        if (h.pts[b.team] !== h.pts[a.team]) return h.pts[b.team] - h.pts[a.team];
-        // 5. Karşılıklı set oranı
-        const hrA = h.sl[a.team] > 0 ? h.sw[a.team]/h.sl[a.team] : (h.sw[a.team] > 0 ? 999 : 0);
-        const hrB = h.sl[b.team] > 0 ? h.sw[b.team]/h.sl[b.team] : (h.sw[b.team] > 0 ? 999 : 0);
-        return hrB - hrA;
-    });
-
-    return teams;
-}
-
-// Grup sekmeleri oluştur
-function buildGroupTabs(tabsId, section, groups, hasPlayoffs) {
-    const container = document.getElementById(tabsId);
-    if (!container) return;
-
-    // Aktif grubu belirle
-    if (!activeGroups[section] || (!groups.includes(activeGroups[section]) && activeGroups[section] !== '__playoff__')) {
-        activeGroups[section] = groups[0] || null;
-    }
-
-    let html = groups.map(g =>
-        `<button class="group-tab ${activeGroups[section]===g?'active':''}" onclick="selectGroup('${section}','${g}')">${g} Grubu</button>`
-    ).join('');
-
-    // Fikstür ve Sonuçlar sekmelerinde Final Four butonu
-    if (hasPlayoffs && (section === 'fikstur' || section === 'sonuclar')) {
-        html += `<button class="group-tab playoff-tab ${activeGroups[section]==='__playoff__'?'active':''}"
-            onclick="selectGroup('${section}','__playoff__')">🏆 Final Four</button>`;
-    }
-
-    container.innerHTML = html;
-}
-
-function selectGroup(section, group) {
-    activeGroups[section] = group;
-    if (globalData) renderSection(section, globalData);
-}
-
-function renderSection(section, data) {
-    const groups = getGroups(data);
-    if (!groups.length) {
-        const containers = { takimlar:'teams-container', 'puan-durumu':'standings-container', fikstur:'fixtures-container', sonuclar:'results-container' };
-        if (containers[section]) document.getElementById(containers[section]).innerHTML = '<p class="empty-msg">Henüz veri yok.</p>';
-        return;
-    }
-    const g = activeGroups[section] || groups[0];
-
-    // Joker hesabı (tüm 3.ler arasından en iyi 2)
-    const direct = 2;
-    const wildcards = 0;
-    const thirds = [];
-    groups.forEach(gr => {
-        const st = calcStandings(gr, data);
-        if (st.length >= 3) thirds.push({ ...st[2], gr });
-    });
-    thirds.sort((a, b) => b.pts !== a.pts ? b.pts - a.pts : b.avg - a.avg);
-    const wildSet = new Set(thirds.slice(0, wildcards).map(t => t.team));
-
-    if (section === 'takimlar') {
-        buildGroupTabs('teams-group-tabs', section, groups, false);
-        const teams = getTeams(g, data);
-        if (!teams.length) { document.getElementById('teams-container').innerHTML = '<p class="empty-msg">Bu grupta henüz takım yok.</p>'; return; }
-        document.getElementById('teams-container').innerHTML = teams.map(t => `<div class="team-card">🏐 ${t}</div>`).join('');
-    }
-
-    else if (section === 'puan-durumu') {
-        buildGroupTabs('standings-group-tabs', section, groups, false);
-        const st = calcStandings(g, data);
-
-        let html = `<div class="qualify-banner">
-            🏆 <strong>Final Four'a Çıkış:</strong> Her gruptan ilk <strong>${direct}</strong> takım direkt çıkar.
-            ${wildcards > 0 ? `Tüm grupların 3.'leri arasından en iyi <strong>${wildcards}</strong> takım da çıkar.` : ''}
-            <div class="qualify-legend">
-                <span class="q-green">🟢 Direkt çıkar</span>
-                ${wildcards > 0 ? '<span class="q-yellow">🟡 Joker ile çıkabilir</span>' : ''}
-            </div>
-        </div>`;
-
-        html += `<table class="standings-table">
-            <thead><tr>
-                <th>#</th><th>Takım</th><th>O</th><th>G</th><th>M</th>
-                <th title="Kazanılan Set">KS</th><th title="Kaybedilen Set">MS</th>
-                <th title="Set Averajı">Avg</th><th>P</th>
-            </tr></thead><tbody>`;
-
-        st.forEach((t, i) => {
-            const isDirect = i < direct;
-            const isWild = false;
-            const rc = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'';
-            const qc = isDirect?'qualified-row':'';
-            const badge = isDirect?' 🟢':'';
-            html += `<tr class="${rc} ${qc}">
-                <td><strong>${i+1}</strong></td>
-                <td>${t.team}${badge}</td>
-                <td>${t.played}</td><td>${t.won}</td><td>${t.lost}</td>
-                <td>${t.sw}</td><td>${t.sl}</td>
-                <td>${t.avg > 0 ? '+' : ''}${t.avg}</td>
-                <td><strong>${t.pts}</strong></td>
-            </tr>`;
-        });
-
-        html += `</tbody></table>
-            <p style="color:#999;font-size:0.78em;margin-top:8px;">
-                O:Oynanan &nbsp; G:Galibiyet &nbsp; M:Mağlubiyet &nbsp; KS:Kazanılan Set &nbsp; MS:Kaybedilen Set &nbsp; Avg:Set Averajı &nbsp; P:Puan<br>
-                Puanlama: 3-0/3-1 kazanma → 3P &nbsp;|&nbsp; 3-2 kazanma → 2P &nbsp;|&nbsp; 2-3 kaybetme → 1P &nbsp;|&nbsp; 0-3/1-3 kaybetme → 0P
-            </p>`;
-
-        document.getElementById('standings-container').innerHTML = html;
-    }
-
-    else if (section === 'fikstur') {
-        buildGroupTabs('fixtures-group-tabs', section, groups, true);
-
-        // Final Four seçiliyse bracket göster
-        if (activeGroups[section] === '__playoff__') {
-            document.getElementById('fixtures-container').innerHTML = renderBracket(data.playoffs||[]);
-            return;
-        }
-        const ms = (data.matches||[]).filter(m => m.group === g);
-        if (!ms.length) { document.getElementById('fixtures-container').innerHTML = '<p class="empty-msg">Bu grupta henüz maç eklenmemiş.</p>'; return; }
-        document.getElementById('fixtures-container').innerHTML = ms.map(m => `
-            <div class="fixture-card">
-                <div class="fixture-meta">
-                    <span class="fixture-badge">📅 ${m.date}</span>
-                    ${m.time ? `<span class="fixture-badge">🕐 ${m.time}</span>` : ''}
-                    ${m.venue ? `<span class="fixture-badge salon">📍 ${m.venue}</span>` : ''}
-                </div>
-                <div class="fixture-teams">
-                    <span class="fixture-team">${m.team1}</span>
-                    <span class="fixture-vs">vs</span>
-                    <span class="fixture-team right">${m.team2}</span>
-                </div>
-            </div>`).join('');
-    }
-
-    else if (section === 'sonuclar') {
-        buildGroupTabs('results-group-tabs', section, groups, true);
-
-        // Final Four seçiliyse playoff sonuçlarını göster
-        if (activeGroups[section] === '__playoff__') {
-            document.getElementById('results-container').innerHTML = renderPlayoffResults(data.playoffs||[]);
-            return;
-        }
-        const played = (data.matches||[]).filter(m => m.group === g && m.played);
-        if (!played.length) { document.getElementById('results-container').innerHTML = '<p class="empty-msg">Bu grupta henüz oynanmış maç yok.</p>'; return; }
-        document.getElementById('results-container').innerHTML = played.map(m => {
-            const setList = m.sets ? m.sets.split(',').map(s => s.trim()).filter(Boolean) : [];
-
-            // Setleri kazanana göre ayır
-            let leftSets = [], rightSets = [];
-            setList.forEach((s, i) => {
-                const parts = s.split('-');
-                const a = parseInt(parts[0])||0, b = parseInt(parts[1])||0;
-                const box = `<div class="set-box"><span class="set-label">Set ${i+1}</span><span class="set-score">${s}</span></div>`;
-                if (a >= b) leftSets.push(box); else rightSets.push(box);
-            });
-
-            const leftHtml  = leftSets.length  ? leftSets.join('') : '';
-            const rightHtml = rightSets.length ? rightSets.join('') : '';
-
-            return `<div class="result-card">
-                <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;">
-                    <span class="result-team">${m.team1}</span>
-                    <span class="result-score">${m.score1} – ${m.score2}</span>
-                    <span class="result-team right">${m.team2}</span>
-                </div>
-                ${setList.length ? `<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:4px;margin-top:8px;">
-                    <div style="display:flex;flex-wrap:wrap;gap:6px;flex:1;">${leftHtml}</div>
-                    <div style="min-width:20px;flex-shrink:0;"></div>
-                    <div style="display:flex;flex-wrap:wrap;gap:6px;flex:1;justify-content:flex-end;">${rightHtml}</div>
-                </div>` : ''}
-            </div>`;
-        }).join('');
-    }
-}
-
-
-const ROUNDS = [
-    { key: "SF", label: "Yari Final",   short: "YF" },
-    { key: "F",  label: "Final",        short: "F"  },
-    { key: "TP", label: "3. luk Maci",  short: "3." }
-];
-
-
-
-
-function renderPlayoffResults(playoffs) {
-    const played = playoffs.filter(m => m.played);
-    if (!played.length) return '<p style="text-align:center;color:#888;padding:40px;">Henüz oynanmış üst tur maçı yok.</p>';
-
-    const ROUND_ORDER = ['SF','F','TP'];
-    const ROUND_NAMES = { SF:'Yarı Final', F:'Final', TP:'3. luk Maci' };
-
-    let html = '';
-    ROUND_ORDER.forEach(r => {
-        const ms = played.filter(m => m.round === r);
-        if (!ms.length) return;
-        html += `<div style="margin-bottom:8px;"><span style="background:#8B0000;color:#FFD700;padding:4px 14px;border-radius:6px;font-size:0.82em;font-weight:800;">${ROUND_NAMES[r]}</span></div>`;
-        ms.forEach(m => {
-            const sets = m.sets ? m.sets.split(',').map(s=>s.trim()).filter(Boolean) : [];
-            let leftSets = [], rightSets = [];
-            sets.forEach((s,i) => {
-                const parts = s.split('-');
-                const a=parseInt(parts[0])||0, b=parseInt(parts[1])||0;
-                const box = `<div class="set-box"><span class="set-label">Set ${i+1}</span><span class="set-score">${s}</span></div>`;
-                if (a>=b) leftSets.push(box); else rightSets.push(box);
-            });
-            const lHtml = leftSets.length ? `<div class="sets-grid">${leftSets.join('')}</div>` : '';
-            const rHtml = rightSets.length ? `<div class="sets-grid">${rightSets.join('')}</div>` : '';
-            html += `<div class="result-card" style="margin-bottom:14px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;">
-                    <span class="result-team">${m.team1||'TBD'}</span>
-                    <span class="result-score">${m.score1} – ${m.score2}</span>
-                    <span class="result-team right">${m.team2||'TBD'}</span>
-                </div>
-                ${sets.length ? `<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:4px;margin-top:8px;">
-                    <div style="display:flex;flex-wrap:wrap;gap:6px;flex:1;">${lHtml}</div>
-                    <div style="min-width:20px;flex-shrink:0;"></div>
-                    <div style="display:flex;flex-wrap:wrap;gap:6px;flex:1;justify-content:flex-end;">${rHtml}</div>
-                </div>` : ''}
-            </div>`;
-        });
-    });
-    return html;
-}
-
-function makeBTeam(name, score, isWinner) {
-    const bg = isWinner ? 'background:rgba(255,215,0,0.25);' : '';
-    const fw = isWinner ? 'font-weight:800;color:#8B0000;' : 'font-weight:600;';
-    const nameStyle = name ? fw : 'color:transparent;';
-    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;min-height:40px;${bg}">
-        <span style="font-size:0.85em;flex:1;line-height:1.3;${nameStyle}">${name||'—'}</span>
-        <span style="font-size:0.9em;font-weight:800;color:#8B0000;min-width:18px;text-align:right;padding-left:6px;">${score!==null&&score!==undefined&&name?score:''}</span>
-    </div>`;
-}
-
-function makeBMatchInline(m) {
-    const boxStyle = 'background:white;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);border:2px solid';
-    if (!m) {
-        return `<div style="${boxStyle} #eee;">
-            <div style="padding:10px 14px;min-height:40px;border-bottom:1px solid #f0f0f0;"></div>
-            <div style="padding:10px 14px;min-height:40px;"></div>
-        </div>`;
-    }
-    const played = m.played;
-    const s1 = parseInt(m.score1), s2 = parseInt(m.score2);
-    const w1 = played && s1>s2, w2 = played && s2>s1;
-    const border = played ? '#FFD700' : '#e5e5e5';
-    const t1 = m.team1 || '';
-    const t2 = m.team2 || '';
-
-    // Meta bilgi (tarih, saat, salon)
-    const metaParts = [m.date, m.time, m.venue].filter(Boolean);
-    const metaHtml = metaParts.length ? `<div style="background:#f9f9f9;padding:6px 12px;font-size:0.72em;color:#666;border-bottom:1px solid #f0f0f0;display:flex;flex-wrap:wrap;gap:6px;">
-        ${m.date ? `<span>📅 ${m.date}</span>` : ''}
-        ${m.time ? `<span>🕐 ${m.time}</span>` : ''}
-        ${m.venue ? `<span>📍 ${m.venue}</span>` : ''}
-    </div>` : '';
-
-    return `<div style="${boxStyle} ${border};">
-        ${metaHtml}
-        ${makeBTeam(t1, played&&t1?s1:null, w1)}
-        <div style="border-top:1px solid #f0f0f0;">${makeBTeam(t2, played&&t2?s2:null, w2)}</div>
-    </div>`;
-}
-
-function renderBracket(playoffs) {
-    if (!playoffs) playoffs = [];
-    // Boşsa Final Four şablonu: 2 SF + 1 Final + 1 TP (QF yok)
-    const hasAnyRound = playoffs.some(m => ['SF','F','TP'].includes(m.round));
-    if (!hasAnyRound) {
-        const empty = (r) => ({ round:r, played:false, team1:'', team2:'', score1:null, score2:null, sets:'' });
-        playoffs = [ empty('SF'), empty('SF'), empty('F'), empty('TP') ];
-    }
-
-    const qf = []; // Final Four'da QF yok
-    const sf = playoffs.filter(m => m.round==='SF');
-    const fn = playoffs.filter(m => m.round==='F');
-    const tp = playoffs.filter(m => m.round==='TP');
-
-    let champion = '';
-    if (fn.length && fn[0].played) {
-        const f=fn[0]; champion = parseInt(f.score1)>parseInt(f.score2)?f.team1:f.team2;
-    }
-
-    const sfL=sf[0]||null, sfR=sf[1]||null, finalM=fn[0]||null;
-
-    const col = 'flex:1;min-width:160px;display:flex;flex-direction:column;gap:10px;padding:0 10px;';
-    const colC = 'flex:1;min-width:180px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:0 10px;';
-    const rl = (txt) => `<div style="text-align:center;font-size:0.75em;font-weight:800;color:#8B0000;text-transform:uppercase;letter-spacing:1px;padding:6px 4px;border-bottom:2px solid #FFD700;margin-bottom:6px;">${txt}</div>`;
-
-    const centerBox = `<div style="background:linear-gradient(135deg,#8B0000,#6B0000);border-radius:14px;padding:18px 12px;text-align:center;box-shadow:0 6px 20px rgba(139,0,0,0.3);width:100%;">
-        <div style="font-size:2.2em;margin-bottom:6px;">🏆</div>
-        <div style="color:#FFD700;font-size:0.75em;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Şampiyon</div>
-        <div style="color:#FFD700;font-size:1em;font-weight:800;margin-top:8px;min-height:22px;">${champion||'<span style=\'opacity:0.35;font-style:italic;font-size:0.85em;\'>Bekleniyor</span>'}</div>
-    </div>`;
-
-    let html = `
-    <div style="text-align:center;margin-bottom:20px;">
-        <span style="font-size:1.4em;font-weight:800;color:#8B0000;letter-spacing:1px;">🏆 FINAL FOUR</span>
-    </div>
-    <div style="overflow-x:auto;padding-bottom:10px;">
-    <div style="display:flex;gap:0;align-items:center;min-width:400px;padding:10px 0;">
-
-        <div style="${col}">
-            ${rl('Yarı Final')}
-            ${makeBMatchInline(sfL)}
-        </div>
-
-        <div style="color:#FFD700;font-size:1.5em;padding:0 4px;align-self:center;">›</div>
-
-        <div style="${colC}">
-            ${rl('Final')}
-            ${centerBox}
-            <div style="margin-top:8px;width:100%;">${makeBMatchInline(finalM)}</div>
-        </div>
-
-        <div style="color:#FFD700;font-size:1.5em;padding:0 4px;align-self:center;">‹</div>
-
-        <div style="${col}">
-            ${rl('Yarı Final')}
-            ${makeBMatchInline(sfR)}
-        </div>
-
-    </div>
-    </div>`;
-
-    if (tp.length) {
-        let third = '';
-        if (tp[0].played) { const t=tp[0]; third=parseInt(t.score1)>parseInt(t.score2)?t.team1:t.team2; }
-        html += `<div style="margin-top:20px;padding-top:16px;border-top:2px dashed #eee;">
-            <div style="font-size:0.8em;color:#888;font-weight:700;text-align:center;margin-bottom:10px;text-transform:uppercase;">3.lük Maçı ${third?'— 3. Olan: '+third:''}</div>
-            <div style="max-width:320px;margin:0 auto;">${makeBMatchInline(tp[0])}</div>
-        </div>`;
-    }
-
-    return html;
-}
-
-
-function renderAll(data) {
-    globalData = data;
-    ['takimlar', 'puan-durumu', 'fikstur', 'sonuclar'].forEach(s => renderSection(s, data));
-}
-
-window.addEventListener('load', () => {
-    database.ref('turnuva').on('value', snap => {
-        const data = snap.val();
-        if (!data) return;
-        if (data.matches && !Array.isArray(data.matches)) data.matches = Object.values(data.matches);
-        else if (!data.matches) data.matches = [];
-        if (data.playoffs && !Array.isArray(data.playoffs)) data.playoffs = Object.values(data.playoffs);
-        else if (!data.playoffs) data.playoffs = [];
-        renderAll(data);
-    });
+// TC input sadece sayı
+document.getElementById('tc-input').addEventListener('input', function() {
+  this.value = this.value.replace(/\D/g,'').slice(0,11);
 });
 </script>
 </body>
