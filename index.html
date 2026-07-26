@@ -47,9 +47,10 @@
 
   /* TC giriş kartı */
   .tc-card {
-    background: var(--surface); border-radius: 16px;
+    background: rgba(255,255,255,0.82); border-radius: 16px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.10);
     padding: 32px 28px; margin-bottom: 20px;
+    backdrop-filter: blur(8px);
   }
   .tc-card h2 { font-size: 1em; font-weight: 600; color: var(--red); margin-bottom:16px; }
   .tc-input-row { display: flex; gap: 10px; }
@@ -69,9 +70,10 @@
 
   /* Sporcu bilgi kartı */
   .sporcu-kart {
-    background: var(--surface); border-radius: 14px;
+    background: rgba(255,255,255,0.85); border-radius: 14px;
     box-shadow: 0 2px 16px rgba(0,0,0,0.08);
     padding: 20px 20px 16px; margin-bottom: 16px; display: none;
+    backdrop-filter: blur(8px);
   }
   .sporcu-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
   .sporcu-foto {
@@ -95,9 +97,10 @@
 
   /* İçerik paneli */
   .panel {
-    background: var(--surface); border-radius: 14px;
+    background: rgba(255,255,255,0.85); border-radius: 14px;
     box-shadow: 0 2px 16px rgba(0,0,0,0.08);
     overflow: hidden; display: none;
+    backdrop-filter: blur(8px);
   }
   .panel.active { display: block; }
   .panel-header {
@@ -161,7 +164,7 @@
   <div class="header">
     <img src="amblem%20png.png" alt="Vaveyla SK"
       onerror="this.style.display='none'"
-      style="width:120px;height:120px;object-fit:contain;display:block;margin:0 auto 14px;">
+      style="width:220px;height:220px;object-fit:contain;display:block;margin:0 auto 14px;">
     <h1>KÖRFEZ VAVEYLA SPOR KULÜBÜ<br>VELİ TAKİP SİSTEMİ</h1>
     <p>TC Kimlik No ile sorgulayın</p>
     <a href="kulup.html" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.15);
