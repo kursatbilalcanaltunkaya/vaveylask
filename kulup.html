@@ -1783,51 +1783,68 @@ function updateGrupSelect(gruplar) {
 /* ═══════════════════════════════════════════════════════
    KASA
 ═══════════════════════════════════════════════════════ */
-async function loadKasa() {
-  const snap = await db.ref('kulup/kasa').once('value');
-  const data = snap.val() || {};
-  const list = Object.entries(data).map(([id,v])=>({id,...v}))
-    .sort((a,b) => (b.tarih||'').localeCompare(a.tarih||''));
+async function loadKasa() { await loadHatirlatma(); }
 
-  const gelir = list.filter(x=>x.tur==='gelir').reduce((s,x)=>s+(+x.tutar||0),0);
-  const gider = list.filter(x=>x.tur==='gider').reduce((s,x)=>s+(+x.tutar||0),0);
-  document.getElementById('kasa-stats').innerHTML = `
-    <div class="stat-card green"><div class="stat-value">₺${gelir.toLocaleString('tr')}</div><div class="stat-label">Toplam Gelir</div></div>
-    <div class="stat-card red"><div class="stat-value">₺${gider.toLocaleString('tr')}</div><div class="stat-label">Toplam Gider</div></div>
-    <div class="stat-card"><div class="stat-value">₺${(gelir-gider).toLocaleString('tr')}</div><div class="stat-label">Net Bakiye</div></div>
-  `;
-
-  document.getElementById('kasa-tbody').innerHTML = list.map(x => `
-    <tr>
-      <td>${x.tarih||'—'}</td>
-      <td>${x.aciklama||'—'}</td>
-      <td><span class="badge ${x.tur==='gelir'?'badge-green':'badge-red'}">${x.tur==='gelir'?'Gelir':'Gider'}</span></td>
-      <td style="font-weight:600;color:${x.tur==='gelir'?'var(--green)':'var(--orange)'};">₺${(+x.tutar||0).toLocaleString('tr')}</td>
-      <td><button class="btn btn-ghost btn-sm" onclick="delKasa('${x.id}')">🗑</button></td>
-    </tr>
-  `).join('') || `<tr><td colspan="5"><div class="empty"><span class="icon">🏦</span><p>Henüz hareket yok.</p></div></td></tr>`;
+async function loadHatirlatma() {
+  const ayEl = document.getElementById('hat-ay');
+  const ay = ayEl ? ayEl.value : '';
+  const hatGrup = document.getElementById('hat-grup');
+  const grup = hatGrup ? hatGrup.value : '';
+  const body = document.getElementById('hat-body');
+  const ozet = document.getElementById('hat-ozet');
+  if (!body) return;
+  if (!ay) {
+    body.innerHTML = '<div class="empty"><span class="icon">📣</span><p>Ay seçin.</p></div>';
+    return;
+  }
+  body.innerHTML = '<div class="loading">⏳ Yükleniyor...</div>';
+  if (!sporcular || sporcular.length === 0) await loadSporcular();
+  const ayKey = ay.replace('-','');
+  const snap = await db.ref('kulup/aidat/' + ayKey).once('value');
+  const kayitlar = snap.val() || {};
+  const liste = sporcular.filter(function(s) {
+    if (s.durum === 'Pasif') return false;
+    if (grup && s.grup !== grup) return false;
+    return true;
+  });
+  const odemeyen = liste.filter(function(s) {
+    var d = kayitlar[s.id] ? (kayitlar[s.id].durum || 'odemedi') : 'odemedi';
+    return d === 'odemedi';
+  });
+  const odedi = liste.filter(function(s) {
+    var d = kayitlar[s.id] ? (kayitlar[s.id].durum || 'odemedi') : 'odemedi';
+    return d !== 'odemedi' && d !== 'bu-ay-odemeyecek';
+  }).length;
+  const odemeyecek = liste.filter(function(s) {
+    return kayitlar[s.id] && kayitlar[s.id].durum === 'bu-ay-odemeyecek';
+  }).length;
+  if (ozet) ozet.innerHTML = '<div class="stat-grid" style="margin-bottom:0;">' +
+    '<div class="stat-card red"><div class="stat-value">' + odemeyen.length + '</div><div class="stat-label">Ödemedi</div></div>' +
+    '<div class="stat-card green"><div class="stat-value">' + odedi + '</div><div class="stat-label">Ödedi</div></div>' +
+    '<div class="stat-card"><div class="stat-value">' + odemeyecek + '</div><div class="stat-label">Bu Ay Ödemeyecek</div></div>' +
+    '<div class="stat-card"><div class="stat-value">' + liste.length + '</div><div class="stat-label">Toplam</div></div></div>';
+  if (!odemeyen.length) {
+    body.innerHTML = '<div class="empty"><span class="icon">🎉</span><p>Bu ay tüm ödemeler tamamlanmış!</p></div>';
+    return;
+  }
+  var d2 = new Date(ay + '-01');
+  var ayAdi = d2.toLocaleDateString('tr-TR', {month:'long', year:'numeric'});
+  var html = '<div style="margin-bottom:12px;padding:10px 14px;background:#FEF3C7;border-radius:8px;font-size:0.82em;color:#92400E;">' +
+    '<strong>Mesaj:</strong> Sayın [Veli], ' + ayAdi + ' aidatı yatırılmamıştır. Lütfen ödeme yapınız. — Vaveyla SK</div>';
+  odemeyen.forEach(function(s) {
+    var tel = (s.veliTel||'').replace(/[^0-9]/g,'').replace(/^0/,'90');
+    var metin = 'Sayın '+(s.veliAd||'Veli')+', '+ayAdi+' aidatı yatırılmamıştır. Lütfen en kısa sürede ödeme yapınız. — Vaveyla SK';
+    var url = tel ? 'https://wa.me/'+tel+'?text='+encodeURIComponent(metin) : '';
+    html += '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">';
+    html += getAvatarHtml(s,36);
+    html += '<div style="flex:1;"><div style="font-weight:600;font-size:0.88em;">'+s.ad+'</div>';
+    html += '<div style="font-size:0.75em;color:var(--muted);">'+(s.veliAd||'')+(s.veliTel?' — '+s.veliTel:'')+'</div></div>';
+    if(url) html += '<a href="'+url+'" target="_blank" rel="noopener" style="background:#25D366;color:#fff;padding:8px 14px;border-radius:7px;font-size:0.82em;font-weight:700;text-decoration:none;white-space:nowrap;">💬 Gönder</a>';
+    html += '</div>';
+  });
+  body.innerHTML = html;
 }
 
-function openKasaModal() { document.getElementById('kasa-modal').classList.add('open'); }
-function closeKasa() { document.getElementById('kasa-modal').classList.remove('open'); }
-async function saveKasa() {
-  const d = {
-    tarih: document.getElementById('k-tarih').value,
-    tur: document.getElementById('k-tur').value,
-    aciklama: document.getElementById('k-aciklama').value.trim(),
-    tutar: document.getElementById('k-tutar').value,
-  };
-  if (!d.aciklama || !d.tutar) { showToast('Açıklama ve tutar zorunlu!','error'); return; }
-  await db.ref('kulup/kasa').push(d);
-  showToast('Hareket eklendi ✓','success');
-  closeKasa();
-  loadKasa();
-}
-async function delKasa(id) {
-  if (!confirm('Silinsin mi?')) return;
-  await db.ref('kulup/kasa/'+id).remove();
-  loadKasa();
-}
 
 /* ═══════════════════════════════════════════════════════
    MESAJ
