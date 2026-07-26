@@ -860,11 +860,10 @@ async function loadHatirlatma() {
   var d2 = new Date(ay + '-01');
   var ayAdi = d2.toLocaleDateString('tr-TR', {month:'long', year:'numeric'});
   var sablonSnap = await db.ref('kulup/mesajlar/aidatHatirlatma').once('value');
-  var sablonDefault = 'Sayın {veli}, nasılsınız?\n\n{sporcu_ad}\'nın {ay} aidat ödemesiyle ilgili sistemde bir eksiklik görünüyor. Küçük bir hatırlatma yapmak istedim, belki gözünüzden kaçmış olabilir.\n\nRahatsızlık verdiysem kusura bakmayın. İyi günler dilerim. 😇';
+  var sablonDefault = 'Sayın {veli}, nasılsınız?\n\n{sporcu_ad} adlı sporcunun {ay} aidat ödemesiyle ilgili sistemde bir eksiklik görünüyor. Küçük bir hatırlatma yapmak istedim, belki gözünüzden kaçmış olabilir.\n\nRahatsızlık verdiysem kusura bakmayın. İyi günler dilerim.';
   var sablon = sablonSnap.val() || sablonDefault;
   var html = '<div style="margin-bottom:12px;padding:10px 14px;background:#FEF3C7;border-radius:8px;font-size:0.82em;color:#92400E;">' +
-    '<strong>Şablon:</strong> ' + sablon.replace(/
-/g, ' ').substring(0,120) + '...</div>';
+    '<strong>Şablon:</strong> ' + sablon.replace(/\n/g, ' ').substring(0,120) + '...</div>';
   odemeyen.forEach(function(s) {
     var tel = (s.veliTel||'').replace(/[^0-9]/g,'').replace(/^0/,'90');
     var sporcuAdIlk = (s.ad||'').split(' ')[0];
