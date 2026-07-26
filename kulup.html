@@ -859,11 +859,20 @@ async function loadHatirlatma() {
   }
   var d2 = new Date(ay + '-01');
   var ayAdi = d2.toLocaleDateString('tr-TR', {month:'long', year:'numeric'});
+  var sablonSnap = await db.ref('kulup/mesajlar/aidatHatirlatma').once('value');
+  var sablonDefault = 'Sayın {veli}, nasılsınız?\n\n{sporcu_ad}\'nın {ay} aidat ödemesiyle ilgili sistemde bir eksiklik görünüyor. Küçük bir hatırlatma yapmak istedim, belki gözünüzden kaçmış olabilir.\n\nRahatsızlık verdiysem kusura bakmayın. İyi günler dilerim. 😇';
+  var sablon = sablonSnap.val() || sablonDefault;
   var html = '<div style="margin-bottom:12px;padding:10px 14px;background:#FEF3C7;border-radius:8px;font-size:0.82em;color:#92400E;">' +
-    '<strong>Mesaj:</strong> Sayın [Veli], ' + ayAdi + ' aidatı yatırılmamıştır. Lütfen ödeme yapınız. — Vaveyla SK</div>';
+    '<strong>Şablon:</strong> ' + sablon.replace(/
+/g, ' ').substring(0,120) + '...</div>';
   odemeyen.forEach(function(s) {
     var tel = (s.veliTel||'').replace(/[^0-9]/g,'').replace(/^0/,'90');
-    var metin = 'Sayın '+(s.veliAd||'Veli')+', '+ayAdi+' aidatı yatırılmamıştır. Lütfen en kısa sürede ödeme yapınız. — Vaveyla SK';
+    var sporcuAdIlk = (s.ad||'').split(' ')[0];
+    var metin = sablon
+      .replace(/{veli}/g, s.veliAd||'Veli')
+      .replace(/{sporcu}/g, s.ad||'')
+      .replace(/{sporcu_ad}/g, sporcuAdIlk)
+      .replace(/{ay}/g, ayAdi);
     var url = tel ? 'https://wa.me/'+tel+'?text='+encodeURIComponent(metin) : '';
     html += '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">';
     html += getAvatarHtml(s,36);
@@ -1851,11 +1860,27 @@ function updateGrupSelect(gruplar) {
    MESAJ
 ═══════════════════════════════════════════════════════ */
 async function loadMesaj() {
-  // Kayıtlı şablonu yükle
-  const snap = await db.ref('kulup/mesajlar/yoklamaSablon').once('value');
-  const sablon = snap.val() || 'Sayın {veli}, {tarih} tarihinde gerçekleştirilen antrenmanımıza {sporcu} katılamamıştır. Bilgilerinize sunarız. — Vaveyla SK';
+  const [yokSnap, aidatSnap] = await Promise.all([
+    db.ref('kulup/mesajlar/yoklamaSablon').once('value'),
+    db.ref('kulup/mesajlar/aidatHatirlatma').once('value')
+  ]);
+  const sablon = yokSnap.val() || 'Sayın {veli}, {tarih} tarihinde gerçekleştirilen antrenmanımıza {sporcu} katılamamıştır. Bilgilerinize sunarız. — Vaveyla SK';
+  const aidatSablon = aidatSnap.val() || 'Sayın {veli}, nasılsınız?\n\n{sporcu_ad}\'nın {ay} aidat ödemesiyle ilgili sistemde bir eksiklik görünüyor. Küçük bir hatırlatma yapmak istedim, belki gözünüzden kaçmış olabilir.\n\nRahatsızlık verdiysem kusura bakmayın. İyi günler dilerim. 😇';
   document.getElementById('mesaj-body').innerHTML = `
     <div style="display:grid;gap:16px;">
+
+      <!-- Aidat Hatırlatma Mesajı -->
+      <div style="background:var(--bg);border-radius:10px;padding:16px;border-left:3px solid var(--orange);">
+        <div style="font-weight:600;font-size:0.88em;margin-bottom:4px;">💰 Aidat Hatırlatma Mesajı</div>
+        <div style="font-size:0.75em;color:var(--muted);margin-bottom:10px;">
+          Değişkenler: <code>{veli}</code> = veli adı, <code>{sporcu}</code> = tam ad, <code>{sporcu_ad}</code> = sadece ilk ad, <code>{ay}</code> = ay adı
+        </div>
+        <textarea id="msg-aidat-hat" rows="5" style="width:100%;border:1px solid var(--border);border-radius:7px;padding:8px;font-size:0.83em;background:#fff;"></textarea>
+        <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+          <button class="btn btn-primary btn-sm" onclick="saveAidatHatSablon()">💾 Kaydet</button>
+          <span id="aidat-hat-ok" style="font-size:0.78em;color:var(--green);display:none;">✓ Kaydedildi</span>
+        </div>
+      </div>
 
       <!-- Yoklama Devamsızlık Mesajı -->
       <div style="background:var(--bg);border-radius:10px;padding:16px;border-left:3px solid var(--green);">
@@ -1902,6 +1927,15 @@ async function loadMesaj() {
       </div>
     </div>
   `;
+}
+
+async function saveAidatHatSablon() {
+  const sablon = document.getElementById('msg-aidat-hat').value.trim();
+  if (!sablon) { showToast('Şablon boş!','error'); return; }
+  await db.ref('kulup/mesajlar/aidatHatirlatma').set(sablon);
+  const ok = document.getElementById('aidat-hat-ok');
+  if (ok) { ok.style.display='inline'; setTimeout(()=>ok.style.display='none',2000); }
+  showToast('Aidat şablonu kaydedildi ✓','success');
 }
 
 async function saveYoklamaMesajSablonu() {
