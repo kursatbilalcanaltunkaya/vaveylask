@@ -36,24 +36,26 @@
   .header {
     background: linear-gradient(135deg, #8B0000, #6B0000);
     color: var(--gold); text-align: center;
-    padding: 50px 20px 40px; position: relative;
+    padding: 24px 20px 28px; position: relative;
+    overflow: visible;
   }
-  .header img { width: 120px; height: 120px; object-fit: contain; margin-bottom: 14px; }
-  .header h1 { font-size: 1.9em; font-weight: 800; letter-spacing: 1.5px; line-height: 1.35; }
-  .header p  { font-size: 0.9em; opacity: 0.75; margin-top: 6px; }
+  .header img { width: 130px; height: 130px; object-fit: contain; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto; }
+  .header h1 { font-size: 1.6em; font-weight: 800; letter-spacing: 1.5px; line-height: 1.35; }
+  .header p  { font-size: 0.85em; opacity: 0.7; margin-top: 4px; }
 
   /* Ana içerik */
   .main { max-width: 600px; margin: 0 auto; padding: 32px 16px; }
 
   /* TC giriş kartı */
   .tc-card {
-    background: rgba(255,255,255,0.65); border-radius: 16px;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+    background: rgba(255,255,255,0.25); border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.05);
     padding: 32px 28px; margin-bottom: 20px;
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.8);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.4);
   }
   .tc-card h2 { font-size: 1em; font-weight: 600; color: var(--red); margin-bottom:16px; }
+  .tc-card, .sporcu-kart, .panel { color: var(--text); }
   .tc-input-row { display: flex; gap: 10px; }
   .tc-input {
     flex: 1; border: 2px solid var(--border); border-radius: 10px;
@@ -71,10 +73,11 @@
 
   /* Sporcu bilgi kartı */
   .sporcu-kart {
-    background: rgba(255,255,255,0.85); border-radius: 14px;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    background: rgba(255,255,255,0.30); border-radius: 14px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
     padding: 20px 20px 16px; margin-bottom: 16px; display: none;
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.4);
   }
   .sporcu-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
   .sporcu-foto {
@@ -98,16 +101,18 @@
 
   /* İçerik paneli */
   .panel {
-    background: rgba(255,255,255,0.85); border-radius: 14px;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    background: rgba(255,255,255,0.28); border-radius: 14px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
     overflow: hidden; display: none;
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.4);
   }
   .panel.active { display: block; }
   .panel-header {
-    padding: 14px 18px; border-bottom: 1px solid var(--border);
+    padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.3);
     font-weight: 600; font-size: 0.92em; color: var(--red);
     display: flex; align-items: center; justify-content: space-between;
+    background: rgba(255,255,255,0.15);
   }
 
   /* Ay seçimi */
