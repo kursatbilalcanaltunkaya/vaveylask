@@ -1237,6 +1237,7 @@ function openSporcuModal(id) {
       document.getElementById('s-forma').value = s.forma || '';
       document.getElementById('s-forma-ucret').value = s.formaUcret || '';
       document.getElementById('s-grup').value = s.grup || '';
+      if(document.getElementById('s-ek-grup')) document.getElementById('s-ek-grup').value = s.ekGrup || '';
       document.getElementById('s-ek-grup').value = s.ekGrup || '';
       document.getElementById('s-kayit').value = s.kayit || '';
       document.getElementById('s-aidat').value = s.aidat || '';
