@@ -1682,9 +1682,8 @@ async function loadIstatistik() {
   const ayGunler = Object.keys(tumYoklama).filter(k => k.startsWith(ayStr));
   const toplamGun = ayGunler.length;
 
-  // Aktif sporcular
-  // İstatistikte aktif+pasif sporcular görünsün
-  const liste = sporcular.filter(s => s.grup === grup);
+  // Aktif sporcular - ana grup veya ek grubu eşleşenler
+  const liste = sporcular.filter(s => s.grup === grup || s.ekGrup === grup);
 
   if (!liste.length) {
     body.innerHTML = `<div class="empty"><span class="icon">👤</span><p>Bu grupta aktif sporcu yok.</p></div>`;
