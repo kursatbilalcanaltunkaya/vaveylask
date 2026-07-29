@@ -1583,7 +1583,7 @@ async function loadAidat() {
 
   const filterDurum = document.getElementById('filter-aidat-durum')?.value || '';
   const searchQ = (document.getElementById('aidat-search')?.value || '').toLowerCase();
-  let aktifler = sporcular.filter(s => (!grup || s.grup === grup));
+  let aktifler = sporcular.filter(s => (!grup || s.grup === grup)).sort((a,b) => (a.ad||'').localeCompare(b.ad||'', 'tr'));
   if (searchQ) aktifler = aktifler.filter(s => (s.ad||'').toLowerCase().includes(searchQ));
   const snap = await db.ref('kulup/aidat/' + ay.replace('-','')).once('value');
   const kayitlar = snap.val() || {};
