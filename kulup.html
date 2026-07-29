@@ -746,17 +746,15 @@
 
         <div class="form-section">Grup & Kayıt</div>
         <div class="form-group">
-          <label>Grup *</label>
+          <label>Ana Grup * (Aidat & İstatistik)</label>
           <select id="s-grup">
             <option value="">Seçin</option>
-            <option>1- Kulüp Voleybol</option>
-            <option>2- Büyük Akademi Voleybol</option>
-            <option>3- Küçük Akademi Voleybol</option>
-            <option>4- Büyük Voleybol S.O.O.G.</option>
-            <option>5- Küçük Voleybol S.O.O.G.</option>
-            <option>6- Voleybol S.O.O.R.</option>
-            <option>7- Kadın Voleybol</option>
-            <option>8- Basketbol</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Ek Grup (Yoklamada da görünsün)</label>
+          <select id="s-ek-grup">
+            <option value="">Yok</option>
           </select>
         </div>
         <div class="form-group">
@@ -1215,6 +1213,7 @@ function openSporcuModal(id) {
   });
   document.getElementById('s-forma').value = '';
   document.getElementById('s-grup').value = '';
+  document.getElementById('s-ek-grup').value = '';
   document.getElementById('s-durum').value = 'Aktif';
   document.getElementById('s-kayit').value = new Date().toISOString().split('T')[0];
   document.getElementById('s-veli-ad').value = '';
@@ -1236,6 +1235,7 @@ function openSporcuModal(id) {
       document.getElementById('s-forma').value = s.forma || '';
       document.getElementById('s-forma-ucret').value = s.formaUcret || '';
       document.getElementById('s-grup').value = s.grup || '';
+      document.getElementById('s-ek-grup').value = s.ekGrup || '';
       document.getElementById('s-kayit').value = s.kayit || '';
       document.getElementById('s-aidat').value = s.aidat || '';
       document.getElementById('s-durum').value = s.durum || 'Aktif';
@@ -1275,6 +1275,7 @@ async function saveSporcu() {
 
   const data = {
     ad, grup,
+    ekGrup: document.getElementById('s-ek-grup').value || '',
     foto: (document.getElementById('foto-preview').dataset.src) || '',
     dogum: document.getElementById('s-dogum').value,
     dogumYili: document.getElementById('s-dogum').value ? new Date(document.getElementById('s-dogum').value).getFullYear() : '',
@@ -1395,9 +1396,10 @@ async function loadYoklama() {
 
   // Pasif sporcuları filtrele: pasifTarihi seçilen tarihten küçük veya eşitse gösterme
   const liste = sporcular.filter(s => {
-    if (s.grup !== grup) return false;
+    // Ana grup veya ek grup eşleşsin
+    const grupEslesti = s.grup === grup || s.ekGrup === grup;
+    if (!grupEslesti) return false;
     if (!s.durum || s.durum === 'Aktif') return true;
-    // Pasif: sadece pasifleşme tarihinden önceki yoklamalarda göster
     if (!s.pasifTarihi) return false;
     return tarih < s.pasifTarihi;
   });
@@ -1920,11 +1922,13 @@ async function grupSil(idx) {
 }
 
 function updateGrupSelect(gruplar) {
-  const sel = document.getElementById('s-grup');
-  if (!sel) return;
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">Seçin</option>';
-  gruplar.forEach(g => sel.innerHTML += `<option value="${g}"${g===cur?' selected':''}>${g}</option>`);
+  ['s-grup', 's-ek-grup'].forEach((id, i) => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = i === 0 ? '<option value="">Seçin</option>' : '<option value="">Yok</option>';
+    gruplar.forEach(g => sel.innerHTML += `<option value="${g}"${g===cur?' selected':''}>${g}</option>`);
+  });
 }
 
 /* ═══════════════════════════════════════════════════════
