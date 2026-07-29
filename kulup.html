@@ -1157,7 +1157,10 @@ function renderSporcu() {
         : `<span class="badge badge-green">Aktif</span>`;
       return `<tr>
         <td><div class="cell-name">${avatarHtml}<div><div style="font-weight:500;">${s.ad||''}</div></div></div></td>
-        <td><span style="font-size:0.8em;color:var(--muted);">${s.grup||'—'}</span></td>
+        <td>
+          <span style="font-size:0.8em;color:var(--muted);">${s.grup||'—'}</span>
+          ${s.ekGrup ? `<br><span style="font-size:0.75em;color:var(--orange);">+ ${s.ekGrup}</span>` : ''}
+        </td>
         <td>${s.tel||'—'}</td>
         <td>${s.veliAd||'—'}</td>
         <td>${s.veliTel||'—'}</td>
@@ -1399,13 +1402,12 @@ async function loadYoklama() {
 
   // Pasif sporcuları filtrele: pasifTarihi seçilen tarihten küçük veya eşitse gösterme
   const liste = sporcular.filter(s => {
-    // Ana grup veya ek grup eşleşsin
     const grupEslesti = s.grup === grup || s.ekGrup === grup;
     if (!grupEslesti) return false;
     if (!s.durum || s.durum === 'Aktif') return true;
     if (!s.pasifTarihi) return false;
     return tarih < s.pasifTarihi;
-  });
+  }).sort((a, b) => (a.ad||'').localeCompare(b.ad||'', 'tr'));
   if (!liste.length) {
     body.innerHTML = `<div class="empty"><span class="icon">👤</span><p>Bu grupta aktif sporcu yok.</p></div>`;
     return;
