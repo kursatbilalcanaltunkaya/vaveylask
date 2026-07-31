@@ -1124,13 +1124,15 @@ function renderSporcu() {
   const grup   = document.getElementById('filter-grup')?.value || '';
   const durum  = document.getElementById('filter-durum')?.value || '';
 
+  const trLower = str => (str||'').toLowerCase().replace(/İ/g,'i').replace(/I/g,'ı').replace(/Ğ/g,'ğ').replace(/Ü/g,'ü').replace(/Ş/g,'ş').replace(/Ö/g,'ö').replace(/Ç/g,'ç');
+  const qtr = trLower(q);
   let list = sporcular.filter(s => {
     if (grup  && s.grup  !== grup)  return false;
     if (durum && s.durum !== durum) return false;
-    if (q && !( (s.ad||'').toLowerCase().includes(q) ||
-                (s.grup||'').toLowerCase().includes(q) ||
-                (s.tel||'').includes(q) ||
-                (s.veliAd||'').toLowerCase().includes(q) )) return false;
+    if (qtr && !( trLower(s.ad).includes(qtr) ||
+                  trLower(s.grup).includes(qtr) ||
+                  (s.tel||'').includes(qtr) ||
+                  trLower(s.veliAd).includes(qtr) )) return false;
     return true;
   });
 
