@@ -1124,22 +1124,22 @@ function renderSporcu() {
   const grup   = document.getElementById('filter-grup')?.value || '';
   const durum  = document.getElementById('filter-durum')?.value || '';
 
-  const trLower = str => (str||'').toLowerCase().replace(/İ/g,'i').replace(/I/g,'ı').replace(/Ğ/g,'ğ').replace(/Ü/g,'ü').replace(/Ş/g,'ş').replace(/Ö/g,'ö').replace(/Ç/g,'ç');
-  const qtr = trLower(q);
+  const trNorm = str => (str||'').toLocaleLowerCase('tr-TR');
+  const qtr = trNorm(q);
   let list = sporcular.filter(s => {
     if (grup  && s.grup  !== grup)  return false;
     if (durum && s.durum !== durum) return false;
-    if (qtr && !( trLower(s.ad).includes(qtr) ||
-                  trLower(s.grup).includes(qtr) ||
+    if (qtr && !( trNorm(s.ad).includes(qtr) ||
+                  trNorm(s.grup).includes(qtr) ||
                   (s.tel||'').includes(qtr) ||
-                  trLower(s.veliAd).includes(qtr) )) return false;
+                  trNorm(s.veliAd).includes(qtr) )) return false;
     return true;
   });
 
   list.sort((a, b) => {
-    const av = (a[sortKey] || '').toString().toLowerCase();
-    const bv = (b[sortKey] || '').toString().toLowerCase();
-    return av < bv ? -sortDir : av > bv ? sortDir : 0;
+    const av = (a[sortKey] || '').toString();
+    const bv = (b[sortKey] || '').toString();
+    return sortDir * av.localeCompare(bv, 'tr-TR');
   });
 
   const total = list.length;
@@ -1585,7 +1585,7 @@ async function loadAidat() {
 
   const filterDurum = document.getElementById('filter-aidat-durum')?.value || '';
   const searchQ = (document.getElementById('aidat-search')?.value || '').toLowerCase();
-  let aktifler = sporcular.filter(s => (!grup || s.grup === grup)).sort((a,b) => (a.ad||'').localeCompare(b.ad||'', 'tr'));
+  let aktifler = sporcular.filter(s => (!grup || s.grup === grup)).sort((a,b) => (a.ad||'').localeCompare(b.ad||'', 'tr-TR'));
   if (searchQ) aktifler = aktifler.filter(s => (s.ad||'').toLowerCase().includes(searchQ));
   const snap = await db.ref('kulup/aidat/' + ay.replace('-','')).once('value');
   const kayitlar = snap.val() || {};
