@@ -1294,6 +1294,7 @@ async function saveSporcu() {
   const data = {
     ad, grup,
     ekGrup: document.getElementById('s-ek-grup').value || '',
+    aidatOdemeyecek: document.getElementById('s-aidat-odemeyecek') ? document.getElementById('s-aidat-odemeyecek').checked : false,
     foto: (document.getElementById('foto-preview').dataset.src) || '',
     dogum: document.getElementById('s-dogum').value,
     dogumYili: document.getElementById('s-dogum').value ? new Date(document.getElementById('s-dogum').value).getFullYear() : '',
