@@ -1862,6 +1862,12 @@ function toggleDetay(id) {
   if (el) el.style.display = el.style.display === 'none' ? 'table-row' : 'none';
 }
 
+function setAidatDurum(val) {
+  const sel = document.getElementById('filter-aidat-durum');
+  if (sel) sel.value = val;
+  loadAidat();
+}
+
 async function updateAidat(ay, sporcuId, field, value) {
   await db.ref(`kulup/aidat/${ay.replace('-','')}/${sporcuId}/${field}`).set(value);
 }
