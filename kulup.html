@@ -1645,27 +1645,42 @@ async function loadAidat() {
   const durumOpts = AIDAT_DURUMLAR.map(d => '<option value="' + d.val + '">' + d.label + '</option>').join('');
   const tbody = document.getElementById('aidat-tbody');
 
-  tbody.innerHTML = filteredAidat.map(s => {
+  // Aidat satırlarını oluştur
+  window._aidatAy = ay;
+  window._aidatKayitlar = kayitlar;
+
+  const rows = filteredAidat.map(s => {
     const k = kayitlar[s.id] || {};
     const durum = k.durum || 'odemedi';
-    return '<tr>' +
-      '<td><div class="cell-name">' + getAvatarHtml(s, 34) + '<span style="font-weight:500;">' + s.ad + '</span></div></td>' +
-      '<td style="font-size:0.8em;color:var(--muted);">' + (s.grup||'—') + '</td>' +
-      '<td style="font-weight:600;">' + (s.aidat ? '₺'+s.aidat : '—') + '</td>' +
-      '<td><select onchange="updateAidat('' + ay + '','' + s.id + '','durum',this.value);this.closest('tr').querySelector('.durum-badge').innerHTML=aidatBadge(this.value);" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;background:var(--bg);max-width:170px;">' +
-        AIDAT_DURUMLAR.map(d => '<option value="' + d.val + '"' + (durum===d.val?' selected':'') + '>' + d.label + '</option>').join('') +
-      '</select><div class="durum-badge" style="margin-top:4px;">' + aidatBadge(durum) + '</div></td>' +
-      '<td><div style="display:flex;flex-direction:column;gap:4px;">' +
-        '<input type="date" value="' + (k.tarih||'') + '" onchange="updateAidat('' + ay + '','' + s.id + '','tarih',this.value)" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;background:var(--bg);">' +
-        '<input type="time" value="' + (k.saat||'') + '" onchange="updateAidat('' + ay + '','' + s.id + '','saat',this.value)" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;background:var(--bg);">' +
-      '</div></td>' +
-      '<td><input type="text" value="' + (k.odeyen||'') + '" placeholder="Ödeyenin adı" onblur="updateAidat('' + ay + '','' + s.id + '','odeyen',this.value)" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;width:140px;background:var(--bg);"></td>' +
-      '<td><input type="number" value="' + (k.tutar||'') + '" placeholder="0" onblur="updateAidat('' + ay + '','' + s.id + '','tutar',this.value)" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;width:90px;background:var(--bg);"></td>' +
-      '<td style="font-size:0.82em;color:var(--muted);">' + (s.kayit ? new Date(s.kayit).toLocaleDateString('tr-TR') : '—') + '</td>' +
-      '<td>' + (!s.durum || s.durum === 'Aktif' ? '<span class="badge badge-green">Aktif</span>' : '<span class="badge badge-gray">Pasif</span>') + '</td>' +
-      '<td><input type="text" value="' + (k.not||'') + '" placeholder="Not..." onblur="updateAidat('' + ay + '','' + s.id + '','not',this.value)" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;width:140px;background:var(--bg);"></td>' +
-    '</tr>';
-  }).join('') || '<tr><td colspan="10"><div class="empty"><span class="icon">💰</span><p>' + (filterDurum ? 'Bu filtreye uyan sporcu yok.' : 'Sporcu bulunamadı.') + '</p></div></td></tr>';
+    const d = AIDAT_DURUMLAR.find(x => x.val === durum) || AIDAT_DURUMLAR[0];
+    const badgeHtml = `<span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75em;font-weight:600;background:${d.bg};color:${d.color};">${d.label}</span>`;
+    const opts = AIDAT_DURUMLAR.map(x => `<option value="${x.val}"${durum===x.val?' selected':''}>${x.label}</option>`).join('');
+    const kayitTarih = s.kayit ? new Date(s.kayit).toLocaleDateString('tr-TR') : '—';
+    const durumBadge = (!s.durum || s.durum==='Aktif') ? '<span class="badge badge-green">Aktif</span>' : '<span class="badge badge-gray">Pasif</span>';
+    return `<tr data-sid="${s.id}">
+      <td><div class="cell-name">${getAvatarHtml(s,34)}<span style="font-weight:500;">${s.ad}</span></div></td>
+      <td style="font-size:0.8em;color:var(--muted);">${s.grup||'—'}</td>
+      <td style="font-weight:600;">${s.aidat?'₺'+s.aidat:'—'}</td>
+      <td>
+        <select onchange="aidatDurumDegis(this,'${s.id}')" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;background:var(--bg);max-width:170px;">
+          ${opts}
+        </select>
+        <div class="durum-badge" style="margin-top:4px;">${badgeHtml}</div>
+      </td>
+      <td>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <input type="date" value="${k.tarih||''}" onchange="updateAidat(window._aidatAy,'${s.id}','tarih',this.value)" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;background:var(--bg);">
+          <input type="time" value="${k.saat||''}" onchange="updateAidat(window._aidatAy,'${s.id}','saat',this.value)" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;background:var(--bg);">
+        </div>
+      </td>
+      <td><input type="text" value="${k.odeyen||''}" placeholder="Ödeyenin adı" onblur="updateAidat(window._aidatAy,'${s.id}','odeyen',this.value)" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;width:140px;background:var(--bg);"></td>
+      <td><input type="number" value="${k.tutar||''}" placeholder="0" onblur="updateAidat(window._aidatAy,'${s.id}','tutar',this.value)" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;width:90px;background:var(--bg);"></td>
+      <td style="font-size:0.82em;color:var(--muted);">${kayitTarih}</td>
+      <td>${durumBadge}</td>
+      <td><input type="text" value="${k.not||''}" placeholder="Not..." onblur="updateAidat(window._aidatAy,'${s.id}','not',this.value)" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;width:140px;background:var(--bg);"></td>
+    </tr>`;
+  });
+  tbody.innerHTML = rows.join('') || `<tr><td colspan="10"><div class="empty"><span class="icon">💰</span><p>${filterDurum?'Bu filtreye uyan sporcu yok.':'Sporcu bulunamadı.'}</p></div></td></tr>`;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -1841,6 +1856,14 @@ function setAidatDurum(val) {
   const sel = document.getElementById('filter-aidat-durum');
   if (sel) sel.value = val;
   loadAidat();
+}
+
+function aidatDurumDegis(sel, sporcuId) {
+  const val = sel.value;
+  const ay = window._aidatAy;
+  updateAidat(ay, sporcuId, 'durum', val);
+  const badge = sel.closest('tr').querySelector('.durum-badge');
+  if (badge) badge.innerHTML = aidatBadge(val);
 }
 
 async function updateAidat(ay, sporcuId, field, value) {
