@@ -1252,7 +1252,7 @@ function openSporcuModal(id) {
       document.getElementById('s-forma-ucret').value = s.formaUcret || '';
       document.getElementById('s-grup').value = s.grup || '';
       if(document.getElementById('s-ek-grup')) document.getElementById('s-ek-grup').value = s.ekGrup || '';
-      if(document.getElementById('s-aidat-odemeyecek')) document.getElementById('s-aidat-odemeyecek').checked = s.aidatOdemeyecek || false;
+      if(document.getElementById('s-aidat-odemeyecek')) document.getElementById('s-aidat-odemeyecek').checked = s.aidatOdemeyecek === true;
       document.getElementById('s-ek-grup').value = s.ekGrup || '';
       document.getElementById('s-kayit').value = s.kayit || '';
       document.getElementById('s-aidat').value = s.aidat || '';
@@ -1617,21 +1617,32 @@ async function loadAidat() {
   const SAYAC = {'odedi':0,'ay-orta':0,'indirimli':0,'eksik':0,'bu-ay-odemeyecek':0,'odemedi':0,'odeyemeyecek':0};
   aktifler.forEach(s => { const d=getDurum(s); if(SAYAC[d]!==undefined) SAYAC[d]++; });
   const filteredAidat = filterDurum ? aktifler.filter(s => getDurum(s)===filterDurum) : aktifler;
-  const DLABEL = {'odedi':'✅ Ödedi','ay-orta':'🕐 Ay Ortası','indirimli':'💙 İndirimli','eksik':'🟠 Eksik','bu-ay-odemeyecek':'🔵 Ödemeyecek','odemedi':'🔴 Ödemedi','odeyemeyecek':'⚫ Ödeyemez'};
+  const DINFO = {
+    'odedi':             {label:'Ödedi',                 bg:'#D1FAE5', color:'#065F46'},
+    'ay-orta':           {label:'Ayın Ortasında Geldi',  bg:'#FEF3C7', color:'#92400E'},
+    'indirimli':         {label:'İndirimli Ödedi',       bg:'#DBEAFE', color:'#1E40AF'},
+    'eksik':             {label:'Eksik Ödedi',           bg:'#FFEDD5', color:'#9A3412'},
+    'bu-ay-odemeyecek':  {label:'Bu Ay Ödemeyecek',      bg:'#BFDBFE', color:'#1E3A5F'},
+    'odemedi':           {label:'Ödemedi',               bg:'#FEE2E2', color:'#991B1B'},
+    'odeyemeyecek':      {label:'Ödeyemeyecek',          bg:'#E5E7EB', color:'#374151'},
+  };
   const panel = document.getElementById('aidat-ozet');
   if (panel) {
-    let h = '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;">';
+    let h = '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;">';
     Object.entries(SAYAC).forEach(([d,n]) => {
       if(!n) return;
-      h += `<div style="background:var(--bg);border-radius:8px;padding:7px 12px;text-align:center;">
-        <div style="font-size:1.1em;font-weight:700;">${n}</div>
-        <div style="font-size:0.7em;color:var(--muted);">${DLABEL[d]}</div></div>`;
+      const info = DINFO[d] || {label:d, bg:'#f3f4f6', color:'#374151'};
+      h += `<div style="background:${info.bg};border-radius:10px;padding:10px 16px;text-align:center;min-width:100px;">
+        <div style="font-size:1.6em;font-weight:800;color:${info.color};">${n}</div>
+        <div style="font-size:0.75em;color:${info.color};margin-top:2px;font-weight:500;">${info.label}</div>
+      </div>`;
     });
-    h += `<div style="background:var(--red);border-radius:8px;padding:7px 12px;text-align:center;">
-      <div style="font-size:1.1em;font-weight:700;color:#fff;">${aktifler.length}</div>
-      <div style="font-size:0.7em;color:rgba(255,255,255,0.75);">Toplam</div></div>`;
+    h += `<div style="background:var(--red);border-radius:10px;padding:10px 16px;text-align:center;min-width:100px;">
+      <div style="font-size:1.6em;font-weight:800;color:#fff;">${aktifler.length}</div>
+      <div style="font-size:0.75em;color:rgba(255,255,255,0.8);margin-top:2px;font-weight:500;">Toplam</div>
+    </div>`;
     h += '</div>';
-    if(filterDurum) h+=`<div style="font-size:0.82em;color:var(--muted);">Filtre: <strong>${filteredAidat.length}</strong> sporcu</div>`;
+    if(filterDurum) h+=`<div style="font-size:0.82em;color:var(--muted);">Filtre: <strong>${filteredAidat.length}</strong> sporcu gösteriliyor</div>`;
     panel.innerHTML = h;
   }
 
