@@ -780,7 +780,7 @@
             <span>Aidat ödemeyecek (burslu/ücretsiz)</span>
           </label>
           <div style="font-size:0.75em;color:var(--muted);margin-top:4px;padding-left:28px;">
-            İşaretlenirse her ayda "Bu Ay Ödemeyecek" olarak görünür
+            İşaretlenirse aidat takibinde "Bu Ay Ödemeyecek" olarak görünür
           </div>
         </div>
 
@@ -1068,10 +1068,9 @@ function setDefaultDates() {
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('yok-tarih').value = today;
   document.getElementById('s-kayit').value = today;
-  // Aidat ay dropdown
+  // Aidat ay dropdown - sadece boşsa doldur
   const ayEl = document.getElementById('aidat-ay');
-  if (ayEl) {
-    ayEl.innerHTML = '';
+  if (ayEl && ayEl.options.length === 0) {
     for (let i = 0; i < 12; i++) {
       const d = new Date(); d.setMonth(d.getMonth() - i);
       const val = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
@@ -1629,20 +1628,23 @@ async function loadAidat() {
   };
   const panel = document.getElementById('aidat-ozet');
   if (panel) {
-    let h = '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;">';
-    Object.entries(SAYAC).forEach(([d,n]) => {
-      if(!n) return;
+    // Tüm durumları sırayla göster (sıfır olanlar da dahil - eşit boyut için)
+    const SIRALAMA = ['odedi','ay-orta','indirimli','eksik','bu-ay-odemeyecek','odemedi','odeyemeyecek'];
+    let h = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;">';
+    SIRALAMA.forEach(d => {
       const info = DINFO[d] || {label:d, bg:'#f3f4f6', color:'#374151'};
-      h += `<div style="background:${info.bg};border-radius:10px;padding:10px 16px;text-align:center;min-width:100px;">
-        <div style="font-size:1.6em;font-weight:800;color:${info.color};">${n}</div>
-        <div style="font-size:0.75em;color:${info.color};margin-top:2px;font-weight:500;">${info.label}</div>
+      const n = SAYAC[d] || 0;
+      const opacity = n === 0 ? 'opacity:0.4;' : '';
+      h += `<div style="background:${info.bg};border-radius:10px;padding:10px 8px;text-align:center;${opacity}cursor:${n>0?'pointer':'default'};" onclick="${n>0 ? `setAidatDurum('${d}')` : ''}">
+        <div style="font-size:1.5em;font-weight:800;color:${info.color};">${n}</div>
+        <div style="font-size:0.68em;color:${info.color};margin-top:2px;font-weight:600;line-height:1.2;">${info.label}</div>
       </div>`;
     });
-    h += `<div style="background:var(--red);border-radius:10px;padding:10px 16px;text-align:center;min-width:100px;">
-      <div style="font-size:1.6em;font-weight:800;color:#fff;">${aktifler.length}</div>
-      <div style="font-size:0.75em;color:rgba(255,255,255,0.8);margin-top:2px;font-weight:500;">Toplam</div>
+    // Toplam - tam genişlik
+    h += `</div><div style="background:var(--red);border-radius:10px;padding:8px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span style="font-size:0.82em;color:rgba(255,255,255,0.8);font-weight:500;">Toplam Sporcu</span>
+      <span style="font-size:1.4em;font-weight:800;color:#fff;">${aktifler.length}</span>
     </div>`;
-    h += '</div>';
     if(filterDurum) h+=`<div style="font-size:0.82em;color:var(--muted);">Filtre: <strong>${filteredAidat.length}</strong> sporcu gösteriliyor</div>`;
     panel.innerHTML = h;
   }
