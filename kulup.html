@@ -562,7 +562,7 @@
                 <option value="eksik">Eksik Ödedi</option>
                 <option value="bu-ay-odemeyecek">Ödemeyecek</option>
                 <option value="odemedi">Ödemedi</option>
-                <option value="odeyemeyecek">Ödeyemeyecek</option>
+                <option value="odeyemeyecek">Bu Ay Ödemeyecek</option>
               </select>
               <div class="search-box">
                 <span>🔍</span>
@@ -1032,16 +1032,6 @@ async function initApp() {
   fillGrupFilters();
   fillIstDropdowns();
   setDefaultDates();
-  // Aidat ay dropdown - sadece bir kez doldur
-  const ayEl = document.getElementById('aidat-ay');
-  if (ayEl && ayEl.options.length === 0) {
-    for (let i = 0; i < 12; i++) {
-      const d = new Date(); d.setMonth(d.getMonth() - i);
-      const val = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
-      const label = d.toLocaleDateString('tr-TR', {month:'long', year:'numeric'});
-      ayEl.innerHTML += `<option value="${val}">${label}</option>`;
-    }
-  }
 }
 
 async function initGruplar() {
@@ -1581,7 +1571,7 @@ const AIDAT_DURUMLAR = [
   { val: 'indirimli',       label: 'İndirimli Ödedi',       color: '#1E40AF', bg: '#DBEAFE' },
   { val: 'eksik',           label: 'Eksik Ödedi',           color: '#9A3412', bg: '#FFEDD5' },
   { val: 'bu-ay-odemeyecek',label: 'Ödemeyecek',     color: '#1E3A5F', bg: '#BFDBFE' },
-  { val: 'odeyemeyecek',    label: 'Ödeyemeyecek',          color: '#374151', bg: '#E5E7EB' },
+  { val: 'odeyemeyecek',    label: 'Bu Ay Ödemeyecek',      color: '#374151', bg: '#E5E7EB' },
 ];
 
 function aidatBadge(durum) {
