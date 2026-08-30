@@ -774,6 +774,15 @@
             <option value="Pasif">Pasif</option>
           </select>
         </div>
+        <div class="form-group full">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:normal;">
+            <input type="checkbox" id="s-aidat-odemeyecek" style="width:18px;height:18px;accent-color:var(--red);">
+            <span>Aidat ödemeyecek (burslu/ücretsiz)</span>
+          </label>
+          <div style="font-size:0.75em;color:var(--muted);margin-top:4px;padding-left:28px;">
+            İşaretlenirse her ayda "Bu Ay Ödemeyecek" olarak görünür
+          </div>
+        </div>
 
         <div class="form-section">Veli Bilgileri</div>
         <div class="form-group">
@@ -1243,6 +1252,7 @@ function openSporcuModal(id) {
       document.getElementById('s-forma-ucret').value = s.formaUcret || '';
       document.getElementById('s-grup').value = s.grup || '';
       if(document.getElementById('s-ek-grup')) document.getElementById('s-ek-grup').value = s.ekGrup || '';
+      if(document.getElementById('s-aidat-odemeyecek')) document.getElementById('s-aidat-odemeyecek').checked = s.aidatOdemeyecek || false;
       document.getElementById('s-ek-grup').value = s.ekGrup || '';
       document.getElementById('s-kayit').value = s.kayit || '';
       document.getElementById('s-aidat').value = s.aidat || '';
@@ -1585,34 +1595,45 @@ async function loadAidat() {
 
   const filterDurum = document.getElementById('filter-aidat-durum')?.value || '';
   const searchQ = (document.getElementById('aidat-search')?.value || '').toLowerCase();
-  let aktifler = sporcular.filter(s => (!grup || s.grup === grup)).sort((a,b) => (a.ad||'').localeCompare(b.ad||'', 'tr-TR'));
+  const secAy = ay.replace('-','');
+  let aktifler = sporcular.filter(s => {
+    if (grup && s.grup !== grup) return false;
+    // Kayıt tarihinden önceki aylarda gösterme
+    if (s.kayit) {
+      const kayitAy = s.kayit.replace(/-/g,'').substring(0,6);
+      if (secAy < kayitAy) return false;
+    }
+    return true;
+  }).sort((a,b) => (a.ad||'').localeCompare(b.ad||'', 'tr-TR'));
   if (searchQ) aktifler = aktifler.filter(s => (s.ad||'').toLowerCase().includes(searchQ));
   const snap = await db.ref('kulup/aidat/' + ay.replace('-','')).once('value');
   const kayitlar = snap.val() || {};
 
-  // Önce filtrele, sonra istatistik
-  const filteredAidat = filterDurum
-    ? aktifler.filter(s => {
-        const k = kayitlar[s.id] || {};
-        const sporcuDurum = (k.durum || 'odemedi').trim().toLowerCase();
-        return sporcuDurum === filterDurum.trim().toLowerCase();
-      })
-    : aktifler;
-
-  // İstatistik (filtre bağımsız, tüm aktifler)
-  const odedi   = aktifler.filter(s => (kayitlar[s.id]?.durum||'') === 'odedi').length;
-  const odemedi = aktifler.filter(s => !kayitlar[s.id]?.durum || kayitlar[s.id]?.durum === 'odemedi').length;
-  const diger   = aktifler.length - odedi - odemedi;
-
+  const getDurum = (s) => {
+    const k = kayitlar[s.id] || {};
+    if (!k.durum && s.aidatOdemeyecek) return 'bu-ay-odemeyecek';
+    return k.durum || 'odemedi';
+  };
+  const SAYAC = {'odedi':0,'ay-orta':0,'indirimli':0,'eksik':0,'bu-ay-odemeyecek':0,'odemedi':0,'odeyemeyecek':0};
+  aktifler.forEach(s => { const d=getDurum(s); if(SAYAC[d]!==undefined) SAYAC[d]++; });
+  const filteredAidat = filterDurum ? aktifler.filter(s => getDurum(s)===filterDurum) : aktifler;
+  const DLABEL = {'odedi':'✅ Ödedi','ay-orta':'🕐 Ay Ortası','indirimli':'💙 İndirimli','eksik':'🟠 Eksik','bu-ay-odemeyecek':'🔵 Ödemeyecek','odemedi':'🔴 Ödemedi','odeyemeyecek':'⚫ Ödeyemez'};
   const panel = document.getElementById('aidat-ozet');
-  if (panel) panel.innerHTML = `
-    <div class="stat-grid" style="margin-bottom:0;">
-      <div class="stat-card green"><div class="stat-value">${odedi}</div><div class="stat-label">Ödedi</div></div>
-      <div class="stat-card red"><div class="stat-value">${odemedi}</div><div class="stat-label">Ödemedi</div></div>
-      <div class="stat-card orange"><div class="stat-value">${diger}</div><div class="stat-label">Diğer Durum</div></div>
-      <div class="stat-card"><div class="stat-value">${aktifler.length}</div><div class="stat-label">Toplam Sporcu</div></div>
-    </div>
-    ${filterDurum ? `<div style="margin-top:10px;font-size:0.82em;color:var(--muted);">Filtre: <strong>${filteredAidat.length}</strong> sporcu gösteriliyor</div>` : ''}`;
+  if (panel) {
+    let h = '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;">';
+    Object.entries(SAYAC).forEach(([d,n]) => {
+      if(!n) return;
+      h += `<div style="background:var(--bg);border-radius:8px;padding:7px 12px;text-align:center;">
+        <div style="font-size:1.1em;font-weight:700;">${n}</div>
+        <div style="font-size:0.7em;color:var(--muted);">${DLABEL[d]}</div></div>`;
+    });
+    h += `<div style="background:var(--red);border-radius:8px;padding:7px 12px;text-align:center;">
+      <div style="font-size:1.1em;font-weight:700;color:#fff;">${aktifler.length}</div>
+      <div style="font-size:0.7em;color:rgba(255,255,255,0.75);">Toplam</div></div>`;
+    h += '</div>';
+    if(filterDurum) h+=`<div style="font-size:0.82em;color:var(--muted);">Filtre: <strong>${filteredAidat.length}</strong> sporcu</div>`;
+    panel.innerHTML = h;
+  }
 
   const durumOpts = AIDAT_DURUMLAR.map(d =>
     `<option value="${d.val}">${d.label}</option>`
@@ -1622,7 +1643,7 @@ async function loadAidat() {
 
   tbody.innerHTML = filteredAidat.map(s => {
     const k = kayitlar[s.id] || {};
-    const durum = k.durum || 'odemedi';
+    const durum = (!k.durum && s.aidatOdemeyecek) ? 'bu-ay-odemeyecek' : (k.durum || 'odemedi');
     return `<tr>
       <td><div class="cell-name">${getAvatarHtml(s, 34)}<span style="font-weight:500;">${s.ad}</span></div></td>
       <td style="font-size:0.8em;color:var(--muted);">${s.grup||'—'}</td>
