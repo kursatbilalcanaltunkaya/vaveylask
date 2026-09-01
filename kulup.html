@@ -1632,7 +1632,10 @@ async function loadAidat() {
 
   let aktifler = sporcular.filter(s => {
     if (grup && s.grup !== grup) return false;
-
+    if (s.kayit) {
+      const kayitAy = s.kayit.replace(/-/g,'').substring(0,6);
+      if (secAy < kayitAy) return false;
+    }
     return true;
   }).sort((a,b) => (a.ad||'').localeCompare(b.ad||'', 'tr-TR'));
 
