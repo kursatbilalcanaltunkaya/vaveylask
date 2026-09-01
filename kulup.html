@@ -1064,19 +1064,52 @@ function fillIstDropdowns() {
   }
 }
 
+async function fillAidatAylar() {
+  const ayEl = document.getElementById('aidat-ay');
+  if (!ayEl) return;
+  
+  // Firebase'den aidat kayıtlarının olduğu ayları çek
+  const snap = await db.ref('kulup/aidat').once('value');
+  const data = snap.val() || {};
+  const dbAylar = new Set(Object.keys(data)); // "202507", "202506" gibi
+  
+  // Son 24 ayı oluştur
+  const aylar = new Map(); // val -> label
+  for (let i = 0; i < 24; i++) {
+    const d = new Date(); d.setMonth(d.getMonth() - i);
+    const val = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+    const key = val.replace('-','');
+    const label = d.toLocaleDateString('tr-TR', {month:'long', year:'numeric'});
+    aylar.set(val, label);
+    dbAylar.delete(key); // zaten eklendi
+  }
+  
+  // Firebase'de olan ama 24 ayın dışındaki ayları da ekle
+  dbAylar.forEach(key => {
+    if (key.length === 6) {
+      const val = key.substring(0,4) + '-' + key.substring(4,6);
+      const d = new Date(parseInt(key.substring(0,4)), parseInt(key.substring(4,6))-1);
+      const label = d.toLocaleDateString('tr-TR', {month:'long', year:'numeric'});
+      aylar.set(val, label);
+    }
+  });
+  
+  // Tarihe göre sırala (en yeni üstte)
+  const sorted = [...aylar.entries()].sort((a,b) => b[0].localeCompare(a[0]));
+  ayEl.innerHTML = '';
+  sorted.forEach(([val, label]) => {
+    ayEl.innerHTML += `<option value="${val}">${label}</option>`;
+  });
+}
+
 function setDefaultDates() {
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('yok-tarih').value = today;
   document.getElementById('s-kayit').value = today;
-  // Aidat ay dropdown
+  // Aidat ay dropdown - Firebase'den veri olan ayları + son 12 ayı göster
   const ayEl = document.getElementById('aidat-ay');
   if (ayEl && ayEl.options.length === 0) {
-    for (let i = 0; i < 12; i++) {
-      const d = new Date(); d.setMonth(d.getMonth() - i);
-      const val = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
-      const label = d.toLocaleDateString('tr-TR', {month:'long', year:'numeric'});
-      ayEl.innerHTML += `<option value="${val}">${label}</option>`;
-    }
+    fillAidatAylar();
   }
 }
 
