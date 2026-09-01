@@ -1611,14 +1611,18 @@ async function loadAidat() {
   const snap = await db.ref('kulup/aidat/' + secAy).once('value');
   const kayitlar = snap.val() || {};
 
+  const getEfektifDurum = (s) => {
+    const k = kayitlar[s.id] || {};
+    return (!k.durum && s.aidatOdemeyecek) ? 'bu-ay-odemeyecek' : (k.durum || 'odemedi');
+  };
   const filteredAidat = filterDurum
-    ? aktifler.filter(s => (kayitlar[s.id]?.durum || 'odemedi') === filterDurum)
+    ? aktifler.filter(s => getEfektifDurum(s) === filterDurum)
     : aktifler;
 
   // Sayaç
   const SAYAC = {'odedi':0,'ay-orta':0,'indirimli':0,'eksik':0,'bu-ay-odemeyecek':0,'odemedi':0,'odeyemeyecek':0};
   aktifler.forEach(s => {
-    const d = kayitlar[s.id]?.durum || 'odemedi';
+    const d = getEfektifDurum(s);
     if (SAYAC[d] !== undefined) SAYAC[d]++;
   });
 
@@ -1660,7 +1664,7 @@ async function loadAidat() {
 
   const rows = filteredAidat.map(s => {
     const k = kayitlar[s.id] || {};
-    const durum = k.durum || 'odemedi';
+    const durum = (!k.durum && s.aidatOdemeyecek) ? 'bu-ay-odemeyecek' : (k.durum || 'odemedi');
     const d = AIDAT_DURUMLAR.find(x => x.val === durum) || AIDAT_DURUMLAR[0];
     const badgeHtml = `<span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.75em;font-weight:600;background:${d.bg};color:${d.color};">${d.label}</span>`;
     const opts = AIDAT_DURUMLAR.map(x => `<option value="${x.val}"${durum===x.val?' selected':''}>${x.label}</option>`).join('');
