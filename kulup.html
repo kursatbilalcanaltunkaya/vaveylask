@@ -1068,7 +1068,16 @@ function setDefaultDates() {
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('yok-tarih').value = today;
   document.getElementById('s-kayit').value = today;
-  // Aidat ay dropdown - initApp'te doldurulur
+  // Aidat ay dropdown
+  const ayEl = document.getElementById('aidat-ay');
+  if (ayEl && ayEl.options.length === 0) {
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(); d.setMonth(d.getMonth() - i);
+      const val = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+      const label = d.toLocaleDateString('tr-TR', {month:'long', year:'numeric'});
+      ayEl.innerHTML += `<option value="${val}">${label}</option>`;
+    }
+  }
 }
 
 /* ═══════════════════════════════════════════════════════
