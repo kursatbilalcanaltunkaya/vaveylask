@@ -23,11 +23,11 @@
   /* Arka plan arma */
   body::before {
     content: '';
-    position: fixed; top: 70%; left: 50%;
+    position: fixed; top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    width: 130vmin; height: 120vmin;
+    width: 70vmin; height: 70vmin;
     background: url("amblem%20png.png") center/contain no-repeat; background-color: transparent;
-    opacity: 0.1; pointer-events: none; z-index: 0;
+    opacity: 0.05; pointer-events: none; z-index: 0;
   }
 
   .page { position: relative; z-index: 1; }
@@ -36,10 +36,10 @@
   .header {
     background: linear-gradient(135deg, #8B0000, #6B0000);
     color: var(--gold); text-align: center;
-    padding: 0px 20px 5px; position: relative;
+    padding: 10px 20px 16px; position: relative;
   }
-  .header img { width: 160px; height: 160px; object-fit: contain; margin-top: -10px; margin-bottom: 0px; display: block; margin-left: auto; margin-right: auto; margin-top: 0; }
-  .header h1 { font-size: 1.5em; font-weight: 800; letter-spacing: 0.5px; line-height: 1; margin-bottom: 2px; }
+  .header img { width: 130px; height: 130px; object-fit: contain; margin-bottom: 6px; display: block; margin-left: auto; margin-right: auto; margin-top: 0; }
+  .header h1 { font-size: 1.5em; font-weight: 800; letter-spacing: 1px; line-height: 1.3; margin-bottom: 2px; }
   .header p  { font-size: 0.8em; opacity: 0.7; margin-top: 2px; margin-bottom: 0; }
 
   /* Ana içerik */
@@ -50,7 +50,7 @@
     background: rgba(255,255,255,0.25); border-radius: 16px;
     box-shadow: 0 2px 16px rgba(0,0,0,0.05);
     padding: 32px 28px; margin-bottom: 20px;
-    backdrop-filter: blur(7px);
+    backdrop-filter: blur(6px);
     border: 1px solid rgba(255,255,255,0.4);
   }
   .tc-card h2 { font-size: 1em; font-weight: 600; color: var(--red); margin-bottom:16px; }
@@ -368,18 +368,30 @@ async function loadVeliAidat() {
   let html = '';
   let kayitVar = false;
 
+  // Sporcunun kayıt tarihini al
+  const kayitAySporcu = mevcutSporcu.kayit ? mevcutSporcu.kayit.replace(/-/g,'').substring(0,6) : '000000';
+
   aylar.forEach(({key, label}) => {
+    // Kayıt tarihinden önceki ayları gösterme
+    if (key < kayitAySporcu) return;
+
     const kayit = tumAidat[key]?.[mevcutSporcu.id];
-    if (!kayit) return;
     kayitVar = true;
-    const durum = kayit.durum || 'odemedi';
+
+    // Veri girilmemişse: aidatOdemeyecek işaretliyse "Ödemeyecek", yoksa "Ödemedi"
+    let durum, meta = '';
+    if (!kayit) {
+      durum = mevcutSporcu.aidatOdemeyecek ? 'bu-ay-odemeyecek' : 'odemedi';
+    } else {
+      durum = kayit.durum || 'odemedi';
+      if (kayit.tarih) meta += kayit.tarih;
+      if (kayit.saat) meta += ' ' + kayit.saat;
+      if (kayit.odeyen) meta += ' — ' + kayit.odeyen;
+      if (kayit.tutar) meta += ' — ₺' + kayit.tutar;
+    }
+
     const durumLabel = DURUM_LABEL[durum] || durum;
-    const badgeClass = durum === 'odedi' ? 'badge-odedi' : durum === 'odemedi' || durum === 'odeyemeyecek' ? 'badge-odemedi' : 'badge-diger';
-    let meta = '';
-    if (kayit.tarih) meta += kayit.tarih;
-    if (kayit.saat) meta += ' ' + kayit.saat;
-    if (kayit.odeyen) meta += ' — ' + kayit.odeyen;
-    if (kayit.tutar) meta += ' — ₺' + kayit.tutar;
+    const badgeClass = durum === 'odedi' ? 'badge-odedi' : (durum === 'odemedi' || durum === 'odeyemeyecek') ? 'badge-odemedi' : 'badge-diger';
 
     html += '<div class="aidat-item">';
     html += '<div><div class="aidat-ay">' + label + '</div>';
