@@ -1681,6 +1681,7 @@ async function loadAidat() {
   // Bütçe hesapla
   let toplamBeklenen = 0, toplamYatan = 0, toplamBekleyen = 0;
   aktifler.forEach(s => {
+    if (s.durum === 'Pasif') return; // pasifleri sayma
     const k = kayitlar[s.id] || {};
     const durum = getEfektifDurum(s);
     const aidat = parseFloat(s.aidat) || 0;
