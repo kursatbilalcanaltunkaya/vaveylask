@@ -1705,8 +1705,7 @@ async function loadAidat() {
     const opts = AIDAT_DURUMLAR.map(x => `<option value="${x.val}"${durum===x.val?' selected':''}>${x.label}</option>`).join('');
     const kayitTarih = s.kayit ? new Date(s.kayit).toLocaleDateString('tr-TR') : '—';
     const durumBadge = (!s.durum || s.durum==='Aktif') ? '<span class="badge badge-green">Aktif</span>' : '<span class="badge badge-gray">Pasif</span>';
-    const detayId = 'aidat-detay-' + s.id;
-    return `<tr data-sid="${s.id}" style="cursor:pointer;" onclick="toggleSporcuAidat('${s.id}','${ay}')" title="Geçmişe bak">
+    return `<tr data-sid="${s.id}">
       <td><div class="cell-name">${getAvatarHtml(s,34)}<span style="font-weight:500;">${s.ad}</span></div></td>
       <td style="font-size:0.8em;color:var(--muted);">${s.grup||'—'}</td>
       <td style="font-weight:600;">${s.aidat?'₺'+s.aidat:'—'}</td>
@@ -1727,13 +1726,6 @@ async function loadAidat() {
       <td style="font-size:0.82em;color:var(--muted);">${kayitTarih}</td>
       <td>${durumBadge}</td>
       <td><input type="text" value="${k.not||''}" placeholder="Not..." onblur="updateAidat(window._aidatAy,'${s.id}','not',this.value)" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.8em;width:140px;background:var(--bg);"></td>
-    </tr>
-    <tr id="aidat-detay-${s.id}" style="display:none;">
-      <td colspan="10" style="background:#f8f9fa;padding:0;">
-        <div id="aidat-detay-body-${s.id}" style="padding:14px 20px;">
-          <div style="color:var(--muted);font-size:0.85em;">⏳ Yükleniyor...</div>
-        </div>
-      </td>
     </tr>`;
   });
   tbody.innerHTML = rows.join('') || `<tr><td colspan="10"><div class="empty"><span class="icon">💰</span><p>${filterDurum?'Bu filtreye uyan sporcu yok.':'Sporcu bulunamadı.'}</p></div></td></tr>`;
@@ -1920,95 +1912,6 @@ function aidatDurumDegis(sel, sporcuId) {
   updateAidat(ay, sporcuId, 'durum', val);
   const badge = sel.closest('tr').querySelector('.durum-badge');
   if (badge) badge.innerHTML = aidatBadge(val);
-}
-
-async function toggleSporcuAidat(sporcuId, secilenAy) {
-  const detayRow = document.getElementById('aidat-detay-' + sporcuId);
-  if (!detayRow) return;
-  
-  if (detayRow.style.display !== 'none') {
-    detayRow.style.display = 'none';
-    return;
-  }
-  detayRow.style.display = 'table-row';
-  
-  const body = document.getElementById('aidat-detay-body-' + sporcuId);
-  const s = sporcular.find(x => x.id === sporcuId);
-  if (!s) return;
-
-  // Tüm aidat verilerini çek
-  const snap = await db.ref('kulup/aidat').once('value');
-  const tumAidat = snap.val() || {};
-
-  // Sporcunun kayıt ayından bugüne kadar
-  const kayitAy = s.kayit ? s.kayit.replace(/-/g,'').substring(0,6) : '202001';
-  const bugunAy = new Date().getFullYear() + String(new Date().getMonth()+1).padStart(2,'0');
-  
-  const DLABEL = {
-    'odedi':'Ödedi','ay-orta':'Ay Ortasında Geldi','indirimli':'İndirimli Ödedi',
-    'eksik':'Eksik Ödedi','bu-ay-odemeyecek':'Ödemeyecek',
-    'odemedi':'Ödemedi','odeyemeyecek':'Bu Ay Ödemeyecek'
-  };
-  const DCOLOR = {
-    'odedi':'#065F46','ay-orta':'#92400E','indirimli':'#1E40AF',
-    'eksik':'#9A3412','bu-ay-odemeyecek':'#1E3A5F',
-    'odemedi':'#991B1B','odeyemeyecek':'#374151'
-  };
-  const DBG = {
-    'odedi':'#D1FAE5','ay-orta':'#FEF3C7','indirimli':'#DBEAFE',
-    'eksik':'#FFEDD5','bu-ay-odemeyecek':'#BFDBFE',
-    'odemedi':'#FEE2E2','odeyemeyecek':'#E5E7EB'
-  };
-
-  let html = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">';
-  html += getAvatarHtml(s, 32);
-  html += '<strong style="font-size:0.9em;">' + s.ad + ' — Tüm Aidat Geçmişi</strong></div>';
-  html += '<div style="display:flex;flex-direction:column;gap:6px;">';
-
-  // Ayları listele
-  let toplamOdenen = 0;
-  let kayitSay = 0;
-  
-  // Tüm ayları bul (kayıt tarihinden bugüne)
-  let yil = parseInt(kayitAy.substring(0,4));
-  let ay2 = parseInt(kayitAy.substring(4,6));
-  const bugunYil = new Date().getFullYear();
-  const bugunAy2 = new Date().getMonth() + 1;
-
-  while (yil < bugunYil || (yil === bugunYil && ay2 <= bugunAy2)) {
-    const key = yil + String(ay2).padStart(2,'0');
-    const label = new Date(yil, ay2-1).toLocaleDateString('tr-TR', {month:'long', year:'numeric'});
-    const kayit = tumAidat[key]?.[sporcuId];
-    const durum = (!kayit?.durum && s.aidatOdemeyecek) ? 'bu-ay-odemeyecek' : (kayit?.durum || 'odemedi');
-    const dl = DLABEL[durum] || durum;
-    const bg = DBG[durum] || '#f3f4f6';
-    const col = DCOLOR[durum] || '#374151';
-    
-    let meta = '';
-    if (kayit?.tarih) { const tp=kayit.tarih.split('-'); meta += tp.length===3?tp[2]+'.'+tp[1]+'.'+tp[0]:kayit.tarih; }
-    if (kayit?.saat) meta += ' ' + kayit.saat;
-    if (kayit?.odeyen) meta += ' — ' + kayit.odeyen;
-    if (kayit?.tutar) { meta += ' — ₺' + kayit.tutar; toplamOdenen += parseFloat(kayit.tutar)||0; }
-    
-    if (kayit) kayitSay++;
-
-    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-radius:7px;background:var(--bg);">' +
-      '<div><span style="font-size:0.82em;font-weight:600;">' + label + '</span>' +
-      (meta ? '<span style="font-size:0.75em;color:var(--muted);margin-left:8px;">' + meta + '</span>' : '') +
-      '</div>' +
-      '<span style="background:' + bg + ';color:' + col + ';padding:2px 8px;border-radius:12px;font-size:0.72em;font-weight:600;white-space:nowrap;">' + dl + '</span>' +
-      '</div>';
-
-    ay2++;
-    if (ay2 > 12) { ay2 = 1; yil++; }
-  }
-
-  if (toplamOdenen > 0) {
-    html += '<div style="margin-top:8px;padding:8px 10px;background:var(--gold);border-radius:7px;font-size:0.82em;font-weight:700;color:var(--red);">Toplam Ödenen: ₺' + toplamOdenen.toLocaleString('tr') + '</div>';
-  }
-
-  html += '</div>';
-  body.innerHTML = html;
 }
 
 async function updateAidat(ay, sporcuId, field, value) {
