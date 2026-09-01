@@ -1638,7 +1638,7 @@ async function loadAidat() {
     Object.entries(DINFO).forEach(([d, info]) => {
       const n = SAYAC[d] || 0;
       const op = n === 0 ? 'opacity:0.4;' : '';
-      const click = n > 0 ? 'setAidatDurum(' + JSON.stringify(d) + ')' : '';
+      const click = n > 0 ? 'setAidatDurum(\'' + d + '\')' : '';
       h += '<div onclick="' + click + '" style="background:' + info.bg + ';border-radius:10px;padding:10px 8px;text-align:center;cursor:' + (n>0?'pointer':'default') + ';' + op + '">' +
         '<div style="font-size:1.4em;font-weight:800;color:' + info.color + ';">' + n + '</div>' +
         '<div style="font-size:0.65em;color:' + info.color + ';margin-top:2px;font-weight:600;line-height:1.2;">' + info.label + '</div></div>';
