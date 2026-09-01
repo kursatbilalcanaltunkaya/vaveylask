@@ -683,6 +683,21 @@
     </button>
   </div>
 
+<!-- Sporcu Bilgi Modal -->
+<div class="modal-overlay" id="sporcu-bilgi-modal">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-header">
+      <div class="modal-title">Sporcu Bilgi Kartı</div>
+      <button class="btn btn-ghost" onclick="document.getElementById('sporcu-bilgi-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" id="sporcu-bilgi-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="document.getElementById('sporcu-bilgi-modal').classList.remove('open')">Kapat</button>
+      <button class="btn btn-primary admin-only" id="sporcu-bilgi-duzenle-btn">✏️ Düzenle</button>
+    </div>
+  </div>
+</div>
+
 <!-- Sporcu Aidat Modal -->
 <div class="modal-overlay" id="sporcu-aidat-modal">
   <div class="modal" style="max-width:560px;">
@@ -1212,7 +1227,7 @@ function renderSporcu() {
         ? `<span class="badge badge-gray">Pasif</span>`
         : `<span class="badge badge-green">Aktif</span>`;
       return `<tr>
-        <td><div class="cell-name">${avatarHtml}<div><div style="font-weight:500;">${s.ad||''}</div></div></div></td>
+        <td style="cursor:pointer;" onclick="sporcuBilgiModal('${s.id}')" title="Bilgi kartı"><div class="cell-name">${avatarHtml}<div><div style="font-weight:500;">${s.ad||''}</div></div></div></td>
         <td>
           <span style="font-size:0.8em;color:var(--muted);">${s.grup||'—'}</span>
           ${s.ekGrup ? `<br><span style="font-size:0.75em;color:var(--orange);">${s.ekGrup}</span>` : ''}
@@ -2179,7 +2194,62 @@ function showToast(msg, type='') {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-async function sporcuAidatModal(sporcuId) {
+async 
+function sporcuBilgiModal(sporcuId) {
+  const modal = document.getElementById('sporcu-bilgi-modal');
+  const body = document.getElementById('sporcu-bilgi-modal-body');
+  const btn = document.getElementById('sporcu-bilgi-duzenle-btn');
+  const s = sporcular.find(x => x.id === sporcuId);
+  if (!s) return;
+
+  btn.onclick = () => { modal.classList.remove('open'); editSporcu(sporcuId); };
+
+  const dogumYili = s.dogum ? new Date(s.dogum).getFullYear() : (s.dogumYili || '—');
+  const kayitTarih = s.kayit ? new Date(s.kayit).toLocaleDateString('tr-TR') : '—';
+
+  const row = (label, val) => val && val !== '—' ? 
+    `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+      <span style="font-size:0.82em;color:var(--muted);font-weight:500;">${label}</span>
+      <span style="font-size:0.85em;font-weight:600;text-align:right;">${val}</span>
+    </div>` : '';
+
+  body.innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid var(--gold);">
+      ${s.foto ? `<img src="${s.foto}" style="width:70px;height:70px;border-radius:50%;object-fit:cover;flex-shrink:0;">` : 
+        `<div style="width:70px;height:70px;border-radius:50%;background:var(--gold);color:var(--red);display:flex;align-items:center;justify-content:center;font-size:1.8em;font-weight:700;flex-shrink:0;">${(s.ad||'?')[0]}</div>`}
+      <div>
+        <div style="font-size:1.1em;font-weight:800;color:var(--red);">${s.ad||''}</div>
+        <div style="font-size:0.82em;color:var(--muted);">${s.grup||''}</div>
+        <span style="display:inline-block;margin-top:4px;padding:2px 10px;border-radius:12px;font-size:0.75em;font-weight:600;
+          background:${s.durum==='Pasif'?'#F3F4F6':'#D1FAE5'};color:${s.durum==='Pasif'?'#6B7280':'#065F46'};">
+          ${s.durum||'Aktif'}
+        </span>
+      </div>
+    </div>
+    <div>
+      ${row('Doğum Yılı', dogumYili)}
+      ${row('Telefon', s.tel)}
+      ${row('Boy / Kilo', s.boy ? s.boy+'cm' + (s.kilo?' / '+s.kilo+'kg':'') : '')}
+      ${row('Forma Bedeni', s.forma)}
+      ${row('Forma Ücreti', s.formaUcret ? '₺'+s.formaUcret : '')}
+      ${row('Kayıt Tarihi', kayitTarih)}
+      ${row('Aylık Aidat', s.aidat ? '₺'+s.aidat : '')}
+      ${s.aidatOdemeyecek ? `<div style="padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="background:#BFDBFE;color:#1E3A5F;padding:2px 10px;border-radius:12px;font-size:0.78em;font-weight:600;">Aidat Ödemeyecek</span>
+      </div>` : ''}
+      ${row('TC Kimlik', s.tc)}
+      <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);">
+        <div style="font-size:0.78em;color:var(--muted);font-weight:600;margin-bottom:6px;">VELİ BİLGİLERİ</div>
+        ${row('Veli Adı', s.veliAd)}
+        ${row('Veli Telefonu', s.veliTel)}
+      </div>
+      ${s.notlar ? `<div style="margin-top:10px;padding:10px;background:var(--bg);border-radius:8px;font-size:0.82em;color:var(--muted);">📝 ${s.notlar}</div>` : ''}
+    </div>
+  `;
+
+  modal.classList.add('open');
+}
+function sporcuAidatModal(sporcuId) {
   const modal = document.getElementById('sporcu-aidat-modal');
   const body = document.getElementById('sporcu-aidat-modal-body');
   modal.classList.add('open');
