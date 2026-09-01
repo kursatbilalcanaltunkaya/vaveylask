@@ -1173,7 +1173,9 @@ function renderSporcu() {
     if (qtr && !( trNorm(s.ad).includes(qtr) ||
                   trNorm(s.grup).includes(qtr) ||
                   (s.tel||'').includes(qtr) ||
-                  trNorm(s.veliAd).includes(qtr) )) return false;
+                  trNorm(s.veliAd).includes(qtr) ||
+                  (s.dogumYili||'').toString().includes(qtr) ||
+                  (s.dogum||'').includes(qtr) )) return false;
     return true;
   });
 
