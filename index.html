@@ -324,7 +324,7 @@ async function loadVeliYoklama() {
   let geldi = 0, gelmedi = 0;
   let html = '<div class="gun-grid">';
   ayGunler.forEach(gun => {
-    const d = gun.substring(6,8) + '.' + gun.substring(4,6);
+    const d = gun.substring(6,8) + '.' + gun.substring(4,6) + '.' + gun.substring(0,4);
     const val = tumYok[gun]?.[mevcutSporcu.id];
     if (val === true)       { html += '<span class="gun-chip geldi">✓ ' + d + '</span>'; geldi++; }
     else if (val === false) { html += '<span class="gun-chip gelmedi">✗ ' + d + '</span>'; gelmedi++; }
@@ -384,7 +384,10 @@ async function loadVeliAidat() {
       durum = mevcutSporcu.aidatOdemeyecek ? 'bu-ay-odemeyecek' : 'odemedi';
     } else {
       durum = kayit.durum || 'odemedi';
-      if (kayit.tarih) meta += kayit.tarih;
+      if (kayit.tarih) {
+        const tp = kayit.tarih.split('-');
+        meta += tp.length===3 ? tp[2]+'.'+tp[1]+'.'+tp[0] : kayit.tarih;
+      }
       if (kayit.saat) meta += ' ' + kayit.saat;
       if (kayit.odeyen) meta += ' — ' + kayit.odeyen;
       if (kayit.tutar) meta += ' — ₺' + kayit.tutar;
