@@ -1676,6 +1676,42 @@ async function loadAidat() {
     const k = kayitlar[s.id] || {};
     return (!k.durum && s.aidatOdemeyecek) ? 'bu-ay-odemeyecek' : (k.durum || 'odemedi');
   };
+
+  // Bütçe hesapla
+  let toplamBeklenen = 0, toplamYatan = 0, toplamBekleyen = 0;
+  aktifler.forEach(s => {
+    const k = kayitlar[s.id] || {};
+    const durum = getEfektifDurum(s);
+    const aidat = parseFloat(s.aidat) || 0;
+    if (durum === 'bu-ay-odemeyecek' || durum === 'odeyemeyecek') return; // ödemeyecekler dahil değil
+    toplamBeklenen += aidat;
+    if (durum === 'odedi' || durum === 'ay-orta' || durum === 'indirimli' || durum === 'eksik') {
+      toplamYatan += parseFloat(k.tutar) || aidat;
+    } else {
+      toplamBekleyen += aidat;
+    }
+  });
+
+  // Bütçe paneli göster
+  const butceEl = document.getElementById('aidat-butce');
+  if (butceEl) {
+    butceEl.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 20px;background:linear-gradient(135deg,#8B0000,#6B0000);border-radius:10px;margin-bottom:12px;">
+        <div style="text-align:center;">
+          <div style="font-size:0.72em;color:rgba(255,255,255,0.65);font-weight:600;margin-bottom:4px;">💰 TOPLAM BÜTÇE</div>
+          <div style="font-size:1.3em;font-weight:800;color:#FFD700;">₺${toplamBeklenen.toLocaleString('tr')}</div>
+        </div>
+        <div style="text-align:center;border-left:1px solid rgba(255,255,255,0.2);border-right:1px solid rgba(255,255,255,0.2);">
+          <div style="font-size:0.72em;color:rgba(255,255,255,0.65);font-weight:600;margin-bottom:4px;">✅ YATAN</div>
+          <div style="font-size:1.3em;font-weight:800;color:#4ade80;">₺${toplamYatan.toLocaleString('tr')}</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:0.72em;color:rgba(255,255,255,0.65);font-weight:600;margin-bottom:4px;">⏳ BEKLEYEN</div>
+          <div style="font-size:1.3em;font-weight:800;color:#fca5a5;">₺${toplamBekleyen.toLocaleString('tr')}</div>
+        </div>
+      </div>`;
+    butceEl.style.display = 'block';
+  }
   const filteredAidat = filterDurum
     ? aktifler.filter(s => getEfektifDurum(s) === filterDurum)
     : aktifler;
