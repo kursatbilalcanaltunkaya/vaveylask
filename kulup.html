@@ -1705,7 +1705,7 @@ async function loadAidat() {
     const opts = AIDAT_DURUMLAR.map(x => `<option value="${x.val}"${durum===x.val?' selected':''}>${x.label}</option>`).join('');
     const kayitTarih = s.kayit ? new Date(s.kayit).toLocaleDateString('tr-TR') : '—';
     const durumBadge = (!s.durum || s.durum==='Aktif') ? '<span class="badge badge-green">Aktif</span>' : '<span class="badge badge-gray">Pasif</span>';
-    return `<tr data-sid="${s.id}" style="cursor:pointer;" onclick="sporcuAidatModal('${s.id}')" title="Aidat geçmişi" style="cursor:pointer;" onclick="sporcuAidatModal('${s.id}')" title="Aidat geçmişi">
+    return `<tr data-sid="${s.id}" style="cursor:pointer;" onclick="sporcuAidatModal('${s.id}')" title="Aidat geçmişi">
       <td><div class="cell-name">${getAvatarHtml(s,34)}<span style="font-weight:500;">${s.ad}</span></div></td>
       <td style="font-size:0.8em;color:var(--muted);">${s.grup||'—'}</td>
       <td style="font-weight:600;">${s.aidat?'₺'+s.aidat:'—'}</td>
@@ -2166,6 +2166,46 @@ function showToast(msg, type='') {
   t.textContent = msg;
   t.className = 'toast ' + type + ' show';
   setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+async function sporcuAidatModal(sporcuId) {
+  const modal = document.getElementById('sporcu-aidat-modal');
+  const body = document.getElementById('sporcu-aidat-modal-body');
+  modal.classList.add('open');
+  body.innerHTML = '<div class="loading">⏳ Yükleniyor...</div>';
+  const s = sporcular.find(x => x.id === sporcuId);
+  if (!s) return;
+  const snap = await db.ref('kulup/aidat').once('value');
+  const tumAidat = snap.val() || {};
+  const kayitAy = s.kayit ? s.kayit.replace(/-/g,'').substring(0,6) : '202001';
+  const DLABEL = {'odedi':'Ödedi','ay-orta':'Ay Ortasında Geldi','indirimli':'İndirimli Ödedi','eksik':'Eksik Ödedi','bu-ay-odemeyecek':'Ödemeyecek','odemedi':'Ödemedi','odeyemeyecek':'Bu Ay Ödemeyecek'};
+  const DBG = {'odedi':'#D1FAE5','ay-orta':'#FEF3C7','indirimli':'#DBEAFE','eksik':'#FFEDD5','bu-ay-odemeyecek':'#BFDBFE','odemedi':'#FEE2E2','odeyemeyecek':'#E5E7EB'};
+  const DCOL = {'odedi':'#065F46','ay-orta':'#92400E','indirimli':'#1E40AF','eksik':'#9A3412','bu-ay-odemeyecek':'#1E3A5F','odemedi':'#991B1B','odeyemeyecek':'#374151'};
+  let html = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">' + getAvatarHtml(s,36) + '<div><div style="font-weight:700;">' + s.ad + '</div><div style="font-size:0.78em;color:var(--muted);">' + (s.grup||'') + '</div></div></div>';
+  let toplamOdenen = 0;
+  let yil = parseInt(kayitAy.substring(0,4));
+  let aym = parseInt(kayitAy.substring(4,6));
+  const bugunYil = new Date().getFullYear();
+  const bugunAym = new Date().getMonth() + 1;
+  html += '<div style="display:flex;flex-direction:column;gap:6px;">';
+  while (yil < bugunYil || (yil === bugunYil && aym <= bugunAym)) {
+    const key = yil + String(aym).padStart(2,'0');
+    const label = new Date(yil, aym-1).toLocaleDateString('tr-TR',{month:'long',year:'numeric'});
+    const kayit = tumAidat[key] ? tumAidat[key][sporcuId] : null;
+    const durum = (!kayit?.durum && s.aidatOdemeyecek) ? 'bu-ay-odemeyecek' : (kayit?.durum || 'odemedi');
+    let meta = '';
+    if (kayit?.tarih) { const tp=kayit.tarih.split('-'); meta += tp.length===3?tp[2]+'.'+tp[1]+'.'+tp[0]:kayit.tarih; }
+    if (kayit?.saat) meta += ' ' + kayit.saat;
+    if (kayit?.odeyen) meta += ' — ' + kayit.odeyen;
+    if (kayit?.tutar) { meta += ' — ₺' + kayit.tutar; toplamOdenen += parseFloat(kayit.tutar)||0; }
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:7px;background:var(--bg);">' +
+      '<div><span style="font-size:0.83em;font-weight:600;">' + label + '</span>' + (meta?'<span style="font-size:0.74em;color:var(--muted);margin-left:8px;">'+meta+'</span>':'') + '</div>' +
+      '<span style="background:'+(DBG[durum]||'#f3f4f6')+';color:'+(DCOL[durum]||'#374151')+';padding:2px 10px;border-radius:12px;font-size:0.72em;font-weight:600;white-space:nowrap;">'+(DLABEL[durum]||durum)+'</span></div>';
+    aym++; if (aym>12){aym=1;yil++;}
+  }
+  html += '</div>';
+  if (toplamOdenen>0) html += '<div style="margin-top:10px;padding:10px;background:var(--gold);border-radius:8px;font-weight:700;color:var(--red);">Toplam Ödenen: ₺'+toplamOdenen.toLocaleString('tr')+'</div>';
+  body.innerHTML = html;
 }
 </script>
 </body>
