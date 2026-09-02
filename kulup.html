@@ -1769,8 +1769,8 @@ async function loadAidat() {
     const opts = AIDAT_DURUMLAR.map(x => `<option value="${x.val}"${durum===x.val?' selected':''}>${x.label}</option>`).join('');
     const kayitTarih = s.kayit ? new Date(s.kayit).toLocaleDateString('tr-TR') : '—';
     const durumBadge = (!s.durum || s.durum==='Aktif') ? '<span class="badge badge-green">Aktif</span>' : '<span class="badge badge-gray">Pasif</span>';
-    return `<tr data-sid="${s.id}" style="cursor:pointer;" onclick="sporcuAidatModal('${s.id}')" title="Aidat geçmişi">
-      <td><div class="cell-name">${getAvatarHtml(s,34)}<span style="font-weight:500;">${s.ad}</span></div></td>
+    return `<tr data-sid="${s.id}">
+      <td style="cursor:pointer;" onclick="sporcuAidatModal('${s.id}')" title="Aidat geçmişi"><div class="cell-name">${getAvatarHtml(s,34)}<span style="font-weight:500;">${s.ad}</span></div></td>
       <td style="font-size:0.8em;color:var(--muted);">${s.grup||'—'}</td>
       <td style="font-weight:600;">${s.aidat?'₺'+s.aidat:'—'}</td>
       <td>
