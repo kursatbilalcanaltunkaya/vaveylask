@@ -1746,7 +1746,7 @@ async function loadAidat() {
         '<div style="font-size:1.4em;font-weight:800;color:' + info.color + ';">' + n + '</div>' +
         '<div style="font-size:0.65em;color:' + info.color + ';margin-top:2px;font-weight:600;line-height:1.2;">' + info.label + '</div></div>';
     });
-    h += '<div style="background:var(--red);border-radius:10px;padding:10px 8px;text-align:center;">' +
+    h += '<div onclick="setAidatDurum('\')" style="background:var(--red);border-radius:10px;padding:10px 8px;text-align:center;cursor:pointer;">' +
       '<div style="font-size:1.4em;font-weight:800;color:#fff;">' + aktifler.length + '</div>' +
       '<div style="font-size:0.65em;color:rgba(255,255,255,0.8);margin-top:2px;font-weight:600;">Toplam</div></div>';
     h += '</div>';
