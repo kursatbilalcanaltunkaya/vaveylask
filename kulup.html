@@ -560,9 +560,9 @@
                 <option value="ay-orta">Ayın Ortasında Geldi</option>
                 <option value="indirimli">İndirimli Ödedi</option>
                 <option value="eksik">Eksik Ödedi</option>
-                <option value="bu-ay-odemeyecek">Ödemeyecek</option>
+                <option value="bu-ay-odemeyecek">Bu Ay Ödemeyecek</option>
                 <option value="odemedi">Ödemedi</option>
-                <option value="odeyemeyecek">Bu Ay Ödemeyecek</option>
+                <option value="odeyemeyecek">Ödemeyecek</option>
               </select>
               <div class="search-box">
                 <span>🔍</span>
@@ -1641,8 +1641,8 @@ const AIDAT_DURUMLAR = [
   { val: 'ay-orta',         label: 'Ayın Ortasında Geldi',  color: '#92400E', bg: '#FEF3C7' },
   { val: 'indirimli',       label: 'İndirimli Ödedi',       color: '#1E40AF', bg: '#DBEAFE' },
   { val: 'eksik',           label: 'Eksik Ödedi',           color: '#9A3412', bg: '#FFEDD5' },
-  { val: 'bu-ay-odemeyecek',label: 'Ödemeyecek',     color: '#1E3A5F', bg: '#BFDBFE' },
-  { val: 'odeyemeyecek',    label: 'Bu Ay Ödemeyecek',      color: '#374151', bg: '#E5E7EB' },
+  { val: 'bu-ay-odemeyecek',label: 'Bu Ay Ödemeyecek', color: '#1E3A5F', bg: '#BFDBFE' },
+  { val: 'odeyemeyecek',    label: 'Ödemeyecek',            color: '#374151', bg: '#E5E7EB' },
 ];
 
 function aidatBadge(durum) {
@@ -1732,9 +1732,9 @@ async function loadAidat() {
     'ay-orta':          {label:'Ay Ortasında Geldi', bg:'#FEF3C7',color:'#92400E'},
     'indirimli':        {label:'İndirimli Ödedi',    bg:'#DBEAFE',color:'#1E40AF'},
     'eksik':            {label:'Eksik Ödedi',         bg:'#FFEDD5',color:'#9A3412'},
-    'bu-ay-odemeyecek': {label:'Ödemeyecek',          bg:'#BFDBFE',color:'#1E3A5F'},
+    'bu-ay-odemeyecek': {label:'Bu Ay Ödemeyecek',    bg:'#BFDBFE',color:'#1E3A5F'},
     'odemedi':          {label:'Ödemedi',              bg:'#FEE2E2',color:'#991B1B'},
-    'odeyemeyecek':     {label:'Bu Ay Ödemeyecek',    bg:'#E5E7EB',color:'#374151'},
+    'odeyemeyecek':     {label:'Ödemeyecek',           bg:'#E5E7EB',color:'#374151'},
   };
 
   const panel = document.getElementById('aidat-ozet');
@@ -2298,7 +2298,7 @@ async function sporcuAidatModal(sporcuId) {
   const snap = await db.ref('kulup/aidat').once('value');
   const tumAidat = snap.val() || {};
   const kayitAy = s.kayit ? s.kayit.replace(/-/g,'').substring(0,6) : '202001';
-  const DLABEL = {'odedi':'Ödedi','ay-orta':'Ay Ortasında Geldi','indirimli':'İndirimli Ödedi','eksik':'Eksik Ödedi','bu-ay-odemeyecek':'Ödemeyecek','odemedi':'Ödemedi','odeyemeyecek':'Bu Ay Ödemeyecek'};
+  const DLABEL = {'odedi':'Ödedi','ay-orta':'Ay Ortasında Geldi','indirimli':'İndirimli Ödedi','eksik':'Eksik Ödedi','bu-ay-odemeyecek':'Bu Ay Ödemeyecek','odemedi':'Ödemedi','odeyemeyecek':'Ödemeyecek'};
   const DBG = {'odedi':'#D1FAE5','ay-orta':'#FEF3C7','indirimli':'#DBEAFE','eksik':'#FFEDD5','bu-ay-odemeyecek':'#BFDBFE','odemedi':'#FEE2E2','odeyemeyecek':'#E5E7EB'};
   const DCOL = {'odedi':'#065F46','ay-orta':'#92400E','indirimli':'#1E40AF','eksik':'#9A3412','bu-ay-odemeyecek':'#1E3A5F','odemedi':'#991B1B','odeyemeyecek':'#374151'};
   let html = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">' + getAvatarHtml(s,36) + '<div><div style="font-weight:700;">' + s.ad + '</div><div style="font-size:0.78em;color:var(--muted);">' + (s.grup||'') + '</div></div></div>';
