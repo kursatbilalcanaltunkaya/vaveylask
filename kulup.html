@@ -1675,8 +1675,8 @@ async function loadAidat() {
 
   const getEfektifDurum = (s) => {
     const k = kayitlar[s.id] || {};
-    if (!k.durum && s.durum === 'Pasif') return 'bu-ay-odemeyecek'; // pasif → ödemeyecek
-    if (!k.durum && s.aidatOdemeyecek) return 'bu-ay-odemeyecek';
+    if (!k.durum && s.durum === 'Pasif') return 'bu-ay-odemeyecek'; // pasif → Bu Ay Ödemeyecek
+    if (!k.durum && s.aidatOdemeyecek) return 'odeyemeyecek'; // burslu → Ödemeyecek
     return k.durum || 'odemedi';
   };
 
