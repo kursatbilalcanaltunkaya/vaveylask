@@ -1677,18 +1677,19 @@ async function loadAidat() {
 
   const getEfektifDurum = (s) => {
     const k = kayitlar[s.id] || {};
+    const ay = secAy; // loadAidat scope'undan alır
     
-    // 1. Pasif kontrolü - Firebase kaydını override et
+    // 1. Burslu - her zaman ödemeyecek (pasiften önce kontrol)
+    if (s.aidatOdemeyecek) return 'odeyemeyecek';
+    
+    // 2. Pasif kontrolü
     const pasifAy = s.pasifTarihi ? s.pasifTarihi.replace(/-/g,'').substring(0,6) : null;
     const aktifAy = s.aktifTarihi ? s.aktifTarihi.replace(/-/g,'').substring(0,6) : null;
-    const oAyPasifti = (pasifAy && secAy >= pasifAy && !(aktifAy && secAy >= aktifAy))
+    const oAyPasifti = (pasifAy && ay >= pasifAy && !(aktifAy && ay >= aktifAy))
                     || (!pasifAy && s.durum === 'Pasif');
     if (oAyPasifti) return 'bu-ay-odemeyecek';
     
-    // 2. Burslu kontrolü - Firebase kaydını override et
-    if (s.aidatOdemeyecek) return 'odeyemeyecek';
-    
-    // 3. Firebase'de kayıt varsa onu kullan
+    // 3. Firebase'de gerçek kayıt varsa onu kullan
     if (k.durum) return k.durum;
     
     return 'odemedi';
