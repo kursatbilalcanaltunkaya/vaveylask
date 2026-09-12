@@ -1677,23 +1677,23 @@ async function loadAidat() {
 
   const getEfektifDurum = (s) => {
     const k = kayitlar[s.id] || {};
-    if (k.durum) return k.durum; // Firebase'de kayıt varsa onu kullan
     
     // Seçilen ayda sporcu pasif miydi?
     const pasifAy = s.pasifTarihi ? s.pasifTarihi.replace(/-/g,'').substring(0,6) : null;
     const aktifAy = s.aktifTarihi ? s.aktifTarihi.replace(/-/g,'').substring(0,6) : null;
     
-    if (pasifAy && secAy >= pasifAy) {
-      // O ay pasife alınmış - aktife alınış tarihine bak
-      if (aktifAy && secAy >= aktifAy) {
-        // O ay tekrar aktife alınmış → ödemedi
-      } else {
-        return 'bu-ay-odemeyecek'; // o ay pasifti
-      }
-    }
+    const oAyPasifti = pasifAy && secAy >= pasifAy && !(aktifAy && secAy >= aktifAy);
+    const halaPassif = !pasifAy && s.durum === 'Pasif';
     
-    if (s.durum === 'Pasif') return 'bu-ay-odemeyecek';
+    // Pasifse Firebase kaydına bakma - her zaman bu ay ödemeyecek
+    if (oAyPasifti || halaPassif) return 'bu-ay-odemeyecek';
+    
+    // Firebase'de kayıt varsa onu kullan
+    if (k.durum) return k.durum;
+    
+    // Burslu
     if (s.aidatOdemeyecek) return 'odeyemeyecek';
+    
     return 'odemedi';
   };
 
