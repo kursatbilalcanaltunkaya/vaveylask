@@ -1683,7 +1683,7 @@ async function loadAidat() {
     const pasifAy = s.pasifTarihi ? s.pasifTarihi.replace(/-/g,'').substring(0,6) : null;
     const aktifAy = s.aktifTarihi ? s.aktifTarihi.replace(/-/g,'').substring(0,6) : null;
     const oAyPasifti = (pasifAy && ay >= pasifAy && !(aktifAy && ay >= aktifAy))
-                    || (!pasifAy && s.durum === 'Pasif');
+                    || (s.durum === 'Pasif'); // pasifTarihi yoksa da pasifse her ay ödemeyecek
     if (oAyPasifti) return 'bu-ay-odemeyecek'; // pasif → bu ay ödemeyecek (burslu olsa bile)
     
     // 2. Burslu - pasif değilse ödemeyecek
