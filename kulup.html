@@ -1409,8 +1409,10 @@ async function toggleDurum(id, current) {
   const updates = { durum: yeni };
   if (yeni === 'Pasif') {
     updates.pasifTarihi = bugun;
+    updates.aktifTarihi = '';
   } else {
-    updates.pasifTarihi = '';  // boş string, null değil
+    updates.pasifTarihi = '';
+    updates.aktifTarihi = bugun; // aktife alınma tarihi
   }
   await db.ref('kulup/sporcular/' + id).update(updates);
   showToast(yeni === 'Pasif' ? 'Sporcu pasife alındı — ' + bugun + ' tarihinden itibaren yoklamada görünmeyecek' : 'Sporcu aktif edildi','success');
@@ -1675,9 +1677,24 @@ async function loadAidat() {
 
   const getEfektifDurum = (s) => {
     const k = kayitlar[s.id] || {};
-    if (!k.durum && s.durum === 'Pasif') return 'bu-ay-odemeyecek'; // pasif → Bu Ay Ödemeyecek
-    if (!k.durum && s.aidatOdemeyecek) return 'odeyemeyecek'; // burslu → Ödemeyecek
-    return k.durum || 'odemedi';
+    if (k.durum) return k.durum; // Firebase'de kayıt varsa onu kullan
+    
+    // Seçilen ayda sporcu pasif miydi?
+    const pasifAy = s.pasifTarihi ? s.pasifTarihi.replace(/-/g,'').substring(0,6) : null;
+    const aktifAy = s.aktifTarihi ? s.aktifTarihi.replace(/-/g,'').substring(0,6) : null;
+    
+    if (pasifAy && secAy >= pasifAy) {
+      // O ay pasife alınmış - aktife alınış tarihine bak
+      if (aktifAy && secAy >= aktifAy) {
+        // O ay tekrar aktife alınmış → ödemedi
+      } else {
+        return 'bu-ay-odemeyecek'; // o ay pasifti
+      }
+    }
+    
+    if (s.durum === 'Pasif') return 'bu-ay-odemeyecek';
+    if (s.aidatOdemeyecek) return 'odeyemeyecek';
+    return 'odemedi';
   };
 
   // Bütçe hesapla
