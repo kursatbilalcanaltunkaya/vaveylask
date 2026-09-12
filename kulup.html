@@ -1682,10 +1682,18 @@ async function loadAidat() {
     // 1. Pasif kontrolü - önce bak
     const pasifAy = s.pasifTarihi ? s.pasifTarihi.replace(/-/g,'').substring(0,6) : null;
     const aktifAy = s.aktifTarihi ? s.aktifTarihi.replace(/-/g,'').substring(0,6) : null;
-    // aktifTarihi varsa o aydan önce pasifti
+    // aktifTarihi varsa sadece bir önceki ay pasifti (pasifTarihi yoksa)
+    let birOncekiAy = '';
+    if (aktifAy) {
+      const aktifYil = parseInt(aktifAy.substring(0,4));
+      const aktifAyNo = parseInt(aktifAy.substring(4,6));
+      const oncekiAyNo = aktifAyNo === 1 ? 12 : aktifAyNo - 1;
+      const oncekiYil = aktifAyNo === 1 ? aktifYil - 1 : aktifYil;
+      birOncekiAy = oncekiYil + String(oncekiAyNo).padStart(2,'0');
+    }
     const oAyPasifti = (pasifAy && ay >= pasifAy && !(aktifAy && ay >= aktifAy))
                     || (!pasifAy && !aktifAy && s.durum === 'Pasif')
-                    || (!pasifAy && aktifAy && ay < aktifAy); // aktife alınmadan önceki aylar
+                    || (!pasifAy && aktifAy && ay === birOncekiAy); // sadece bir önceki ay
     if (oAyPasifti) return 'bu-ay-odemeyecek'; // pasif → bu ay ödemeyecek (burslu olsa bile)
     
     // 2. Burslu - pasif değilse ödemeyecek
