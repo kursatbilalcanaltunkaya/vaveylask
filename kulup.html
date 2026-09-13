@@ -804,7 +804,7 @@
         <div class="form-group full">
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:normal;">
             <input type="checkbox" id="s-aidat-odemeyecek" style="width:18px;height:18px;accent-color:var(--red);">
-            <span>Aidat ödemeyecek (burslu/ücretsiz)</span>
+            <span>Aidat ödemeyecek (burslu)</span>
           </label>
           <div style="font-size:0.75em;color:var(--muted);margin-top:4px;padding-left:28px;">
             İşaretlenirse aidat takibinde "Ödemeyecek" olarak görünür
@@ -827,7 +827,10 @@
       </div>
     </div>
     <div class="modal-footer" style="justify-content:space-between;">
-      <button class="btn btn-danger" id="btn-sporcu-sil" style="display:none;" onclick="silSporcu()">🗑 Sporcuyu Sil</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-danger" id="btn-sporcu-sil" style="display:none;" onclick="silSporcu()">🗑 Sil</button>
+        <button class="btn btn-warning" id="btn-sporcu-birakti" style="display:none;" onclick="biraktiToggle()">🚪 Bıraktı</button>
+      </div>
       <div style="display:flex;gap:8px;">
         <button class="btn btn-secondary" onclick="closeSporcu()">İptal</button>
         <button class="btn btn-primary" onclick="saveSporcu()">Kaydet</button>
@@ -1297,6 +1300,10 @@ function openSporcuModal(id) {
   document.getElementById('s-veli-tel').value = '';
 
   document.getElementById('btn-sporcu-sil').style.display = id ? 'inline-flex' : 'none';
+  const biraktiBtn = document.getElementById('btn-sporcu-birakti');
+  if (biraktiBtn) {
+    biraktiBtn.style.display = id ? 'inline-flex' : 'none';
+  }
   const prev = document.getElementById('foto-preview');
   prev.innerHTML = '📷'; prev.dataset.src = '';
   document.getElementById('s-foto').value = '';
@@ -1314,6 +1321,11 @@ function openSporcuModal(id) {
       document.getElementById('s-grup').value = s.grup || '';
       if(document.getElementById('s-ek-grup')) document.getElementById('s-ek-grup').value = s.ekGrup || '';
       if(document.getElementById('s-aidat-odemeyecek')) document.getElementById('s-aidat-odemeyecek').checked = s.aidatOdemeyecek === true;
+      const bb = document.getElementById('btn-sporcu-birakti');
+      if (bb) {
+        bb.textContent = s.birakti ? '↩️ Geri Döndü' : '🚪 Bıraktı';
+        bb.style.background = s.birakti ? '#065F46' : '#D97706';
+      }
       document.getElementById('s-ek-grup').value = s.ekGrup || '';
       document.getElementById('s-kayit').value = s.kayit || '';
       document.getElementById('s-aidat').value = s.aidat || '';
@@ -1332,6 +1344,17 @@ function openSporcuModal(id) {
 }
 
 function closeSporcu() { document.getElementById('sporcu-modal').classList.remove('open'); }
+
+async function biraktiToggle() {
+  if (!editingId) return;
+  const s = sporcular.find(x => x.id === editingId);
+  if (!s) return;
+  const yeniBirakti = !s.birakti;
+  await db.ref('kulup/sporcular/' + editingId).update({ birakti: yeniBirakti });
+  showToast(yeniBirakti ? 'Sporcu "Bıraktı" olarak işaretlendi' : 'Sporcu üyeliğe geri döndü', 'success');
+  closeSporcu();
+  await loadSporcular();
+}
 
 async function silSporcu() {
   if (!editingId) return;
@@ -1714,7 +1737,9 @@ async function loadAidat() {
                     || (!pasifAy && aktifAy && ay === birOncekiAy); // sadece bir önceki ay
     if (oAyPasifti) return 'bu-ay-odemeyecek'; // pasif → bu ay ödemeyecek (burslu olsa bile)
     
-    // 2. Burslu - pasif değilse burslu tag
+    // 2. Bıraktı → Ödemeyecek
+    if (s.birakti) return 'odeyemeyecek';
+    // 3. Burslu → Burslu tag
     if (s.aidatOdemeyecek) return 'burslu';
     
     // 3. Firebase'de gerçek kayıt varsa onu kullan
