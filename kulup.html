@@ -1679,6 +1679,9 @@ async function loadAidat() {
     const k = kayitlar[s.id] || {};
     const ay = secAy;
     
+    // 0. Manuel kayıt varsa her zaman onu kullan (override)
+    if (k.durum) return k.durum;
+    
     // 1. Pasif kontrolü - önce bak
     const pasifAy = s.pasifTarihi ? s.pasifTarihi.replace(/-/g,'').substring(0,6) : null;
     const aktifAy = s.aktifTarihi ? s.aktifTarihi.replace(/-/g,'').substring(0,6) : null;
@@ -1691,13 +1694,27 @@ async function loadAidat() {
       const oncekiYil = aktifAyNo === 1 ? aktifYil - 1 : aktifYil;
       birOncekiAy = oncekiYil + String(oncekiAyNo).padStart(2,'0');
     }
-    const oAyPasifti = (pasifAy && ay >= pasifAy && !(aktifAy && ay >= aktifAy))
+    // pasifTarihi'nin gününe bak:
+    // 15 ve öncesi → o ay pasif (ayın başında geldi, gitmedi)
+    // 16 ve sonrası → sonraki aydan pasif (o ay büyük ihtimal ödedi/geldi)
+    let pasifBaslangic = pasifAy;
+    if (pasifAy && s.pasifTarihi) {
+      const gun = parseInt(s.pasifTarihi.substring(8,10));
+      if (gun > 15) {
+        const py = parseInt(pasifAy.substring(0,4));
+        const pm = parseInt(pasifAy.substring(4,6));
+        const nm = pm === 12 ? 1 : pm + 1;
+        const ny = pm === 12 ? py + 1 : py;
+        pasifBaslangic = ny + String(nm).padStart(2,'0');
+      }
+    }
+    const oAyPasifti = (pasifAy && ay >= pasifBaslangic && !(aktifAy && ay >= aktifAy))
                     || (!pasifAy && !aktifAy && s.durum === 'Pasif')
                     || (!pasifAy && aktifAy && ay === birOncekiAy); // sadece bir önceki ay
     if (oAyPasifti) return 'bu-ay-odemeyecek'; // pasif → bu ay ödemeyecek (burslu olsa bile)
     
-    // 2. Burslu - pasif değilse ödemeyecek
-    if (s.aidatOdemeyecek) return 'odeyemeyecek';
+    // 2. Burslu - pasif değilse burslu tag
+    if (s.aidatOdemeyecek) return 'burslu';
     
     // 3. Firebase'de gerçek kayıt varsa onu kullan
     if (k.durum) return k.durum;
@@ -1712,7 +1729,7 @@ async function loadAidat() {
     const k = kayitlar[s.id] || {};
     const durum = getEfektifDurum(s);
     const aidat = parseFloat(s.aidat) || 0;
-    if (durum === 'bu-ay-odemeyecek' || durum === 'odeyemeyecek') return; // ödemeyecekler dahil değil
+    if (durum === 'bu-ay-odemeyecek' || durum === 'odeyemeyecek' || durum === 'burslu') return; // ödemeyecekler dahil değil
     toplamBeklenen += aidat;
     if (durum === 'odedi' || durum === 'ay-orta' || durum === 'indirimli' || durum === 'eksik') {
       toplamYatan += parseFloat(k.tutar) || aidat;
@@ -1746,7 +1763,7 @@ async function loadAidat() {
     : aktifler;
 
   // Sayaç
-  const SAYAC = {'odedi':0,'ay-orta':0,'indirimli':0,'eksik':0,'bu-ay-odemeyecek':0,'odemedi':0,'odeyemeyecek':0};
+  const SAYAC = {'odedi':0,'ay-orta':0,'indirimli':0,'eksik':0,'bu-ay-odemeyecek':0,'odemedi':0,'odeyemeyecek':0,'burslu':0};
   aktifler.forEach(s => {
     const d = getEfektifDurum(s);
     if (SAYAC[d] !== undefined) SAYAC[d]++;
