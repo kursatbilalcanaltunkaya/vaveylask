@@ -1703,7 +1703,13 @@ async function loadAidat() {
     const k = kayitlar[s.id] || {};
     const ay = secAy;
     
-    // 0. Manuel kayıt varsa her zaman onu kullan (override)
+    // 0. Bıraktı → her zaman Ödemeyecek (override)
+    if (s.birakti) return 'odeyemeyecek';
+    
+    // 0b. Burslu → her zaman Burslu (override)
+    if (s.aidatOdemeyecek) return 'burslu';
+    
+    // 0c. Manuel kayıt varsa onu kullan
     if (k.durum) return k.durum;
     
     // 1. Pasif kontrolü - önce bak
@@ -1737,10 +1743,7 @@ async function loadAidat() {
                     || (!pasifAy && aktifAy && ay === birOncekiAy); // sadece bir önceki ay
     if (oAyPasifti) return 'bu-ay-odemeyecek'; // pasif → bu ay ödemeyecek (burslu olsa bile)
     
-    // 2. Bıraktı → Ödemeyecek
-    if (s.birakti) return 'odeyemeyecek';
-    // 3. Burslu → Burslu tag
-    if (s.aidatOdemeyecek) return 'burslu';
+
     
     // 3. Firebase'de gerçek kayıt varsa onu kullan
     if (k.durum) return k.durum;
