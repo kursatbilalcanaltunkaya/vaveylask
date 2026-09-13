@@ -1645,6 +1645,7 @@ const AIDAT_DURUMLAR = [
   { val: 'eksik',           label: 'Eksik Ödedi',           color: '#9A3412', bg: '#FFEDD5' },
   { val: 'bu-ay-odemeyecek',label: 'Bu Ay Ödemeyecek', color: '#1E3A5F', bg: '#BFDBFE' },
   { val: 'odeyemeyecek',    label: 'Ödemeyecek',            color: '#374151', bg: '#E5E7EB' },
+  { val: 'burslu',          label: 'Burslu',                color: '#5B21B6', bg: '#EDE9FE' },
 ];
 
 function aidatBadge(durum) {
@@ -1777,6 +1778,7 @@ async function loadAidat() {
     'bu-ay-odemeyecek': {label:'Bu Ay Ödemeyecek',    bg:'#BFDBFE',color:'#1E3A5F'},
     'odemedi':          {label:'Ödemedi',              bg:'#FEE2E2',color:'#991B1B'},
     'odeyemeyecek':     {label:'Ödemeyecek',           bg:'#E5E7EB',color:'#374151'},
+    'burslu':           {label:'Burslu',               bg:'#EDE9FE',color:'#5B21B6'},
   };
 
   const panel = document.getElementById('aidat-ozet');
