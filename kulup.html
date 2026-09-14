@@ -1761,8 +1761,12 @@ async function loadAidat() {
     const aidat = parseFloat(s.aidat) || 0;
     if (durum === 'bu-ay-odemeyecek' || durum === 'odeyemeyecek' || durum === 'burslu') return; // ödemeyecekler dahil değil
     toplamBeklenen += aidat;
-    if (durum === 'odedi' || durum === 'ay-orta' || durum === 'indirimli' || durum === 'eksik') {
+    if (durum === 'odedi' || durum === 'ay-orta' || durum === 'indirimli') {
       toplamYatan += parseFloat(k.tutar) || aidat;
+    } else if (durum === 'eksik') {
+      const yatan = parseFloat(k.tutar) || 0;
+      toplamYatan += yatan;
+      toplamBekleyen += aidat - yatan; // kalan fark bekleyene ekle
     } else {
       toplamBekleyen += aidat;
     }
