@@ -1764,10 +1764,11 @@ async function loadAidat() {
     if (durum === 'odedi' || durum === 'ay-orta' || durum === 'indirimli') {
       toplamYatan += parseFloat(k.tutar) || aidat;
     } else if (durum === 'eksik') {
-      const yatan = parseFloat(k.tutar) || 0;
-      toplamYatan += yatan;
-      toplamBekleyen += aidat - yatan; // kalan fark bekleyene ekle
+      const odenen = parseFloat(k.tutar) || 0;
+      toplamYatan += odenen;
+      toplamBekleyen += (aidat - odenen); // sadece kalan fark
     } else {
+      // odemedi - tüm aidat bekliyor
       toplamBekleyen += aidat;
     }
   });
