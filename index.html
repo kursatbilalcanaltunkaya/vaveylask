@@ -420,6 +420,44 @@ async function loadVeliAidat() {
 document.getElementById('tc-input').addEventListener('input', function() {
   this.value = this.value.replace(/\D/g,'').slice(0,11);
 });
+
+// ===== ZİYARET SAYACI =====
+async function ziyaretKaydet() {
+  const now = new Date();
+  const gun  = now.getFullYear() + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0');
+  const ay   = now.getFullYear() + String(now.getMonth()+1).padStart(2,'0');
+  const yil  = String(now.getFullYear());
+
+  const ref = db.ref('kulup/ziyaret');
+  // Atomik artır
+  await ref.child('gunluk/' + gun).transaction(v => (v||0)+1);
+  await ref.child('aylik/'  + ay ).transaction(v => (v||0)+1);
+  await ref.child('yillik/' + yil).transaction(v => (v||0)+1);
+  await ref.child('toplam'       ).transaction(v => (v||0)+1);
+
+  // Bugünkü sayıyı footer'a yaz
+  const snap = await ref.child('gunluk/' + gun).once('value');
+  const el = document.getElementById('footer-gun-sayi');
+  if (el) el.textContent = (snap.val()||0).toLocaleString('tr-TR');
+}
+
+ziyaretKaydet();
 </script>
+
+<!-- Footer -->
+<footer style="
+  background:linear-gradient(135deg,#8B0000,#6B0000);
+  color:rgba(255,255,255,0.75);
+  text-align:center;
+  padding:14px 16px;
+  font-size:0.78em;
+  margin-top:32px;
+">
+  <div style="margin-bottom:4px;">© 2026 Körfez Vaveyla Spor Kulübü</div>
+  <div style="font-size:0.9em;opacity:0.7;">
+    Bugün siteyi ziyaret eden: <strong id="footer-gun-sayi" style="color:#E8B84B;">—</strong> kişi
+  </div>
+</footer>
+
 </body>
 </html>
