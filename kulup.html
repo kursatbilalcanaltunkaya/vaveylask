@@ -430,6 +430,9 @@
       <button class="nav-item" onclick="goTo('gruplar')" id="nav-gruplar">
         <span class="icon">🗂️</span> Gruplar
       </button>
+      <button class="nav-item admin-only" onclick="goTo('ziyaret')" id="nav-ziyaret">
+        <span class="icon">📈</span> Ziyaretçiler
+      </button>
     </div>
 
     <div class="sidebar-footer">
@@ -641,6 +644,52 @@
           <div style="padding:20px;">
             <p style="font-size:0.85em;color:var(--muted);margin-bottom:16px;">Planlı mesajlar buradan gönderilir. WhatsApp linki tıklandığında mesaj hazır açılır.</p>
             <div id="mesaj-body"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ZİYARETÇİ İSTATİSTİKLERİ -->
+      <div id="screen-ziyaret" class="screen">
+        <div class="panel" style="margin-bottom:20px;">
+          <div class="panel-header"><div class="panel-title">📈 Site Ziyaretçi İstatistikleri</div></div>
+          <div style="padding:20px;">
+            <!-- 4 kart -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px;" id="ziyaret-kartlar">
+              <div class="ziyaret-kart" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+                <div style="font-size:2em;margin-bottom:6px;">📅</div>
+                <div style="font-size:0.75em;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Bugün</div>
+                <div id="z-gun" style="font-size:2em;font-weight:700;color:var(--red);">—</div>
+                <div style="font-size:0.72em;color:var(--muted);margin-top:2px;">ziyaret</div>
+              </div>
+              <div class="ziyaret-kart" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+                <div style="font-size:2em;margin-bottom:6px;">🗓️</div>
+                <div style="font-size:0.75em;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Bu Ay</div>
+                <div id="z-ay" style="font-size:2em;font-weight:700;color:var(--red);">—</div>
+                <div style="font-size:0.72em;color:var(--muted);margin-top:2px;">ziyaret</div>
+              </div>
+              <div class="ziyaret-kart" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+                <div style="font-size:2em;margin-bottom:6px;">📆</div>
+                <div style="font-size:0.75em;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Bu Yıl</div>
+                <div id="z-yil" style="font-size:2em;font-weight:700;color:var(--red);">—</div>
+                <div style="font-size:0.72em;color:var(--muted);margin-top:2px;">ziyaret</div>
+              </div>
+              <div class="ziyaret-kart" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+                <div style="font-size:2em;margin-bottom:6px;">🏆</div>
+                <div style="font-size:0.75em;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Toplam</div>
+                <div id="z-toplam" style="font-size:2em;font-weight:700;color:var(--red);">—</div>
+                <div style="font-size:0.72em;color:var(--muted);margin-top:2px;">ziyaret</div>
+              </div>
+            </div>
+
+            <!-- Son 7 günlük tablo -->
+            <div style="font-size:0.85em;font-weight:600;color:var(--text);margin-bottom:10px;">Son 7 Günlük Detay</div>
+            <div id="ziyaret-tablo" style="border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:0.84em;">
+              <div style="padding:16px;color:var(--muted);text-align:center;">⏳ Yükleniyor...</div>
+            </div>
+
+            <div style="margin-top:12px;font-size:0.75em;color:var(--muted);">
+              * Her sayfa yüklenişi 1 ziyaret olarak sayılır. Aynı kullanıcı sayfayı her açışında tekrar sayılır.
+            </div>
           </div>
         </div>
       </div>
@@ -923,7 +972,7 @@ function doLogout() {
 /* ═══════════════════════════════════════════════════════
    NAVIGATION
 ═══════════════════════════════════════════════════════ */
-const PAGES = { sporcular:'Sporcular', yoklama:'Yoklama', istatistik:'Yoklama İstatistikleri', aidat:'Aidat Takibi', kasa:'Aidat Hatırlatma', mesaj:'Mesajlar', gruplar:'Grup Yönetimi' };
+const PAGES = { sporcular:'Sporcular', yoklama:'Yoklama', istatistik:'Yoklama İstatistikleri', aidat:'Aidat Takibi', kasa:'Aidat Hatırlatma', mesaj:'Mesajlar', gruplar:'Grup Yönetimi', ziyaret:'Ziyaretçi İstatistikleri' };
 let currentPage = 'sporcular';
 
 async function loadKasa() { await loadHatirlatma(); }
@@ -998,7 +1047,7 @@ async function loadHatirlatma() {
 
 function goTo(page) {
   if (!currentUser) return;
-  if (currentUser.role !== 'admin' && ['aidat','kasa','mesaj'].includes(page)) return;
+  if (currentUser.role !== 'admin' && ['aidat','kasa','mesaj','ziyaret'].includes(page)) return;
   currentPage = page;
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -1014,6 +1063,7 @@ function goTo(page) {
   if (page === 'yoklama') initYoklamaGruplar();
   if (page === 'istatistik') loadIstatistik();
   if (page === 'gruplar') loadGruplar();
+  if (page === 'ziyaret') loadZiyaret();
   if (page === 'aidat')   loadAidat();
   if (page === 'kasa') {
     // Hat ay dropdown her seferinde doldur
@@ -2070,6 +2120,53 @@ const VARSAYILAN_GRUPLAR = [
   '4- Büyük Voleybol S.O.O.G.','5- Küçük Voleybol S.O.O.G.',
   '6- Voleybol S.O.O.R.','7- Kadın Voleybol','8- Basketbol'
 ];
+
+// ===== ZİYARETÇİ İSTATİSTİKLERİ =====
+async function loadZiyaret() {
+  const now = new Date();
+  const gun  = now.getFullYear() + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0');
+  const ay   = now.getFullYear() + String(now.getMonth()+1).padStart(2,'0');
+  const yil  = String(now.getFullYear());
+
+  const snap = await db.ref('kulup/ziyaret').once('value');
+  const z = snap.val() || {};
+
+  // 4 kart güncelle
+  const gunVal    = (z.gunluk && z.gunluk[gun])   || 0;
+  const ayVal     = (z.aylik  && z.aylik[ay])      || 0;
+  const yilVal    = (z.yillik && z.yillik[yil])    || 0;
+  const toplamVal = z.toplam || 0;
+
+  document.getElementById('z-gun').textContent    = gunVal.toLocaleString('tr-TR');
+  document.getElementById('z-ay').textContent     = ayVal.toLocaleString('tr-TR');
+  document.getElementById('z-yil').textContent    = yilVal.toLocaleString('tr-TR');
+  document.getElementById('z-toplam').textContent = toplamVal.toLocaleString('tr-TR');
+
+  // Son 7 gün tablosu
+  const gunluk = z.gunluk || {};
+  const satirlar = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
+    const label = d.toLocaleDateString('tr-TR', {weekday:'long', day:'numeric', month:'long'});
+    satirlar.push({ label, sayi: gunluk[key] || 0, bugun: i === 0 });
+  }
+
+  const max = Math.max(...satirlar.map(s => s.sayi), 1);
+  let tablo = '';
+  satirlar.forEach(({ label, sayi, bugun }) => {
+    const yuzde = Math.round((sayi / max) * 100);
+    tablo += `<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--border);${bugun ? 'background:rgba(139,0,0,0.04);' : ''}">
+      <div style="width:130px;font-size:0.82em;color:${bugun ? 'var(--red)' : 'var(--text)'};font-weight:${bugun ? '600' : '400'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${label}</div>
+      <div style="flex:1;background:var(--border);border-radius:4px;height:8px;overflow:hidden;">
+        <div style="width:${yuzde}%;height:100%;background:var(--red);border-radius:4px;transition:width 0.4s;"></div>
+      </div>
+      <div style="width:40px;text-align:right;font-weight:600;font-size:0.88em;color:var(--red);">${sayi}</div>
+    </div>`;
+  });
+  document.getElementById('ziyaret-tablo').innerHTML = tablo || '<div style="padding:16px;color:var(--muted);text-align:center;">Henüz ziyaret kaydı yok.</div>';
+}
 
 async function loadGruplar() {
   const snap = await db.ref('kulup/gruplar').once('value');
