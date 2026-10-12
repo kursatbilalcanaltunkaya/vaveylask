@@ -433,6 +433,9 @@
       <button class="nav-item admin-only" onclick="goTo('ziyaret')" id="nav-ziyaret">
         <span class="icon">📈</span> Ziyaretçiler
       </button>
+      <button class="nav-item admin-only" onclick="goTo('urunler')" id="nav-urunler">
+        <span class="icon">🛍️</span> Ürünler
+      </button>
     </div>
 
     <div class="sidebar-footer">
@@ -694,6 +697,21 @@
         </div>
       </div>
 
+      <!-- ÜRÜN YÖNETİMİ -->
+      <div id="screen-urunler" class="screen">
+        <div class="panel" style="margin-bottom:20px;">
+          <div class="panel-header">
+            <div class="panel-title">🛍️ Ürün Yönetimi</div>
+            <button class="btn btn-primary" onclick="urunModalAc()">+ Ürün Ekle</button>
+          </div>
+          <div style="padding:20px;">
+            <div id="urun-admin-liste">
+              <div style="text-align:center;color:var(--muted);padding:30px;">⏳ Yükleniyor...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /content -->
   </main>
   <!-- Alt Navigasyon (Mobil) -->
@@ -761,6 +779,48 @@
 </div>
 
 </div><!-- /app -->
+
+<!-- ─── ÜRÜN MODAL ──────────────────────────────────────── -->
+<div class="modal-overlay" id="urun-modal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <div class="modal-title" id="urun-modal-title">Yeni Ürün</div>
+      <button class="btn btn-ghost" onclick="closeUrunModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="urun-edit-id">
+      <div class="form-group full">
+        <label>Ürün Adı *</label>
+        <input type="text" id="u-ad" class="form-control" placeholder="Ürün adını girin">
+      </div>
+      <div class="form-group full">
+        <label>Açıklama</label>
+        <textarea id="u-acik" class="form-control" rows="2" placeholder="Kısa ürün açıklaması"></textarea>
+      </div>
+      <div class="form-group full">
+        <label>Ana Resim URL (büyük) *</label>
+        <input type="url" id="u-r1" class="form-control" placeholder="https://...">
+        <small style="color:var(--muted);font-size:0.78em;">Ana resim olarak gösterilecek büyük görsel</small>
+      </div>
+      <div class="form-group full">
+        <label>Küçük Resim 1 (farklı açı)</label>
+        <input type="url" id="u-r2" class="form-control" placeholder="https://...">
+      </div>
+      <div class="form-group full">
+        <label>Küçük Resim 2 (farklı açı)</label>
+        <input type="url" id="u-r3" class="form-control" placeholder="https://...">
+      </div>
+      <div class="form-group full">
+        <label>Küçük Resim 3 (farklı açı)</label>
+        <input type="url" id="u-r4" class="form-control" placeholder="https://...">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeUrunModal()">İptal</button>
+      <button class="btn btn-primary" onclick="kaydetUrun()">💾 Kaydet</button>
+    </div>
+  </div>
+</div>
 
 <!-- ─── SPORCU MODAL ──────────────────────────────────────── -->
 <div class="modal-overlay" id="sporcu-modal">
@@ -972,7 +1032,7 @@ function doLogout() {
 /* ═══════════════════════════════════════════════════════
    NAVIGATION
 ═══════════════════════════════════════════════════════ */
-const PAGES = { sporcular:'Sporcular', yoklama:'Yoklama', istatistik:'Yoklama İstatistikleri', aidat:'Aidat Takibi', kasa:'Aidat Hatırlatma', mesaj:'Mesajlar', gruplar:'Grup Yönetimi', ziyaret:'Ziyaretçi İstatistikleri' };
+const PAGES = { sporcular:'Sporcular', yoklama:'Yoklama', istatistik:'Yoklama İstatistikleri', aidat:'Aidat Takibi', kasa:'Aidat Hatırlatma', mesaj:'Mesajlar', gruplar:'Grup Yönetimi', ziyaret:'Ziyaretçi İstatistikleri', urunler:'Ürün Yönetimi' };
 let currentPage = 'sporcular';
 
 async function loadKasa() { await loadHatirlatma(); }
@@ -1047,7 +1107,7 @@ async function loadHatirlatma() {
 
 function goTo(page) {
   if (!currentUser) return;
-  if (currentUser.role !== 'admin' && ['aidat','kasa','mesaj','ziyaret'].includes(page)) return;
+  if (currentUser.role !== 'admin' && ['aidat','kasa','mesaj','ziyaret','urunler'].includes(page)) return;
   currentPage = page;
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -1064,6 +1124,7 @@ function goTo(page) {
   if (page === 'istatistik') loadIstatistik();
   if (page === 'gruplar') loadGruplar();
   if (page === 'ziyaret') loadZiyaret();
+  if (page === 'urunler') loadUrunlerAdmin();
   if (page === 'aidat')   loadAidat();
   if (page === 'kasa') {
     // Hat ay dropdown her seferinde doldur
@@ -2501,6 +2562,93 @@ async function sporcuAidatModal(sporcuId) {
   html += '</div>';
   if (toplamOdenen>0) html += '<div style="margin-top:10px;padding:10px;background:var(--gold);border-radius:8px;font-weight:700;color:var(--red);">Toplam Ödenen: ₺'+toplamOdenen.toLocaleString('tr')+'</div>';
   body.innerHTML = html;
+}
+
+/* ─── ÜRÜN YÖNETİMİ ───────────────────────────────────── */
+async function loadUrunlerAdmin() {
+  const liste = document.getElementById('urun-admin-liste');
+  liste.innerHTML = '<div style="text-align:center;color:var(--muted);padding:30px;">⏳ Yükleniyor...</div>';
+  const snap = await db.ref('kulup/urunler').once('value');
+  const data = snap.val();
+  if (!data) {
+    liste.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px;"><div style="font-size:2em;margin-bottom:10px;">🛍️</div><p>Henüz ürün eklenmemiş.</p></div>';
+    return;
+  }
+  const urunler = Object.entries(data).map(([id, u]) => ({ id, ...u }));
+  liste.innerHTML = urunler.map(u => `
+    <div style="display:flex;align-items:center;gap:14px;padding:12px 4px;border-bottom:1px solid var(--border);">
+      <img src="${u.resim1||''}" alt="" style="width:60px;height:60px;object-fit:cover;border-radius:8px;background:var(--bg);"
+        onerror="this.src='https://placehold.co/60x60/8B0000/E8B84B?text=?'">
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:600;font-size:0.92em;">${u.ad||'İsimsiz Ürün'}</div>
+        ${u.aciklama ? `<div style="font-size:0.78em;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.aciklama}</div>` : ''}
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0;">
+        <button class="btn btn-secondary btn-sm" onclick="urunModalAc('${u.id}')">✏️ Düzenle</button>
+        <button class="btn btn-danger btn-sm" onclick="silUrun('${u.id}', '${(u.ad||'').replace(/'/g,"\\'")}')">🗑️ Sil</button>
+      </div>
+    </div>`).join('');
+}
+
+function urunModalAc(id) {
+  const modal = document.getElementById('urun-modal');
+  document.getElementById('urun-edit-id').value = id || '';
+  document.getElementById('u-ad').value = '';
+  document.getElementById('u-acik').value = '';
+  document.getElementById('u-r1').value = '';
+  document.getElementById('u-r2').value = '';
+  document.getElementById('u-r3').value = '';
+  document.getElementById('u-r4').value = '';
+
+  if (id) {
+    document.getElementById('urun-modal-title').textContent = 'Ürünü Düzenle';
+    db.ref('kulup/urunler/' + id).once('value').then(snap => {
+      const u = snap.val() || {};
+      document.getElementById('u-ad').value = u.ad || '';
+      document.getElementById('u-acik').value = u.aciklama || '';
+      document.getElementById('u-r1').value = u.resim1 || '';
+      document.getElementById('u-r2').value = u.resim2 || '';
+      document.getElementById('u-r3').value = u.resim3 || '';
+      document.getElementById('u-r4').value = u.resim4 || '';
+    });
+  } else {
+    document.getElementById('urun-modal-title').textContent = 'Yeni Ürün Ekle';
+  }
+  modal.classList.add('open');
+}
+
+function closeUrunModal() {
+  document.getElementById('urun-modal').classList.remove('open');
+}
+
+async function kaydetUrun() {
+  const ad = document.getElementById('u-ad').value.trim();
+  if (!ad) { alert('Ürün adı zorunludur.'); return; }
+  const r1 = document.getElementById('u-r1').value.trim();
+  if (!r1) { alert('Ana resim URL\'si zorunludur.'); return; }
+
+  const id = document.getElementById('urun-edit-id').value;
+  const veri = {
+    ad,
+    aciklama: document.getElementById('u-acik').value.trim(),
+    resim1: r1,
+    resim2: document.getElementById('u-r2').value.trim(),
+    resim3: document.getElementById('u-r3').value.trim(),
+    resim4: document.getElementById('u-r4').value.trim(),
+  };
+  // boş stringleri temizle
+  Object.keys(veri).forEach(k => { if (veri[k] === '') delete veri[k]; });
+
+  const ref = id ? db.ref('kulup/urunler/' + id) : db.ref('kulup/urunler').push();
+  await ref.set(veri);
+  closeUrunModal();
+  loadUrunlerAdmin();
+}
+
+async function silUrun(id, ad) {
+  if (!confirm(`"${ad}" ürününü silmek istediğinizden emin misiniz?`)) return;
+  await db.ref('kulup/urunler/' + id).remove();
+  loadUrunlerAdmin();
 }
 </script>
 </body>
