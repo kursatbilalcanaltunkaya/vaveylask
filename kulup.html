@@ -883,44 +883,29 @@
         <label>Açıklama</label>
         <textarea id="u-acik" class="form-control" rows="2" placeholder="Kısa ürün açıklaması"></textarea>
       </div>
+      <div style="background:#fffbeb;border:1px solid #f59e0b;border-radius:8px;padding:10px 14px;font-size:0.82em;color:#92400e;margin-bottom:4px;">
+        📸 <strong>Fotoğraf nasıl eklersin?</strong> →
+        <a href="https://imgbb.com" target="_blank" style="color:#b45309;font-weight:700;text-decoration:underline;">imgbb.com</a>'u yeni sekmede aç,
+        fotoğrafı yükle, <em>"Direct link"</em> URL'sini kopyala, aşağıya yapıştır.
+      </div>
       <div class="form-group full">
         <label>Ana Resim (büyük) *</label>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <input type="url" id="u-r1" class="form-control" placeholder="https://... veya fotoğraf yükle →" style="flex:1;min-width:180px;">
-          <label class="btn btn-secondary btn-sm" style="cursor:pointer;white-space:nowrap;">
-            📂 Yükle <input type="file" accept="image/*" style="display:none;" onchange="urunFotoYukle(this,'u-r1','u-r1-prev')">
-          </label>
-        </div>
+        <input type="url" id="u-r1" class="form-control" placeholder="https://i.ibb.co/..." oninput="gosterOnizleme(this,'u-r1-prev')">
         <img id="u-r1-prev" src="" alt="" style="max-height:80px;margin-top:6px;border-radius:6px;display:none;">
       </div>
       <div class="form-group full">
         <label>Küçük Resim 1 (farklı açı)</label>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <input type="url" id="u-r2" class="form-control" placeholder="https://... veya yükle →" style="flex:1;min-width:180px;">
-          <label class="btn btn-secondary btn-sm" style="cursor:pointer;white-space:nowrap;">
-            📂 Yükle <input type="file" accept="image/*" style="display:none;" onchange="urunFotoYukle(this,'u-r2','u-r2-prev')">
-          </label>
-        </div>
+        <input type="url" id="u-r2" class="form-control" placeholder="https://i.ibb.co/..." oninput="gosterOnizleme(this,'u-r2-prev')">
         <img id="u-r2-prev" src="" alt="" style="max-height:60px;margin-top:6px;border-radius:6px;display:none;">
       </div>
       <div class="form-group full">
         <label>Küçük Resim 2 (farklı açı)</label>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <input type="url" id="u-r3" class="form-control" placeholder="https://... veya yükle →" style="flex:1;min-width:180px;">
-          <label class="btn btn-secondary btn-sm" style="cursor:pointer;white-space:nowrap;">
-            📂 Yükle <input type="file" accept="image/*" style="display:none;" onchange="urunFotoYukle(this,'u-r3','u-r3-prev')">
-          </label>
-        </div>
+        <input type="url" id="u-r3" class="form-control" placeholder="https://i.ibb.co/..." oninput="gosterOnizleme(this,'u-r3-prev')">
         <img id="u-r3-prev" src="" alt="" style="max-height:60px;margin-top:6px;border-radius:6px;display:none;">
       </div>
       <div class="form-group full">
         <label>Küçük Resim 3 (farklı açı)</label>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <input type="url" id="u-r4" class="form-control" placeholder="https://... veya yükle →" style="flex:1;min-width:180px;">
-          <label class="btn btn-secondary btn-sm" style="cursor:pointer;white-space:nowrap;">
-            📂 Yükle <input type="file" accept="image/*" style="display:none;" onchange="urunFotoYukle(this,'u-r4','u-r4-prev')">
-          </label>
-        </div>
+        <input type="url" id="u-r4" class="form-control" placeholder="https://i.ibb.co/..." oninput="gosterOnizleme(this,'u-r4-prev')">
         <img id="u-r4-prev" src="" alt="" style="max-height:60px;margin-top:6px;border-radius:6px;display:none;">
       </div>
     </div>
@@ -1064,7 +1049,6 @@
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 <script>
 firebase.initializeApp({
   apiKey:"AIzaSyDUXWJ2Q1ywTh90ewPfD_BuH5Rsjqu00Y4",
@@ -1076,7 +1060,6 @@ firebase.initializeApp({
   appId:"1:539195972878:web:27c776639df321ec670b5f"
 });
 const db = firebase.database();
-const storage = firebase.storage();
 </script>
 
 <script>
@@ -2705,12 +2688,14 @@ async function loadUrunlerAdmin() {
 function urunModalAc(id) {
   const modal = document.getElementById('urun-modal');
   document.getElementById('urun-edit-id').value = id || '';
-  document.getElementById('u-ad').value = '';
-  document.getElementById('u-acik').value = '';
-  document.getElementById('u-r1').value = '';
-  document.getElementById('u-r2').value = '';
-  document.getElementById('u-r3').value = '';
-  document.getElementById('u-r4').value = '';
+  ['u-ad','u-acik','u-r1','u-r2','u-r3','u-r4'].forEach(i => {
+    const el = document.getElementById(i);
+    if (el) el.value = '';
+  });
+  ['u-r1-prev','u-r2-prev','u-r3-prev','u-r4-prev'].forEach(i => {
+    const el = document.getElementById(i);
+    if (el) { el.src = ''; el.style.display = 'none'; }
+  });
 
   if (id) {
     document.getElementById('urun-modal-title').textContent = 'Ürünü Düzenle';
@@ -2718,10 +2703,12 @@ function urunModalAc(id) {
       const u = snap.val() || {};
       document.getElementById('u-ad').value = u.ad || '';
       document.getElementById('u-acik').value = u.aciklama || '';
-      document.getElementById('u-r1').value = u.resim1 || '';
-      document.getElementById('u-r2').value = u.resim2 || '';
-      document.getElementById('u-r3').value = u.resim3 || '';
-      document.getElementById('u-r4').value = u.resim4 || '';
+      ['resim1','resim2','resim3','resim4'].forEach((key, i) => {
+        const inp = document.getElementById('u-r' + (i+1));
+        const prev = document.getElementById('u-r' + (i+1) + '-prev');
+        if (inp) inp.value = u[key] || '';
+        if (prev && u[key]) { prev.src = u[key]; prev.style.display = 'block'; }
+      });
     });
   } else {
     document.getElementById('urun-modal-title').textContent = 'Yeni Ürün Ekle';
@@ -2763,50 +2750,18 @@ async function silUrun(id, ad) {
   loadUrunlerAdmin();
 }
 
-/* ─── FOTOĞRAF YÜKLEME (Firebase Storage) ─────────────── */
-async function urunFotoYukle(input, urlInputId, prevId) {
-  const file = input.files[0];
-  if (!file) return;
-  const urlInput = document.getElementById(urlInputId);
+/* ─── URL ÖNİZLEME ─────────────────────────────────────── */
+function gosterOnizleme(input, prevId) {
   const prev = document.getElementById(prevId);
-  urlInput.value = '⏳ Yükleniyor...';
-  urlInput.disabled = true;
-  try {
-    const ext = file.name.split('.').pop();
-    const path = `kulup/urunler/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-    const ref = storage.ref(path);
-    await ref.put(file);
-    const url = await ref.getDownloadURL();
-    urlInput.value = url;
-    if (prev) { prev.src = url; prev.style.display = 'block'; }
-  } catch(e) {
-    urlInput.value = '';
-    alert('Fotoğraf yüklenemedi: ' + e.message);
-  } finally {
-    urlInput.disabled = false;
-  }
-}
-
-async function siteFotoYukle(input, urlInputId, prevId) {
-  const file = input.files[0];
-  if (!file) return;
-  const urlInput = document.getElementById(urlInputId);
-  const prev = document.getElementById(prevId);
-  urlInput.value = '⏳ Yükleniyor...';
-  urlInput.disabled = true;
-  try {
-    const ext = file.name.split('.').pop();
-    const path = `kulup/site/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-    const ref = storage.ref(path);
-    await ref.put(file);
-    const url = await ref.getDownloadURL();
-    urlInput.value = url;
-    if (prev) { prev.src = url; prev.style.display = 'block'; }
-  } catch(e) {
-    urlInput.value = '';
-    alert('Fotoğraf yüklenemedi: ' + e.message);
-  } finally {
-    urlInput.disabled = false;
+  if (!prev) return;
+  const url = input.value.trim();
+  if (url) {
+    prev.src = url;
+    prev.style.display = 'block';
+    prev.onerror = () => { prev.style.display = 'none'; };
+  } else {
+    prev.src = '';
+    prev.style.display = 'none';
   }
 }
 
@@ -2835,15 +2790,9 @@ async function loadSiteAyarlari() {
     const url = (fotolar[i] && fotolar[i].url) || '';
     return `<div style="border:1px solid var(--border);border-radius:10px;padding:16px;">
       <label style="font-weight:600;font-size:0.88em;display:block;margin-bottom:8px;">${label}</label>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <input type="url" id="sa-foto-${i}" class="form-control" value="${url}"
-          placeholder="https://... veya fotoğraf yükle →" style="flex:1;min-width:180px;"
-          oninput="document.getElementById('sa-foto-prev-${i}').src=this.value">
-        <label class="btn btn-secondary btn-sm" style="cursor:pointer;white-space:nowrap;">
-          📂 Yükle <input type="file" accept="image/*" style="display:none;"
-            onchange="siteFotoYukle(this,'sa-foto-${i}','sa-foto-prev-${i}')">
-        </label>
-      </div>
+      <input type="url" id="sa-foto-${i}" class="form-control" value="${url}"
+        placeholder="https://i.ibb.co/... (imgbb.com'dan kopyala)"
+        oninput="gosterOnizleme(this,'sa-foto-prev-${i}')">
       ${url ? `<img id="sa-foto-prev-${i}" src="${url}" style="max-height:90px;margin-top:8px;border-radius:8px;">`
              : `<img id="sa-foto-prev-${i}" src="" style="max-height:90px;margin-top:8px;border-radius:8px;display:none;">`}
     </div>`;
