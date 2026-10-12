@@ -380,7 +380,7 @@
     <div id="login-err" style="color:#b91c1c;font-size:0.8em;margin-bottom:10px;display:none;">Yanlış şifre.</div>
     <button class="btn btn-primary" style="width:100%;justify-content:center;padding:10px;" onclick="doLogin()">Giriş Yap</button>
     <div style="text-align:center;margin-top:14px;">
-      <a href="index.html" style="font-size:0.8em;color:var(--red);text-decoration:none;display:inline-block;">👥 Veli Takip Sayfası →</a>
+      <a href="index.html" style="font-size:0.8em;color:var(--red);text-decoration:none;display:inline-block;">🏠 Ana Sayfaya Dön →</a>
     </div>
   </div>
 </div>
@@ -749,7 +749,7 @@
             </div>
 
             <div style="font-size:0.78em;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);padding-bottom:8px;margin-top:8px;">İstatistikler (Sayılar)</div>
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
               <div class="form-group full">
                 <label style="font-size:0.8em;">Kuruluş Yılı</label>
                 <input type="text" id="sa-kurulis" class="form-control" placeholder="2019">
@@ -759,10 +759,6 @@
                 <input type="text" id="sa-sporcu-sayi" class="form-control" placeholder="50+">
               </div>
               <div class="form-group full">
-                <label style="font-size:0.8em;">Turnuva</label>
-                <input type="text" id="sa-turnuva" class="form-control" placeholder="7+">
-              </div>
-              <div class="form-group full">
                 <label style="font-size:0.8em;">Takım Sayısı</label>
                 <input type="text" id="sa-takim" class="form-control" placeholder="5+">
               </div>
@@ -770,9 +766,25 @@
 
             <div style="font-size:0.78em;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);padding-bottom:8px;margin-top:8px;">İletişim & Adres</div>
 
-            <div class="form-group full">
-              <label style="font-weight:600;">📍 Antrenman Salonu Adresi</label>
-              <input type="text" id="sa-adres" class="form-control" placeholder="Körfez Spor Salonu, Körfez, Kocaeli">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div class="form-group full">
+                <label style="font-weight:600;">📍 1. Salon Adı</label>
+                <input type="text" id="sa-salon1-ad" class="form-control" placeholder="Körfez Spor Salonu">
+              </div>
+              <div class="form-group full">
+                <label style="font-weight:600;">📍 1. Salon Adresi</label>
+                <input type="text" id="sa-salon1-adres" class="form-control" placeholder="Körfez, Kocaeli">
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div class="form-group full">
+                <label style="font-weight:600;">📍 2. Salon Adı</label>
+                <input type="text" id="sa-salon2-ad" class="form-control" placeholder="İkinci Salon">
+              </div>
+              <div class="form-group full">
+                <label style="font-weight:600;">📍 2. Salon Adresi</label>
+                <input type="text" id="sa-salon2-adres" class="form-control" placeholder="Körfez, Kocaeli">
+              </div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
               <div class="form-group full">
@@ -2776,9 +2788,11 @@ async function loadSiteAyarlari() {
   document.getElementById('sa-vizyon').value       = s.vizyon        || '';
   document.getElementById('sa-kurulis').value      = s.kurulis       || '';
   document.getElementById('sa-sporcu-sayi').value  = s.sporcuSayi    || '';
-  document.getElementById('sa-turnuva').value      = s.turnuva       || '';
   document.getElementById('sa-takim').value        = s.takim         || '';
-  document.getElementById('sa-adres').value        = s.adres         || '';
+  document.getElementById('sa-salon1-ad').value    = s.salon1Ad      || '';
+  document.getElementById('sa-salon1-adres').value = s.salon1Adres   || '';
+  document.getElementById('sa-salon2-ad').value    = s.salon2Ad      || '';
+  document.getElementById('sa-salon2-adres').value = s.salon2Adres   || '';
   document.getElementById('sa-telefon').value      = s.telefon       || '';
   document.getElementById('sa-eposta').value       = s.eposta        || '';
   document.getElementById('sa-saatler').value      = s.saatler       || '';
@@ -2808,15 +2822,16 @@ async function kaydetSiteAyarlari() {
     vizyon:        document.getElementById('sa-vizyon').value.trim(),
     kurulis:       document.getElementById('sa-kurulis').value.trim(),
     sporcuSayi:    document.getElementById('sa-sporcu-sayi').value.trim(),
-    turnuva:       document.getElementById('sa-turnuva').value.trim(),
     takim:         document.getElementById('sa-takim').value.trim(),
-    adres:         document.getElementById('sa-adres').value.trim(),
+    salon1Ad:      document.getElementById('sa-salon1-ad').value.trim(),
+    salon1Adres:   document.getElementById('sa-salon1-adres').value.trim(),
+    salon2Ad:      document.getElementById('sa-salon2-ad').value.trim(),
+    salon2Adres:   document.getElementById('sa-salon2-adres').value.trim(),
     telefon:       document.getElementById('sa-telefon').value.trim(),
     eposta:        document.getElementById('sa-eposta').value.trim(),
     saatler:       document.getElementById('sa-saatler').value.trim(),
     fotolar,
   };
-  // Boş string değerleri temizle
   Object.keys(veri).forEach(k => { if (veri[k] === '') delete veri[k]; });
   await db.ref('kulup/site').set(veri);
   alert('✅ Site ayarları kaydedildi! Ana sayfada görünecek.');
