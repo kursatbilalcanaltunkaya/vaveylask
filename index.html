@@ -4,183 +4,550 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Körfez Vaveyla Spor Kulübü</title>
-<meta name="description" content="Körfez Vaveyla Spor Kulübü resmi sayfası. Sporcu takip ve veli bilgilendirme sistemi.">
+<meta name="description" content="Körfez Vaveyla Spor Kulübü — Voleybol, gençlik ve spor. Resmi kulüp sitesi.">
 <meta property="og:title" content="Körfez Vaveyla Spor Kulübü">
-<meta property="og:description" content="Veli takip sistemi - sporcu yoklama ve aidat bilgileri">
+<meta property="og:description" content="Körfez Vaveyla Spor Kulübü resmi web sitesi">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --red: #8B0000; --gold: #E8B84B; --bg: #F7F5F2;
-    --surface: #fff; --border: #E8E4DE; --text: #1A1A1A;
-    --muted: #7A7570; --green: #2D7D46;
-  }
-  body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background: var(--bg); color: var(--text);
-    min-height: 100vh; font-size: 14px;
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --red: #8B0000; --red2: #6B0000; --gold: #E8B84B;
+  --bg: #F7F5F2; --surface: #fff; --border: #E8E4DE;
+  --text: #1A1A1A; --muted: #7A7570; --green: #2D7D46;
+}
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg); color: var(--text);
+  min-height: 100vh; font-size: 14px;
+}
 
-  /* Arka plan arma */
-  body::before {
-    content: '';
-    position: fixed; top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 70vmin; height: 70vmin;
-    background: url("amblem%20png.png") center/contain no-repeat; background-color: transparent;
-    opacity: 0.05; pointer-events: none; z-index: 0;
-  }
+/* ========= HEADER ========= */
+.site-header {
+  background: linear-gradient(135deg, var(--red), var(--red2));
+  color: var(--gold); position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+}
+.header-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 20px;
+}
+.header-logo {
+  width: 52px; height: 52px; object-fit: contain; flex-shrink: 0;
+}
+.header-title { flex: 1; }
+.header-title h1 { font-size: 1em; font-weight: 800; letter-spacing: 0.5px; line-height: 1.25; }
+.header-title p  { font-size: 0.72em; opacity: 0.7; margin-top: 2px; }
+.header-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.header-btn {
+  background: rgba(255,255,255,0.15); color: var(--gold);
+  border: 1px solid rgba(255,255,255,0.25); border-radius: 7px;
+  padding: 7px 13px; font-size: 0.78em; font-weight: 600;
+  cursor: pointer; text-decoration: none; white-space: nowrap;
+  transition: background 0.2s;
+}
+.header-btn:hover { background: rgba(255,255,255,0.25); }
+.header-btn.gold { background: var(--gold); color: var(--red); border-color: var(--gold); }
+.header-btn.gold:hover { background: #d4a43a; }
 
-  .page { position: relative; z-index: 1; }
+/* ========= NAV SEKMELERİ ========= */
+.site-nav {
+  background: var(--red2);
+  border-bottom: 2px solid rgba(255,255,255,0.1);
+}
+.site-nav-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; overflow-x: auto;
+}
+.site-nav-inner::-webkit-scrollbar { display: none; }
+.nav-tab {
+  background: none; border: none; color: rgba(255,255,255,0.7);
+  padding: 13px 22px; font-size: 0.88em; font-weight: 600;
+  cursor: pointer; white-space: nowrap; border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+}
+.nav-tab:hover  { color: #fff; }
+.nav-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
 
-  /* Header */
-  .header {
-    background: linear-gradient(135deg, #8B0000, #6B0000);
-    color: var(--gold); text-align: center;
-    padding: 10px 20px 16px; position: relative;
-  }
-  .header img { width: 130px; height: 130px; object-fit: contain; margin-bottom: 6px; display: block; margin-left: auto; margin-right: auto; margin-top: 0; }
-  .header h1 { font-size: 1.5em; font-weight: 800; letter-spacing: 1px; line-height: 1.3; margin-bottom: 2px; }
-  .header p  { font-size: 0.8em; opacity: 0.7; margin-top: 2px; margin-bottom: 0; }
+/* ========= SAYFALAR ========= */
+.page-section { display: none; }
+.page-section.active { display: block; }
 
-  /* Ana içerik */
-  .main { max-width: 600px; margin: 0 auto; padding: 32px 16px; }
+/* ========= ANA SAYFA ========= */
+.hero {
+  background: linear-gradient(160deg, var(--red) 0%, var(--red2) 60%, #3a0000 100%);
+  color: white; text-align: center; padding: 70px 20px 60px;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 380px; height: 380px;
+  background: url("amblem%20png.png") center/contain no-repeat;
+  opacity: 0.08; pointer-events: none;
+}
+.hero-logo {
+  width: 120px; height: 120px; object-fit: contain;
+  margin-bottom: 20px; position: relative; z-index: 1;
+  filter: drop-shadow(0 4px 16px rgba(0,0,0,0.4));
+}
+.hero h2 {
+  font-size: 2em; font-weight: 900; letter-spacing: 1px;
+  color: var(--gold); position: relative; z-index: 1;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  margin-bottom: 10px;
+}
+.hero p {
+  font-size: 1em; opacity: 0.85; max-width: 500px;
+  margin: 0 auto; position: relative; z-index: 1; line-height: 1.6;
+}
+.hero-badges {
+  display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+  margin-top: 28px; position: relative; z-index: 1;
+}
+.hero-badge {
+  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 30px; padding: 8px 18px; font-size: 0.82em; font-weight: 600;
+  color: rgba(255,255,255,0.9);
+}
 
-  /* TC giriş kartı */
-  .tc-card {
-    background: rgba(255,255,255,0.25); border-radius: 16px;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.05);
-    padding: 32px 28px; margin-bottom: 20px;
-    backdrop-filter: blur(6px);
-    border: 1px solid rgba(255,255,255,0.4);
-  }
-  .tc-card h2 { font-size: 1em; font-weight: 600; color: var(--red); margin-bottom:16px; }
-  .tc-card, .sporcu-kart, .panel { color: var(--text); }
-  .tc-input-row { display: flex; gap: 10px; }
-  .tc-input {
-    flex: 1; border: 2px solid var(--border); border-radius: 10px;
-    padding: 14px 18px; font-size: 1.2em; outline: none;
-    transition: border 0.2s; text-align: center; letter-spacing: 3px;
-  }
-  .tc-input:focus { border-color: var(--red); }
-  .tc-btn {
-    background: var(--red); color: var(--gold); border: none;
-    padding: 14px 26px; border-radius: 10px; font-weight: 700;
-    font-size: 1.05em; cursor: pointer; white-space: nowrap;
-  }
-  .tc-btn:hover { background: #6B0000; }
-  .tc-error { color: #b91c1c; font-size: 0.82em; margin-top: 8px; display: none; }
+.content-wrap { max-width: 1100px; margin: 0 auto; padding: 48px 20px; }
 
-  /* Sporcu bilgi kartı */
-  .sporcu-kart {
-    background: rgba(255,255,255,0.30); border-radius: 14px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    padding: 20px 20px 16px; margin-bottom: 16px; display: none;
-    backdrop-filter: blur(6px);
-    border: 1px solid rgba(255,255,255,0.4);
-  }
-  .sporcu-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
-  .sporcu-foto {
-    width: 64px; height: 64px; border-radius: 50%;
-    object-fit: cover; flex-shrink: 0;
-    background: var(--gold); color: var(--red);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.6em; font-weight: 700;
-  }
-  .sporcu-adi { font-size: 1.1em; font-weight: 700; }
-  .sporcu-grup { font-size: 0.8em; color: var(--muted); margin-top: 2px; }
+/* Hakkımızda bölümü */
+.hakkimizda-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;
+  margin-bottom: 56px;
+}
+.section-label {
+  font-size: 0.72em; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--gold);
+  background: var(--red); display: inline-block;
+  padding: 4px 12px; border-radius: 4px; margin-bottom: 12px;
+}
+.section-title {
+  font-size: 1.7em; font-weight: 800; line-height: 1.25;
+  color: var(--red); margin-bottom: 16px;
+}
+.section-text {
+  font-size: 0.9em; line-height: 1.75; color: #444;
+}
+.kurulis-info {
+  display: flex; gap: 24px; margin-top: 24px; flex-wrap: wrap;
+}
+.kurulis-item {
+  text-align: center;
+}
+.kurulis-sayi {
+  font-size: 2em; font-weight: 900; color: var(--red); line-height: 1;
+}
+.kurulis-etiket {
+  font-size: 0.72em; color: var(--muted); margin-top: 4px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 1px;
+}
 
-  /* Seçim butonları */
-  .sekme-btns { display: flex; gap: 10px; margin-bottom: 16px; }
-  .sekme-btn {
-    flex: 1; padding: 12px; border-radius: 10px; border: 2px solid var(--border);
-    background: var(--surface); font-weight: 600; font-size: 0.9em;
-    cursor: pointer; transition: all 0.2s; color: var(--muted);
-  }
-  .sekme-btn.active { background: var(--red); color: var(--gold); border-color: var(--red); }
+/* Fotoğraf galerisi (sağ taraf) */
+.foto-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border-radius: 12px; overflow: hidden;
+}
+.foto-grid img {
+  width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block;
+  transition: transform 0.3s; cursor: pointer;
+}
+.foto-grid img:hover { transform: scale(1.03); }
+.foto-grid img:first-child { grid-column: span 2; aspect-ratio: 16/7; }
 
-  /* İçerik paneli */
-  .panel {
-    background: rgba(255,255,255,0.28); border-radius: 14px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    overflow: hidden; display: none;
-    backdrop-filter: blur(6px);
-    border: 1px solid rgba(255,255,255,0.4);
-  }
-  .panel.active { display: block; }
-  .panel-header {
-    padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.3);
-    font-weight: 600; font-size: 0.92em; color: var(--red);
-    display: flex; align-items: center; justify-content: space-between;
-    background: rgba(255,255,255,0.15);
-  }
+/* Misyon & Vizyon */
+.mv-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 56px;
+}
+.mv-kart {
+  background: var(--surface); border-radius: 14px;
+  border: 1px solid var(--border); padding: 28px;
+  border-top: 4px solid var(--red);
+}
+.mv-kart h3 { font-size: 1em; font-weight: 800; color: var(--red); margin-bottom: 10px; }
+.mv-kart p  { font-size: 0.88em; line-height: 1.75; color: #555; }
 
-  /* Ay seçimi */
-  .ay-select {
-    border: 1px solid var(--border); border-radius: 7px;
-    padding: 6px 10px; font-size: 0.82em; background: var(--bg); outline: none;
-  }
+/* Adresler */
+.adres-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 16px;
+  margin-bottom: 56px;
+}
+.adres-kart {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 20px; display: flex; gap: 14px; align-items: flex-start;
+}
+.adres-ikon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: #fef3f3; display: flex; align-items: center;
+  justify-content: center; font-size: 1.3em; flex-shrink: 0;
+}
+.adres-kart h4 { font-size: 0.88em; font-weight: 700; color: var(--red); margin-bottom: 4px; }
+.adres-kart p  { font-size: 0.82em; color: var(--muted); line-height: 1.6; }
 
-  /* Yoklama günleri */
-  .gun-grid { padding: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
-  .gun-chip {
-    padding: 6px 12px; border-radius: 8px; font-size: 0.82em; font-weight: 600;
-  }
-  .gun-chip.geldi   { background: #D1FAE5; color: #065F46; }
-  .gun-chip.gelmedi { background: #FEE2E2; color: #991B1B; }
-  .gun-chip.bos     { background: #F3F4F6; color: #9CA3AF; }
+/* ========= ÜRÜNLER SAYFASI ========= */
+.urun-wrap { max-width: 1100px; margin: 0 auto; padding: 48px 20px; }
+.urun-baslik { text-align: center; margin-bottom: 40px; }
+.urun-baslik h2 { font-size: 1.8em; font-weight: 800; color: var(--red); margin-bottom: 8px; }
+.urun-baslik p  { font-size: 0.9em; color: var(--muted); }
 
-  .yok-ozet {
-    display: flex; gap: 12px; padding: 14px 16px;
-    border-top: 1px solid var(--border); flex-wrap: wrap;
-  }
-  .yok-ozet-item { font-size: 0.82em; font-weight: 600; }
+.urun-grid {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 28px;
+}
+.urun-kart {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; overflow: hidden; cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.urun-kart:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.12); transform: translateY(-3px); }
+.urun-resim-wrap { position: relative; }
+.urun-ana-img {
+  width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block;
+  background: #f0e8e8;
+}
+.urun-kucuk-imgs {
+  display: flex; gap: 4px; padding: 4px;
+  background: rgba(0,0,0,0.03);
+}
+.urun-kucuk-imgs img {
+  flex: 1; aspect-ratio: 1; object-fit: cover;
+  border-radius: 4px; cursor: pointer; transition: opacity 0.2s;
+  border: 2px solid transparent;
+}
+.urun-kucuk-imgs img:hover  { opacity: 0.8; }
+.urun-kucuk-imgs img.aktif  { border-color: var(--red); }
+.urun-bilgi { padding: 16px; }
+.urun-adi { font-size: 0.97em; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.urun-acik { font-size: 0.8em; color: var(--muted); line-height: 1.55; }
+.urun-empty {
+  grid-column: span 3; text-align: center;
+  padding: 60px 20px; color: var(--muted);
+}
+.urun-empty-ikon { font-size: 3em; margin-bottom: 12px; }
 
-  /* Aidat listesi */
-  .aidat-item {
-    padding: 14px 18px; border-bottom: 1px solid var(--border);
-    display: flex; justify-content: space-between; align-items: center; gap: 10px;
-  }
-  .aidat-item:last-child { border-bottom: none; }
-  .aidat-ay { font-weight: 600; font-size: 0.9em; }
-  .aidat-meta { font-size: 0.75em; color: var(--muted); margin-top: 2px; }
-  .aidat-badge {
-    padding: 4px 10px; border-radius: 20px; font-size: 0.75em; font-weight: 600;
-    white-space: nowrap; flex-shrink: 0;
-  }
-  .badge-odedi   { background: #D1FAE5; color: #065F46; }
-  .badge-odemedi { background: #FEE2E2; color: #991B1B; }
-  .badge-diger   { background: #BFDBFE; color: #1E3A5F; }
+/* ========= VELİ BİLGİ SİSTEMİ ========= */
+.veli-wrap { max-width: 600px; margin: 0 auto; padding: 40px 16px 32px; }
+.tc-card {
+  background: var(--surface); border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  padding: 32px 28px; margin-bottom: 20px;
+  border: 1px solid var(--border);
+}
+.tc-card h2 { font-size: 1em; font-weight: 600; color: var(--red); margin-bottom:16px; }
+.tc-input-row { display: flex; gap: 10px; }
+.tc-input {
+  flex: 1; border: 2px solid var(--border); border-radius: 10px;
+  padding: 14px 18px; font-size: 1.2em; outline: none;
+  transition: border 0.2s; text-align: center; letter-spacing: 3px;
+}
+.tc-input:focus { border-color: var(--red); }
+.tc-btn {
+  background: var(--red); color: var(--gold); border: none;
+  padding: 14px 26px; border-radius: 10px; font-weight: 700;
+  font-size: 1.05em; cursor: pointer; white-space: nowrap;
+}
+.tc-btn:hover { background: var(--red2); }
+.tc-error { color: #b91c1c; font-size: 0.82em; margin-top: 8px; display: none; }
 
-  .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
-  .empty .icon { font-size: 2em; display: block; margin-bottom: 8px; }
-  .loading { text-align: center; padding: 30px; color: var(--muted); }
+.sporcu-kart {
+  background: var(--surface); border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  padding: 20px 20px 16px; margin-bottom: 16px; display: none;
+  border: 1px solid var(--border);
+}
+.sporcu-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.sporcu-foto {
+  width: 64px; height: 64px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+  background: var(--gold); color: var(--red);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6em; font-weight: 700;
+}
+.sporcu-adi  { font-size: 1.1em; font-weight: 700; }
+.sporcu-grup { font-size: 0.8em; color: var(--muted); margin-top: 2px; }
 
-  @media (max-width: 480px) {
-    .header h1 { font-size: 1.1em; }
-    .tc-input-row { flex-direction: column; }
-    .tc-btn { width: 100%; }
-  }
+.sekme-btns { display: flex; gap: 10px; margin-bottom: 16px; }
+.sekme-btn {
+  flex: 1; padding: 12px; border-radius: 10px; border: 2px solid var(--border);
+  background: var(--surface); font-weight: 600; font-size: 0.9em;
+  cursor: pointer; transition: all 0.2s; color: var(--muted);
+}
+.sekme-btn.active { background: var(--red); color: var(--gold); border-color: var(--red); }
+
+.panel {
+  background: var(--surface); border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  overflow: hidden; display: none;
+  border: 1px solid var(--border);
+}
+.panel.active { display: block; }
+.panel-header {
+  padding: 14px 18px; border-bottom: 1px solid var(--border);
+  font-weight: 600; font-size: 0.92em; color: var(--red);
+  display: flex; align-items: center; justify-content: space-between;
+  background: #fdf8f8;
+}
+.ay-select {
+  border: 1px solid var(--border); border-radius: 7px;
+  padding: 6px 10px; font-size: 0.82em; background: var(--bg); outline: none;
+}
+.gun-grid { padding: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+.gun-chip { padding: 6px 12px; border-radius: 8px; font-size: 0.82em; font-weight: 600; }
+.gun-chip.geldi   { background: #D1FAE5; color: #065F46; }
+.gun-chip.gelmedi { background: #FEE2E2; color: #991B1B; }
+.gun-chip.bos     { background: #F3F4F6; color: #9CA3AF; }
+.yok-ozet {
+  display: flex; gap: 12px; padding: 14px 16px;
+  border-top: 1px solid var(--border); flex-wrap: wrap;
+}
+.yok-ozet-item { font-size: 0.82em; font-weight: 600; }
+.aidat-item {
+  padding: 14px 18px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+}
+.aidat-item:last-child { border-bottom: none; }
+.aidat-ay   { font-weight: 600; font-size: 0.9em; }
+.aidat-meta { font-size: 0.75em; color: var(--muted); margin-top: 2px; }
+.aidat-badge {
+  padding: 4px 10px; border-radius: 20px; font-size: 0.75em; font-weight: 600;
+  white-space: nowrap; flex-shrink: 0;
+}
+.badge-odedi   { background: #D1FAE5; color: #065F46; }
+.badge-odemedi { background: #FEE2E2; color: #991B1B; }
+.badge-diger   { background: #BFDBFE; color: #1E3A5F; }
+.empty   { text-align: center; padding: 40px 20px; color: var(--muted); }
+.empty .icon { font-size: 2em; display: block; margin-bottom: 8px; }
+.loading { text-align: center; padding: 30px; color: var(--muted); }
+
+/* ========= LIGHTBOX ========= */
+.lightbox {
+  display: none; position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.92); align-items: center; justify-content: center;
+}
+.lightbox.open { display: flex; }
+.lightbox-inner { position: relative; max-width: 92vw; max-height: 90vh; }
+.lightbox-img {
+  max-width: 90vw; max-height: 85vh; object-fit: contain;
+  border-radius: 8px; display: block;
+}
+.lightbox-close {
+  position: absolute; top: -40px; right: 0;
+  background: none; border: none; color: white;
+  font-size: 2em; cursor: pointer; line-height: 1;
+}
+.lightbox-nav {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  background: rgba(255,255,255,0.15); border: none; color: white;
+  font-size: 1.8em; cursor: pointer; border-radius: 50%;
+  width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.lightbox-nav:hover { background: rgba(255,255,255,0.3); }
+.lightbox-prev { left: -54px; }
+.lightbox-next { right: -54px; }
+.lightbox-dots {
+  display: flex; gap: 6px; justify-content: center; margin-top: 12px;
+}
+.lightbox-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(255,255,255,0.35); border: none; cursor: pointer;
+  transition: background 0.2s;
+}
+.lightbox-dot.aktif { background: white; }
+
+/* ========= FOOTER ========= */
+.site-footer {
+  background: linear-gradient(135deg, var(--red), var(--red2));
+  color: rgba(255,255,255,0.75);
+  text-align: center; padding: 20px 16px;
+  font-size: 0.78em; margin-top: 40px;
+}
+.site-footer strong { color: var(--gold); }
+
+/* ========= RESPONSIVE ========= */
+@media (max-width: 760px) {
+  .hakkimizda-grid { grid-template-columns: 1fr; gap: 28px; }
+  .mv-grid         { grid-template-columns: 1fr; }
+  .urun-grid       { grid-template-columns: repeat(2,1fr); gap: 16px; }
+  .header-title h1 { font-size: 0.88em; }
+  .header-title p  { display: none; }
+  .hero h2         { font-size: 1.4em; }
+  .lightbox-prev   { left: -36px; }
+  .lightbox-next   { right: -36px; }
+}
+@media (max-width: 480px) {
+  .urun-grid { grid-template-columns: 1fr; }
+  .urun-empty { grid-column: span 1; }
+  .header-actions { gap: 5px; }
+  .header-btn { padding: 6px 9px; font-size: 0.72em; }
+}
 </style>
 </head>
 <body>
-<div class="page">
 
-  <!-- Header -->
-  <div class="header">
-    <img src="amblem%20png.png" alt="Vaveyla SK"
-      onerror="this.style.display='none'"
-      style="width:280px;height:280px;object-fit:contain;display:block;margin:0 auto 10px;">
-    <h1>KÖRFEZ VAVEYLA SPOR KULÜBÜ<br>VELİ TAKİP SİSTEMİ</h1>
-    <p>TC Kimlik No ile sorgulayın</p>
-    <a href="kulup.html" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.15);
-      color:var(--gold);padding:7px 14px;border-radius:7px;text-decoration:none;font-size:0.78em;font-weight:600;">
-      🔐 Kulüp Paneli
-    </a>
+<!-- ========= HEADER ========= -->
+<header class="site-header">
+  <div class="header-inner">
+    <img src="amblem%20png.png" alt="Vaveyla SK" class="header-logo"
+      onerror="this.style.display='none'">
+    <div class="header-title">
+      <h1>KÖRFEZ VAVEYLA SPOR KULÜBÜ</h1>
+      <p>Kocaeli · Voleybol · Gençlik · Spor</p>
+    </div>
+    <div class="header-actions">
+      <a href="kulup.html" class="header-btn">🔐 Kulüp Paneli</a>
+    </div>
+  </div>
+</header>
+
+<!-- ========= NAV ========= -->
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <button class="nav-tab active" onclick="showPage('ana',this)">🏠 Ana Sayfa</button>
+    <button class="nav-tab" onclick="showPage('urunler',this)">🛍️ Ürünlerimiz</button>
+    <button class="nav-tab" onclick="showPage('veli',this)">👨‍👧 Veli Bilgi Sistemi</button>
+  </div>
+</nav>
+
+<!-- ========= ANA SAYFA ========= -->
+<section class="page-section active" id="page-ana">
+
+  <!-- Hero -->
+  <div class="hero">
+    <img src="amblem%20png.png" alt="Vaveyla SK" class="hero-logo"
+      onerror="this.style.display='none'">
+    <h2>VAVEYLA SPOR KULÜBÜ</h2>
+    <p>Yıllardır voleybol sevgisi ve spor ruhunu gençlere aktarıyor, yetenekleri keşfediyoruz.</p>
+    <div class="hero-badges">
+      <span class="hero-badge">🏐 Voleybol</span>
+      <span class="hero-badge">📍 Körfez / Kocaeli</span>
+      <span class="hero-badge">🎓 Gençlik Sporları</span>
+      <span class="hero-badge">🏆 Turnuvalar</span>
+    </div>
   </div>
 
-  <div class="main">
+  <div class="content-wrap">
 
-    <!-- TC Giriş -->
+    <!-- Hakkımızda -->
+    <div class="hakkimizda-grid">
+      <div>
+        <span class="section-label">Hakkımızda</span>
+        <h2 class="section-title">Sporu Hayat<br>Yapıyoruz</h2>
+        <p class="section-text">
+          Körfez Vaveyla Spor Kulübü, Kocaeli'nin Körfez ilçesinde spor sevgisini
+          gençlere aşılamak amacıyla kurulmuştur. Voleybol branşında faaliyet gösteren
+          kulübümüz; disiplin, takım ruhu ve sporseverlik değerleri çerçevesinde
+          gençleri spor hayatına kazandırmayı hedeflemektedir.
+        </p>
+        <p class="section-text" style="margin-top:12px;">
+          Deneyimli antrenör kadromuz ve modern antrenman anlayışımızla sporcularımızın
+          hem fiziksel hem de kişisel gelişimlerine katkı sağlıyoruz.
+        </p>
+        <div class="kurulis-info">
+          <div class="kurulis-item">
+            <div class="kurulis-sayi">2019</div>
+            <div class="kurulis-etiket">Kuruluş Yılı</div>
+          </div>
+          <div class="kurulis-item">
+            <div class="kurulis-sayi">50+</div>
+            <div class="kurulis-etiket">Aktif Sporcu</div>
+          </div>
+          <div class="kurulis-item">
+            <div class="kurulis-sayi">7+</div>
+            <div class="kurulis-etiket">Turnuva</div>
+          </div>
+          <div class="kurulis-item">
+            <div class="kurulis-sayi">5+</div>
+            <div class="kurulis-etiket">Takım</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Foto -->
+      <div class="foto-grid">
+        <img src="foto1.jpg" alt="Vaveyla SK" onerror="this.src='https://placehold.co/800x350/8B0000/E8B84B?text=Vaveyla+SK'" onclick="acLightbox(anaFotolar,0)">
+        <img src="foto2.jpg" alt="Antrenman" onerror="this.src='https://placehold.co/400x300/6B0000/E8B84B?text=Antrenman'" onclick="acLightbox(anaFotolar,1)">
+        <img src="foto3.jpg" alt="Turnuva" onerror="this.src='https://placehold.co/400x300/4a0000/E8B84B?text=Turnuva'" onclick="acLightbox(anaFotolar,2)">
+      </div>
+    </div>
+
+    <!-- Misyon & Vizyon -->
+    <div style="margin-bottom:20px;">
+      <span class="section-label">Misyon & Vizyon</span>
+    </div>
+    <div class="mv-grid">
+      <div class="mv-kart">
+        <h3>🎯 Misyonumuz</h3>
+        <p>
+          Körfez ilçesinde sporu yaygınlaştırmak, gençleri sağlıklı yaşama teşvik etmek
+          ve voleybol sporunu toplumun her kesimine ulaştırmak. Sporcularımızı sadece
+          sportif değil; sosyal, özgüvenli ve takım odaklı bireyler olarak yetiştirmek.
+        </p>
+      </div>
+      <div class="mv-kart">
+        <h3>🔭 Vizyonumuz</h3>
+        <p>
+          Kocaeli'nin öncü spor kulüplerinden biri olmak, ulusal düzeyde turnuvalara
+          katılarak bölgede sporu kurumsallaştırmak. Altyapı yatırımlarıyla geleceğin
+          sporcularını bugünden yetiştiren, örnek gösterilen bir kulüp olmak.
+        </p>
+      </div>
+    </div>
+
+    <!-- Adresler -->
+    <div style="margin-bottom:20px;margin-top:40px;">
+      <span class="section-label">Bize Ulaşın</span>
+    </div>
+    <div class="adres-grid">
+      <div class="adres-kart">
+        <div class="adres-ikon">📍</div>
+        <div>
+          <h4>Antrenman Salonu</h4>
+          <p>Körfez Spor Salonu<br>Körfez, Kocaeli</p>
+        </div>
+      </div>
+      <div class="adres-kart">
+        <div class="adres-ikon">📞</div>
+        <div>
+          <h4>İletişim</h4>
+          <p>Kulüp yönetimine<br>ulaşmak için ara</p>
+        </div>
+      </div>
+      <div class="adres-kart">
+        <div class="adres-ikon">📧</div>
+        <div>
+          <h4>E-posta</h4>
+          <p>vaveylask@gmail.com</p>
+        </div>
+      </div>
+      <div class="adres-kart">
+        <div class="adres-ikon">🕐</div>
+        <div>
+          <h4>Antrenman Saatleri</h4>
+          <p>Pazartesi – Cuma<br>16:00 – 20:00</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ========= ÜRÜNLER ========= -->
+<section class="page-section" id="page-urunler">
+  <div class="urun-wrap">
+    <div class="urun-baslik">
+      <h2>Ürünlerimiz</h2>
+      <p>Kulüp ürünleri ve ekipmanlara göz atın</p>
+    </div>
+    <div class="urun-grid" id="urun-grid">
+      <div class="loading" style="grid-column:span 3;">⏳ Yükleniyor...</div>
+    </div>
+  </div>
+</section>
+
+<!-- ========= VELİ BİLGİ SİSTEMİ ========= -->
+<section class="page-section" id="page-veli">
+  <div class="veli-wrap">
+
     <div class="tc-card">
       <h2>🔍 Sporcu Sorgula</h2>
       <div class="tc-input-row">
@@ -191,7 +558,6 @@
       <div class="tc-error" id="tc-error">TC kimlik numarası bulunamadı.</div>
     </div>
 
-    <!-- Sporcu Kart -->
     <div class="sporcu-kart" id="sporcu-kart">
       <div class="sporcu-header">
         <div id="sporcu-foto-el" class="sporcu-foto">?</div>
@@ -206,7 +572,6 @@
         <button class="sekme-btn" onclick="showSekme('aidat',this)">💰 Aidat</button>
       </div>
 
-      <!-- Yoklama Paneli -->
       <div class="panel active" id="panel-yoklama">
         <div class="panel-header">
           <span>Yoklama Kaydı</span>
@@ -215,7 +580,6 @@
         <div id="veli-yok-body" class="loading">⏳</div>
       </div>
 
-      <!-- Aidat Paneli -->
       <div class="panel" id="panel-aidat">
         <div class="panel-header"><span>Aidat Ödemeleri</span></div>
         <div id="veli-aidat-body" class="loading">⏳</div>
@@ -223,7 +587,26 @@
     </div>
 
   </div>
+</section>
+
+<!-- ========= LIGHTBOX ========= -->
+<div class="lightbox" id="lightbox" onclick="kapatLightbox(event)">
+  <div class="lightbox-inner">
+    <button class="lightbox-close" onclick="lightboxKapat()">✕</button>
+    <button class="lightbox-nav lightbox-prev" onclick="lightboxGit(-1)">‹</button>
+    <img class="lightbox-img" id="lightbox-img" src="" alt="">
+    <button class="lightbox-nav lightbox-next" onclick="lightboxGit(1)">›</button>
+    <div class="lightbox-dots" id="lightbox-dots"></div>
+  </div>
 </div>
+
+<!-- ========= FOOTER ========= -->
+<footer class="site-footer">
+  <div style="margin-bottom:4px;">© 2026 Körfez Vaveyla Spor Kulübü — Tüm Hakları Saklıdır</div>
+  <div style="font-size:0.9em;opacity:0.7;">
+    Bugün siteyi ziyaret eden: <strong id="footer-gun-sayi">—</strong> kişi
+  </div>
+</footer>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -241,9 +624,128 @@ firebase.initializeApp({
 const db = firebase.database();
 </script>
 <script>
+
+// ===== SAYFA NAVİGASYONU =====
+function showPage(sayfa, btn) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + sayfa).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (sayfa === 'urunler') loadUrunler();
+}
+
+// ===== ANA SAYFA FOTOĞRAFLARİ =====
+const anaFotolar = ['foto1.jpg','foto2.jpg','foto3.jpg'];
+
+// ===== LIGHTBOX =====
+let lbFotolar = [], lbIndex = 0;
+
+function acLightbox(fotolar, index) {
+  lbFotolar = fotolar.filter(Boolean);
+  if (!lbFotolar.length) return;
+  lbIndex = index;
+  gosterLightbox();
+  document.getElementById('lightbox').classList.add('open');
+}
+
+function gosterLightbox() {
+  document.getElementById('lightbox-img').src = lbFotolar[lbIndex];
+  const dots = document.getElementById('lightbox-dots');
+  dots.innerHTML = lbFotolar.map((_, i) =>
+    `<button class="lightbox-dot ${i===lbIndex?'aktif':''}" onclick="lbIndex=${i};gosterLightbox()"></button>`
+  ).join('');
+}
+
+function lightboxGit(yon) {
+  lbIndex = (lbIndex + yon + lbFotolar.length) % lbFotolar.length;
+  gosterLightbox();
+}
+
+function lightboxKapat() {
+  document.getElementById('lightbox').classList.remove('open');
+}
+
+function kapatLightbox(e) {
+  if (e.target === document.getElementById('lightbox')) lightboxKapat();
+}
+
+document.addEventListener('keydown', function(e) {
+  const lb = document.getElementById('lightbox');
+  if (!lb.classList.contains('open')) return;
+  if (e.key === 'Escape') lightboxKapat();
+  if (e.key === 'ArrowLeft')  lightboxGit(-1);
+  if (e.key === 'ArrowRight') lightboxGit(1);
+});
+
+// ===== ÜRÜNLER =====
+async function loadUrunler() {
+  const grid = document.getElementById('urun-grid');
+  grid.innerHTML = '<div class="loading" style="grid-column:span 3;">⏳ Yükleniyor...</div>';
+
+  const snap = await db.ref('kulup/urunler').once('value');
+  const data = snap.val();
+
+  if (!data) {
+    grid.innerHTML = `<div class="urun-empty" style="grid-column:span 3;">
+      <div class="urun-empty-ikon">🛍️</div>
+      <p>Henüz ürün eklenmemiş.</p>
+    </div>`;
+    return;
+  }
+
+  const urunler = Object.entries(data).map(([id,u]) => ({id,...u}));
+  let html = '';
+
+  urunler.forEach(u => {
+    const resimler = [u.resim1, u.resim2, u.resim3, u.resim4].filter(Boolean);
+    const anaResim = resimler[0] || '';
+    const kucukler = resimler.slice(1, 4);
+    const uid = 'u_' + u.id;
+
+    html += `<div class="urun-kart" onclick="acUrunLightbox('${u.id}')">
+      <div class="urun-resim-wrap">
+        <img id="${uid}_ana" class="urun-ana-img"
+          src="${anaResim}"
+          alt="${u.ad||''}"
+          onerror="this.src='https://placehold.co/400x300/8B0000/E8B84B?text=${encodeURIComponent(u.ad||'Ürün')}'"
+        >
+        ${kucukler.length ? `<div class="urun-kucuk-imgs" onclick="event.stopPropagation()">
+          ${kucukler.map((r,i) => `<img src="${r}"
+            class="${i===0?'aktif':''}"
+            onclick="secUrunResim('${uid}','${r}',this)"
+            onerror="this.style.display='none'"
+            alt="">`).join('')}
+        </div>` : ''}
+      </div>
+      <div class="urun-bilgi">
+        <div class="urun-adi">${u.ad||'Ürün'}</div>
+        ${u.aciklama ? `<div class="urun-acik">${u.aciklama}</div>` : ''}
+      </div>
+    </div>`;
+  });
+
+  grid.innerHTML = html;
+  // Ürün lightbox verisi sakla
+  window._urunData = {};
+  urunler.forEach(u => { window._urunData[u.id] = u; });
+}
+
+function secUrunResim(uid, src, el) {
+  document.getElementById(uid + '_ana').src = src;
+  el.closest('.urun-kucuk-imgs').querySelectorAll('img').forEach(i => i.classList.remove('aktif'));
+  el.classList.add('aktif');
+}
+
+function acUrunLightbox(id) {
+  const u = window._urunData && window._urunData[id];
+  if (!u) return;
+  const resimler = [u.resim1, u.resim2, u.resim3, u.resim4].filter(Boolean);
+  if (resimler.length) acLightbox(resimler, 0);
+}
+
+// ===== VELİ BİLGİ SİSTEMİ =====
 let mevcutSporcu = null;
 
-// TC ile sorgula
 async function tcSorgula() {
   const tc = document.getElementById('tc-input').value.trim();
   const err = document.getElementById('tc-error');
@@ -261,7 +763,6 @@ async function tcSorgula() {
   const [id, sporcu] = found;
   mevcutSporcu = { id, ...sporcu };
 
-  // Sporcu kartı doldur
   const fotoEl = document.getElementById('sporcu-foto-el');
   if (sporcu.foto) {
     fotoEl.innerHTML = '<img src="'+sporcu.foto+'" style="width:64px;height:64px;border-radius:50%;object-fit:cover;">';
@@ -274,7 +775,6 @@ async function tcSorgula() {
   document.getElementById('sporcu-grup-el').textContent = sporcu.grup || '';
   kart.style.display = 'block';
 
-  // Ay dropdownları doldur
   fillAySelect();
   loadVeliYoklama();
   loadVeliAidat();
@@ -302,7 +802,6 @@ function showSekme(sekme, btn) {
   document.getElementById('panel-'+sekme).classList.add('active');
 }
 
-// Yoklama yükle
 async function loadVeliYoklama() {
   if (!mevcutSporcu) return;
   const ay = document.getElementById('yok-ay-sel').value;
@@ -314,7 +813,6 @@ async function loadVeliYoklama() {
   const snap = await db.ref('kulup/yoklama/' + grupKey).once('value');
   const tumYok = snap.val() || {};
 
-  // O aydaki günler
   const ayGunler = Object.keys(tumYok).filter(k => k.startsWith(ayStr)).sort();
   if (!ayGunler.length) {
     body.innerHTML = '<div class="empty"><span class="icon">📅</span><p>Bu ay yoklama kaydı yok.</p></div>';
@@ -324,99 +822,76 @@ async function loadVeliYoklama() {
   let geldi = 0, gelmedi = 0;
   let html = '<div class="gun-grid">';
   ayGunler.forEach(gun => {
-    const d = gun.substring(6,8) + '.' + gun.substring(4,6) + '.' + gun.substring(0,4);
+    const d = gun.substring(6,8)+'.'+gun.substring(4,6)+'.'+gun.substring(0,4);
     const val = tumYok[gun]?.[mevcutSporcu.id];
-    if (val === true)       { html += '<span class="gun-chip geldi">✓ ' + d + '</span>'; geldi++; }
-    else if (val === false) { html += '<span class="gun-chip gelmedi">✗ ' + d + '</span>'; gelmedi++; }
-    else                    { html += '<span class="gun-chip bos">— ' + d + '</span>'; }
+    if (val === true)       { html += '<span class="gun-chip geldi">✓ '+d+'</span>'; geldi++; }
+    else if (val === false) { html += '<span class="gun-chip gelmedi">✗ '+d+'</span>'; gelmedi++; }
+    else                    { html += '<span class="gun-chip bos">— '+d+'</span>'; }
   });
   html += '</div>';
   html += '<div class="yok-ozet">';
-  html += '<span class="yok-ozet-item" style="color:#065F46;">✓ Geldi: ' + geldi + '</span>';
-  html += '<span class="yok-ozet-item" style="color:#991B1B;">✗ Gelmedi: ' + gelmedi + '</span>';
+  html += '<span class="yok-ozet-item" style="color:#065F46;">✓ Geldi: '+geldi+'</span>';
+  html += '<span class="yok-ozet-item" style="color:#991B1B;">✗ Gelmedi: '+gelmedi+'</span>';
   const pct = geldi+gelmedi > 0 ? Math.round(geldi/(geldi+gelmedi)*100) : 0;
-  html += '<span class="yok-ozet-item" style="color:var(--muted);">Devam: %' + pct + '</span>';
+  html += '<span class="yok-ozet-item" style="color:var(--muted);">Devam: %'+pct+'</span>';
   html += '</div>';
-
   body.innerHTML = html;
 }
 
-// Aidat yükle
 async function loadVeliAidat() {
   if (!mevcutSporcu) return;
   const body = document.getElementById('veli-aidat-body');
   body.innerHTML = '<div class="loading">⏳ Yükleniyor...</div>';
 
   const DURUM_LABEL = {
-    'odedi':'Ödedi', 'ay-orta':'Ay Ortasında Geldi', 'indirimli':'İndirimli Ödedi',
-    'eksik':'Eksik Ödedi', 'bu-ay-odemeyecek':'Ödemeyecek',
-    'odemedi':'Ödemedi', 'odeyemeyecek':'Ödeyemeyecek'
+    'odedi':'Ödedi','ay-orta':'Ay Ortasında Geldi','indirimli':'İndirimli Ödedi',
+    'eksik':'Eksik Ödedi','bu-ay-odemeyecek':'Ödemeyecek',
+    'odemedi':'Ödemedi','odeyemeyecek':'Ödeyemeyecek'
   };
 
-  // Kayıt tarihinden bugüne kadar tüm ayları oluştur
   const aylar = [];
   const kayitAySporcu = mevcutSporcu.kayit ? mevcutSporcu.kayit.replace(/-/g,'').substring(0,6) : null;
   if (kayitAySporcu) {
     const kayitYil = parseInt(kayitAySporcu.substring(0,4));
     const kayitAyNo = parseInt(kayitAySporcu.substring(4,6));
     const bugun = new Date();
-    const bugunYil = bugun.getFullYear();
-    const bugunAyNo = bugun.getMonth() + 1;
-
     let y = kayitYil, m = kayitAyNo;
-    while (y < bugunYil || (y === bugunYil && m <= bugunAyNo)) {
+    while (y < bugun.getFullYear() || (y === bugun.getFullYear() && m <= bugun.getMonth()+1)) {
       const key = y + String(m).padStart(2,'0');
       const d = new Date(y, m-1, 1);
-      const label = d.toLocaleDateString('tr-TR', {month:'long', year:'numeric'});
-      aylar.push({ key, label });
-      m++;
-      if (m > 12) { m = 1; y++; }
+      aylar.push({ key, label: d.toLocaleDateString('tr-TR',{month:'long',year:'numeric'}) });
+      m++; if (m>12) { m=1; y++; }
     }
   }
 
   const snap = await db.ref('kulup/aidat').once('value');
   const tumAidat = snap.val() || {};
+  let html = '', kayitVar = false;
 
-  let html = '';
-  let kayitVar = false;
-
-  // Önce son aydan ilk aya sırala (yeniden eskiye)
-  const aylarTers = [...aylar].reverse();
-
-  aylarTers.forEach(({key, label}) => {
+  [...aylar].reverse().forEach(({key, label}) => {
     const kayit = tumAidat[key]?.[mevcutSporcu.id];
     kayitVar = true;
-
-    // Veri girilmemişse: aidatOdemeyecek işaretliyse "Ödemeyecek", yoksa "Ödemedi"
-    let durum, meta = '';
+    let durum = 'odemedi', meta = '';
     if (!kayit) {
       durum = mevcutSporcu.aidatOdemeyecek ? 'bu-ay-odemeyecek' : 'odemedi';
     } else {
       durum = kayit.durum || 'odemedi';
-      if (kayit.tarih) {
-        const tp = kayit.tarih.split('-');
-        meta += tp.length===3 ? tp[2]+'.'+tp[1]+'.'+tp[0] : kayit.tarih;
-      }
-      if (kayit.saat) meta += ' ' + kayit.saat;
-      if (kayit.odeyen) meta += ' — ' + kayit.odeyen;
-      if (kayit.tutar) meta += ' — ₺' + kayit.tutar;
+      if (kayit.tarih) { const tp=kayit.tarih.split('-'); meta+=tp.length===3?tp[2]+'.'+tp[1]+'.'+tp[0]:kayit.tarih; }
+      if (kayit.saat)  meta += ' '+kayit.saat;
+      if (kayit.odeyen) meta += ' — '+kayit.odeyen;
+      if (kayit.tutar)  meta += ' — ₺'+kayit.tutar;
     }
-
     const durumLabel = DURUM_LABEL[durum] || durum;
-    const badgeClass = durum === 'odedi' ? 'badge-odedi' : (durum === 'odemedi' || durum === 'odeyemeyecek') ? 'badge-odemedi' : 'badge-diger';
-
-    html += '<div class="aidat-item">';
-    html += '<div><div class="aidat-ay">' + label + '</div>';
-    if (meta) html += '<div class="aidat-meta">' + meta + '</div>';
-    html += '</div>';
-    html += '<span class="aidat-badge ' + badgeClass + '">' + durumLabel + '</span>';
-    html += '</div>';
+    const badgeClass = durum==='odedi'?'badge-odedi':(durum==='odemedi'||durum==='odeyemeyecek')?'badge-odemedi':'badge-diger';
+    html += `<div class="aidat-item">
+      <div><div class="aidat-ay">${label}</div>${meta?`<div class="aidat-meta">${meta}</div>`:''}  </div>
+      <span class="aidat-badge ${badgeClass}">${durumLabel}</span>
+    </div>`;
   });
 
   body.innerHTML = kayitVar ? html : '<div class="empty"><span class="icon">💰</span><p>Henüz aidat kaydı yok.</p></div>';
 }
 
-// TC input sadece sayı
 document.getElementById('tc-input').addEventListener('input', function() {
   this.value = this.value.replace(/\D/g,'').slice(0,11);
 });
@@ -424,40 +899,20 @@ document.getElementById('tc-input').addEventListener('input', function() {
 // ===== ZİYARET SAYACI =====
 async function ziyaretKaydet() {
   const now = new Date();
-  const gun  = now.getFullYear() + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0');
-  const ay   = now.getFullYear() + String(now.getMonth()+1).padStart(2,'0');
-  const yil  = String(now.getFullYear());
-
+  const gun = now.getFullYear()+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0');
+  const ay  = now.getFullYear()+String(now.getMonth()+1).padStart(2,'0');
+  const yil = String(now.getFullYear());
   const ref = db.ref('kulup/ziyaret');
-  // Atomik artır
-  await ref.child('gunluk/' + gun).transaction(v => (v||0)+1);
-  await ref.child('aylik/'  + ay ).transaction(v => (v||0)+1);
-  await ref.child('yillik/' + yil).transaction(v => (v||0)+1);
-  await ref.child('toplam'       ).transaction(v => (v||0)+1);
-
-  // Bugünkü sayıyı footer'a yaz
-  const snap = await ref.child('gunluk/' + gun).once('value');
+  await ref.child('gunluk/'+gun).transaction(v=>(v||0)+1);
+  await ref.child('aylik/'+ay ).transaction(v=>(v||0)+1);
+  await ref.child('yillik/'+yil).transaction(v=>(v||0)+1);
+  await ref.child('toplam'     ).transaction(v=>(v||0)+1);
+  const snap = await ref.child('gunluk/'+gun).once('value');
   const el = document.getElementById('footer-gun-sayi');
   if (el) el.textContent = (snap.val()||0).toLocaleString('tr-TR');
 }
-
 ziyaretKaydet();
+
 </script>
-
-<!-- Footer -->
-<footer style="
-  background:linear-gradient(135deg,#8B0000,#6B0000);
-  color:rgba(255,255,255,0.75);
-  text-align:center;
-  padding:14px 16px;
-  font-size:0.78em;
-  margin-top:32px;
-">
-  <div style="margin-bottom:4px;">© 2026 Körfez Vaveyla Spor Kulübü</div>
-  <div style="font-size:0.9em;opacity:0.7;">
-    Bugün siteyi ziyaret eden: <strong id="footer-gun-sayi" style="color:#E8B84B;">—</strong> kişi
-  </div>
-</footer>
-
 </body>
 </html>
