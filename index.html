@@ -391,7 +391,6 @@ body {
       onerror="this.style.display='none'">
     <div class="header-title">
       <h1>KÖRFEZ VAVEYLA SPOR KULÜBÜ</h1>
-      <p>Kocaeli · Voleybol · Gençlik · Spor</p>
     </div>
     <div class="header-actions">
       <a href="kulup.html" class="header-btn">🔐 Kulüp Paneli</a>
@@ -448,10 +447,6 @@ body {
             <div class="kurulis-etiket">Aktif Sporcu</div>
           </div>
           <div class="kurulis-item">
-            <div class="kurulis-sayi" id="ana-turnuva">7+</div>
-            <div class="kurulis-etiket">Turnuva</div>
-          </div>
-          <div class="kurulis-item">
             <div class="kurulis-sayi" id="ana-takim">5+</div>
             <div class="kurulis-etiket">Takım</div>
           </div>
@@ -460,9 +455,9 @@ body {
 
       <!-- Foto -->
       <div class="foto-grid" id="ana-foto-grid">
-        <img id="ana-foto-0" src="foto1.jpg" alt="Vaveyla SK" onerror="this.src='https://placehold.co/800x350/8B0000/E8B84B?text=Vaveyla+SK'" onclick="acLightbox(anaFotolar,0)">
-        <img id="ana-foto-1" src="foto2.jpg" alt="Antrenman" onerror="this.src='https://placehold.co/400x300/6B0000/E8B84B?text=Antrenman'" onclick="acLightbox(anaFotolar,1)">
-        <img id="ana-foto-2" src="foto3.jpg" alt="Turnuva" onerror="this.src='https://placehold.co/400x300/4a0000/E8B84B?text=Turnuva'" onclick="acLightbox(anaFotolar,2)">
+        <img id="ana-foto-0" src="https://placehold.co/800x350/8B0000/E8B84B?text=Fotoğraf+1" alt="Vaveyla SK" onclick="acLightbox(anaFotolar,0)" style="cursor:pointer;">
+        <img id="ana-foto-1" src="https://placehold.co/400x300/6B0000/E8B84B?text=Fotoğraf+2" alt="Antrenman" onclick="acLightbox(anaFotolar,1)" style="cursor:pointer;">
+        <img id="ana-foto-2" src="https://placehold.co/400x300/4a0000/E8B84B?text=Fotoğraf+3" alt="Turnuva" onclick="acLightbox(anaFotolar,2)" style="cursor:pointer;">
       </div>
     </div>
 
@@ -497,8 +492,15 @@ body {
       <div class="adres-kart">
         <div class="adres-ikon">📍</div>
         <div>
-          <h4>Antrenman Salonu</h4>
-          <p id="ana-adres">Körfez Spor Salonu<br>Körfez, Kocaeli</p>
+          <h4 id="ana-salon1-ad">1. Antrenman Salonu</h4>
+          <p id="ana-salon1-adres">Körfez Spor Salonu<br>Körfez, Kocaeli</p>
+        </div>
+      </div>
+      <div class="adres-kart">
+        <div class="adres-ikon">📍</div>
+        <div>
+          <h4 id="ana-salon2-ad">2. Antrenman Salonu</h4>
+          <p id="ana-salon2-adres">Körfez, Kocaeli</p>
         </div>
       </div>
       <div class="adres-kart">
@@ -631,7 +633,9 @@ function showPage(sayfa, btn) {
 }
 
 // ===== ANA SAYFA FOTOĞRAFLARİ =====
-let anaFotolar = ['foto1.jpg','foto2.jpg','foto3.jpg'];
+// Fotoğrafları GitHub reposuna yükleyip raw linklerini buraya yapıştır:
+// Örnek: 'https://raw.githubusercontent.com/kursatbilalcanaltunkaya/vaveylask/main/foto1.jpg'
+let anaFotolar = [];
 
 async function loadAnaSayfa() {
   try {
@@ -640,18 +644,20 @@ async function loadAnaSayfa() {
     if (!s) return;
 
     const set = (id, val) => { if (val) { const el = document.getElementById(id); if (el) el.textContent = val; } };
-    set('ana-hero-acik',   s.heroAciklama);
-    set('ana-hakkimizda',  s.hakkimizda);
-    set('ana-misyon',      s.misyon);
-    set('ana-vizyon',      s.vizyon);
-    set('ana-kurulis',     s.kurulis);
-    set('ana-sporcu-sayi', s.sporcuSayi);
-    set('ana-turnuva',     s.turnuva);
-    set('ana-takim',       s.takim);
-    set('ana-adres',       s.adres);
-    set('ana-telefon',     s.telefon);
-    set('ana-eposta',      s.eposta);
-    set('ana-saatler',     s.saatler);
+    set('ana-hero-acik',    s.heroAciklama);
+    set('ana-hakkimizda',   s.hakkimizda);
+    set('ana-misyon',       s.misyon);
+    set('ana-vizyon',       s.vizyon);
+    set('ana-kurulis',      s.kurulis);
+    set('ana-sporcu-sayi',  s.sporcuSayi);
+    set('ana-takim',        s.takim);
+    set('ana-salon1-ad',    s.salon1Ad);
+    set('ana-salon1-adres', s.salon1Adres);
+    set('ana-salon2-ad',    s.salon2Ad);
+    set('ana-salon2-adres', s.salon2Adres);
+    set('ana-telefon',      s.telefon);
+    set('ana-eposta',       s.eposta);
+    set('ana-saatler',      s.saatler);
 
     if (s.fotolar && s.fotolar.length) {
       anaFotolar = s.fotolar.map(f => f && f.url).filter(Boolean);
