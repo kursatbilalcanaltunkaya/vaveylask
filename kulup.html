@@ -436,6 +436,9 @@
       <button class="nav-item admin-only" onclick="goTo('urunler')" id="nav-urunler">
         <span class="icon">🛍️</span> Ürünler
       </button>
+      <button class="nav-item admin-only" onclick="goTo('site')" id="nav-site">
+        <span class="icon">🌐</span> Site Ayarları
+      </button>
     </div>
 
     <div class="sidebar-footer">
@@ -712,6 +715,89 @@
         </div>
       </div>
 
+      <!-- SİTE AYARLARI -->
+      <div id="screen-site" class="screen">
+        <div class="panel" style="margin-bottom:20px;">
+          <div class="panel-header">
+            <div class="panel-title">🌐 Site Ayarları</div>
+            <button class="btn btn-primary" onclick="kaydetSiteAyarlari()">💾 Kaydet</button>
+          </div>
+          <div style="padding:20px;display:flex;flex-direction:column;gap:20px;">
+
+            <div style="font-size:0.78em;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);padding-bottom:8px;">Ana Sayfa İçerikleri</div>
+
+            <div class="form-group full">
+              <label style="font-weight:600;">Kısa Açıklama (Hero)</label>
+              <input type="text" id="sa-hero-acik" class="form-control" placeholder="Yıllardır voleybol sevgisi...">
+              <small style="color:var(--muted);font-size:0.78em;">Header altındaki kısa tanıtım cümlesi</small>
+            </div>
+
+            <div class="form-group full">
+              <label style="font-weight:600;">Hakkımızda Metni</label>
+              <textarea id="sa-hakkimizda" class="form-control" rows="4" placeholder="Kulüp hakkında açıklama..."></textarea>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div class="form-group full">
+                <label style="font-weight:600;">🎯 Misyonumuz</label>
+                <textarea id="sa-misyon" class="form-control" rows="4" placeholder="Misyon metni..."></textarea>
+              </div>
+              <div class="form-group full">
+                <label style="font-weight:600;">🔭 Vizyonumuz</label>
+                <textarea id="sa-vizyon" class="form-control" rows="4" placeholder="Vizyon metni..."></textarea>
+              </div>
+            </div>
+
+            <div style="font-size:0.78em;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);padding-bottom:8px;margin-top:8px;">İstatistikler (Sayılar)</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+              <div class="form-group full">
+                <label style="font-size:0.8em;">Kuruluş Yılı</label>
+                <input type="text" id="sa-kurulis" class="form-control" placeholder="2019">
+              </div>
+              <div class="form-group full">
+                <label style="font-size:0.8em;">Aktif Sporcu</label>
+                <input type="text" id="sa-sporcu-sayi" class="form-control" placeholder="50+">
+              </div>
+              <div class="form-group full">
+                <label style="font-size:0.8em;">Turnuva</label>
+                <input type="text" id="sa-turnuva" class="form-control" placeholder="7+">
+              </div>
+              <div class="form-group full">
+                <label style="font-size:0.8em;">Takım Sayısı</label>
+                <input type="text" id="sa-takim" class="form-control" placeholder="5+">
+              </div>
+            </div>
+
+            <div style="font-size:0.78em;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);padding-bottom:8px;margin-top:8px;">İletişim & Adres</div>
+
+            <div class="form-group full">
+              <label style="font-weight:600;">📍 Antrenman Salonu Adresi</label>
+              <input type="text" id="sa-adres" class="form-control" placeholder="Körfez Spor Salonu, Körfez, Kocaeli">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div class="form-group full">
+                <label style="font-weight:600;">📞 Telefon</label>
+                <input type="text" id="sa-telefon" class="form-control" placeholder="0532 xxx xx xx">
+              </div>
+              <div class="form-group full">
+                <label style="font-weight:600;">📧 E-posta</label>
+                <input type="email" id="sa-eposta" class="form-control" placeholder="vaveylask@gmail.com">
+              </div>
+            </div>
+            <div class="form-group full">
+              <label style="font-weight:600;">🕐 Antrenman Saatleri</label>
+              <input type="text" id="sa-saatler" class="form-control" placeholder="Pazartesi – Cuma, 16:00 – 20:00">
+            </div>
+
+            <div style="font-size:0.78em;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);padding-bottom:8px;margin-top:8px;">Ana Sayfa Fotoğrafları</div>
+            <p style="font-size:0.82em;color:var(--muted);">Ana sayfada gösterilecek 3 fotoğraf. Fotoğraf seçip yükleyebilir ya da URL girebilirsiniz.</p>
+
+            <div id="site-foto-listesi" style="display:flex;flex-direction:column;gap:16px;"></div>
+
+          </div>
+        </div>
+      </div>
+
     </div><!-- /content -->
   </main>
   <!-- Alt Navigasyon (Mobil) -->
@@ -798,21 +884,44 @@
         <textarea id="u-acik" class="form-control" rows="2" placeholder="Kısa ürün açıklaması"></textarea>
       </div>
       <div class="form-group full">
-        <label>Ana Resim URL (büyük) *</label>
-        <input type="url" id="u-r1" class="form-control" placeholder="https://...">
-        <small style="color:var(--muted);font-size:0.78em;">Ana resim olarak gösterilecek büyük görsel</small>
+        <label>Ana Resim (büyük) *</label>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <input type="url" id="u-r1" class="form-control" placeholder="https://... veya fotoğraf yükle →" style="flex:1;min-width:180px;">
+          <label class="btn btn-secondary btn-sm" style="cursor:pointer;white-space:nowrap;">
+            📂 Yükle <input type="file" accept="image/*" style="display:none;" onchange="urunFotoYukle(this,'u-r1','u-r1-prev')">
+          </label>
+        </div>
+        <img id="u-r1-prev" src="" alt="" style="max-height:80px;margin-top:6px;border-radius:6px;display:none;">
       </div>
       <div class="form-group full">
         <label>Küçük Resim 1 (farklı açı)</label>
-        <input type="url" id="u-r2" class="form-control" placeholder="https://...">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <input type="url" id="u-r2" class="form-control" placeholder="https://... veya yükle →" style="flex:1;min-width:180px;">
+          <label class="btn btn-secondary btn-sm" style="cursor:pointer;white-space:nowrap;">
+            📂 Yükle <input type="file" accept="image/*" style="display:none;" onchange="urunFotoYukle(this,'u-r2','u-r2-prev')">
+          </label>
+        </div>
+        <img id="u-r2-prev" src="" alt="" style="max-height:60px;margin-top:6px;border-radius:6px;display:none;">
       </div>
       <div class="form-group full">
         <label>Küçük Resim 2 (farklı açı)</label>
-        <input type="url" id="u-r3" class="form-control" placeholder="https://...">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <input type="url" id="u-r3" class="form-control" placeholder="https://... veya yükle →" style="flex:1;min-width:180px;">
+          <label class="btn btn-secondary btn-sm" style="cursor:pointer;white-space:nowrap;">
+            📂 Yükle <input type="file" accept="image/*" style="display:none;" onchange="urunFotoYukle(this,'u-r3','u-r3-prev')">
+          </label>
+        </div>
+        <img id="u-r3-prev" src="" alt="" style="max-height:60px;margin-top:6px;border-radius:6px;display:none;">
       </div>
       <div class="form-group full">
         <label>Küçük Resim 3 (farklı açı)</label>
-        <input type="url" id="u-r4" class="form-control" placeholder="https://...">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <input type="url" id="u-r4" class="form-control" placeholder="https://... veya yükle →" style="flex:1;min-width:180px;">
+          <label class="btn btn-secondary btn-sm" style="cursor:pointer;white-space:nowrap;">
+            📂 Yükle <input type="file" accept="image/*" style="display:none;" onchange="urunFotoYukle(this,'u-r4','u-r4-prev')">
+          </label>
+        </div>
+        <img id="u-r4-prev" src="" alt="" style="max-height:60px;margin-top:6px;border-radius:6px;display:none;">
       </div>
     </div>
     <div class="modal-footer">
@@ -955,6 +1064,7 @@
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 <script>
 firebase.initializeApp({
   apiKey:"AIzaSyDUXWJ2Q1ywTh90ewPfD_BuH5Rsjqu00Y4",
@@ -966,6 +1076,7 @@ firebase.initializeApp({
   appId:"1:539195972878:web:27c776639df321ec670b5f"
 });
 const db = firebase.database();
+const storage = firebase.storage();
 </script>
 
 <script>
@@ -1032,7 +1143,7 @@ function doLogout() {
 /* ═══════════════════════════════════════════════════════
    NAVIGATION
 ═══════════════════════════════════════════════════════ */
-const PAGES = { sporcular:'Sporcular', yoklama:'Yoklama', istatistik:'Yoklama İstatistikleri', aidat:'Aidat Takibi', kasa:'Aidat Hatırlatma', mesaj:'Mesajlar', gruplar:'Grup Yönetimi', ziyaret:'Ziyaretçi İstatistikleri', urunler:'Ürün Yönetimi' };
+const PAGES = { sporcular:'Sporcular', yoklama:'Yoklama', istatistik:'Yoklama İstatistikleri', aidat:'Aidat Takibi', kasa:'Aidat Hatırlatma', mesaj:'Mesajlar', gruplar:'Grup Yönetimi', ziyaret:'Ziyaretçi İstatistikleri', urunler:'Ürün Yönetimi', site:'Site Ayarları' };
 let currentPage = 'sporcular';
 
 async function loadKasa() { await loadHatirlatma(); }
@@ -1107,7 +1218,7 @@ async function loadHatirlatma() {
 
 function goTo(page) {
   if (!currentUser) return;
-  if (currentUser.role !== 'admin' && ['aidat','kasa','mesaj','ziyaret','urunler'].includes(page)) return;
+  if (currentUser.role !== 'admin' && ['aidat','kasa','mesaj','ziyaret','urunler','site'].includes(page)) return;
   currentPage = page;
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -1125,6 +1236,7 @@ function goTo(page) {
   if (page === 'gruplar') loadGruplar();
   if (page === 'ziyaret') loadZiyaret();
   if (page === 'urunler') loadUrunlerAdmin();
+  if (page === 'site') loadSiteAyarlari();
   if (page === 'aidat')   loadAidat();
   if (page === 'kasa') {
     // Hat ay dropdown her seferinde doldur
@@ -2649,6 +2761,116 @@ async function silUrun(id, ad) {
   if (!confirm(`"${ad}" ürününü silmek istediğinizden emin misiniz?`)) return;
   await db.ref('kulup/urunler/' + id).remove();
   loadUrunlerAdmin();
+}
+
+/* ─── FOTOĞRAF YÜKLEME (Firebase Storage) ─────────────── */
+async function urunFotoYukle(input, urlInputId, prevId) {
+  const file = input.files[0];
+  if (!file) return;
+  const urlInput = document.getElementById(urlInputId);
+  const prev = document.getElementById(prevId);
+  urlInput.value = '⏳ Yükleniyor...';
+  urlInput.disabled = true;
+  try {
+    const ext = file.name.split('.').pop();
+    const path = `kulup/urunler/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+    const ref = storage.ref(path);
+    await ref.put(file);
+    const url = await ref.getDownloadURL();
+    urlInput.value = url;
+    if (prev) { prev.src = url; prev.style.display = 'block'; }
+  } catch(e) {
+    urlInput.value = '';
+    alert('Fotoğraf yüklenemedi: ' + e.message);
+  } finally {
+    urlInput.disabled = false;
+  }
+}
+
+async function siteFotoYukle(input, urlInputId, prevId) {
+  const file = input.files[0];
+  if (!file) return;
+  const urlInput = document.getElementById(urlInputId);
+  const prev = document.getElementById(prevId);
+  urlInput.value = '⏳ Yükleniyor...';
+  urlInput.disabled = true;
+  try {
+    const ext = file.name.split('.').pop();
+    const path = `kulup/site/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+    const ref = storage.ref(path);
+    await ref.put(file);
+    const url = await ref.getDownloadURL();
+    urlInput.value = url;
+    if (prev) { prev.src = url; prev.style.display = 'block'; }
+  } catch(e) {
+    urlInput.value = '';
+    alert('Fotoğraf yüklenemedi: ' + e.message);
+  } finally {
+    urlInput.disabled = false;
+  }
+}
+
+/* ─── SİTE AYARLARI ────────────────────────────────────── */
+async function loadSiteAyarlari() {
+  const snap = await db.ref('kulup/site').once('value');
+  const s = snap.val() || {};
+
+  document.getElementById('sa-hero-acik').value    = s.heroAciklama  || '';
+  document.getElementById('sa-hakkimizda').value   = s.hakkimizda    || '';
+  document.getElementById('sa-misyon').value       = s.misyon        || '';
+  document.getElementById('sa-vizyon').value       = s.vizyon        || '';
+  document.getElementById('sa-kurulis').value      = s.kurulis       || '';
+  document.getElementById('sa-sporcu-sayi').value  = s.sporcuSayi    || '';
+  document.getElementById('sa-turnuva').value      = s.turnuva       || '';
+  document.getElementById('sa-takim').value        = s.takim         || '';
+  document.getElementById('sa-adres').value        = s.adres         || '';
+  document.getElementById('sa-telefon').value      = s.telefon       || '';
+  document.getElementById('sa-eposta').value       = s.eposta        || '';
+  document.getElementById('sa-saatler').value      = s.saatler       || '';
+
+  // Ana sayfa fotoğrafları
+  const fotolar = s.fotolar || [{}, {}, {}];
+  const liste = document.getElementById('site-foto-listesi');
+  liste.innerHTML = ['Ana Fotoğraf (büyük)', 'Fotoğraf 2', 'Fotoğraf 3'].map((label, i) => {
+    const url = (fotolar[i] && fotolar[i].url) || '';
+    return `<div style="border:1px solid var(--border);border-radius:10px;padding:16px;">
+      <label style="font-weight:600;font-size:0.88em;display:block;margin-bottom:8px;">${label}</label>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input type="url" id="sa-foto-${i}" class="form-control" value="${url}"
+          placeholder="https://... veya fotoğraf yükle →" style="flex:1;min-width:180px;"
+          oninput="document.getElementById('sa-foto-prev-${i}').src=this.value">
+        <label class="btn btn-secondary btn-sm" style="cursor:pointer;white-space:nowrap;">
+          📂 Yükle <input type="file" accept="image/*" style="display:none;"
+            onchange="siteFotoYukle(this,'sa-foto-${i}','sa-foto-prev-${i}')">
+        </label>
+      </div>
+      ${url ? `<img id="sa-foto-prev-${i}" src="${url}" style="max-height:90px;margin-top:8px;border-radius:8px;">`
+             : `<img id="sa-foto-prev-${i}" src="" style="max-height:90px;margin-top:8px;border-radius:8px;display:none;">`}
+    </div>`;
+  }).join('');
+}
+
+async function kaydetSiteAyarlari() {
+  const fotolar = [0,1,2].map(i => ({ url: document.getElementById('sa-foto-' + i).value.trim() }));
+  const veri = {
+    heroAciklama:  document.getElementById('sa-hero-acik').value.trim(),
+    hakkimizda:    document.getElementById('sa-hakkimizda').value.trim(),
+    misyon:        document.getElementById('sa-misyon').value.trim(),
+    vizyon:        document.getElementById('sa-vizyon').value.trim(),
+    kurulis:       document.getElementById('sa-kurulis').value.trim(),
+    sporcuSayi:    document.getElementById('sa-sporcu-sayi').value.trim(),
+    turnuva:       document.getElementById('sa-turnuva').value.trim(),
+    takim:         document.getElementById('sa-takim').value.trim(),
+    adres:         document.getElementById('sa-adres').value.trim(),
+    telefon:       document.getElementById('sa-telefon').value.trim(),
+    eposta:        document.getElementById('sa-eposta').value.trim(),
+    saatler:       document.getElementById('sa-saatler').value.trim(),
+    fotolar,
+  };
+  // Boş string değerleri temizle
+  Object.keys(veri).forEach(k => { if (veri[k] === '') delete veri[k]; });
+  await db.ref('kulup/site').set(veri);
+  alert('✅ Site ayarları kaydedildi! Ana sayfada görünecek.');
 }
 </script>
 </body>
