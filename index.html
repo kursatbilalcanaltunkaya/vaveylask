@@ -416,7 +416,7 @@ body {
     <img src="amblem%20png.png" alt="Vaveyla SK" class="hero-logo"
       onerror="this.style.display='none'">
     <h2>VAVEYLA SPOR KULÜBÜ</h2>
-    <p>Yıllardır voleybol sevgisi ve spor ruhunu gençlere aktarıyor, yetenekleri keşfediyoruz.</p>
+    <p id="ana-hero-acik">Yıllardır voleybol sevgisi ve spor ruhunu gençlere aktarıyor, yetenekleri keşfediyoruz.</p>
     <div class="hero-badges">
       <span class="hero-badge">🏐 Voleybol</span>
       <span class="hero-badge">📍 Körfez / Kocaeli</span>
@@ -432,41 +432,37 @@ body {
       <div>
         <span class="section-label">Hakkımızda</span>
         <h2 class="section-title">Sporu Hayat<br>Yapıyoruz</h2>
-        <p class="section-text">
+        <p class="section-text" id="ana-hakkimizda">
           Körfez Vaveyla Spor Kulübü, Kocaeli'nin Körfez ilçesinde spor sevgisini
           gençlere aşılamak amacıyla kurulmuştur. Voleybol branşında faaliyet gösteren
           kulübümüz; disiplin, takım ruhu ve sporseverlik değerleri çerçevesinde
           gençleri spor hayatına kazandırmayı hedeflemektedir.
         </p>
-        <p class="section-text" style="margin-top:12px;">
-          Deneyimli antrenör kadromuz ve modern antrenman anlayışımızla sporcularımızın
-          hem fiziksel hem de kişisel gelişimlerine katkı sağlıyoruz.
-        </p>
         <div class="kurulis-info">
           <div class="kurulis-item">
-            <div class="kurulis-sayi">2019</div>
+            <div class="kurulis-sayi" id="ana-kurulis">2019</div>
             <div class="kurulis-etiket">Kuruluş Yılı</div>
           </div>
           <div class="kurulis-item">
-            <div class="kurulis-sayi">50+</div>
+            <div class="kurulis-sayi" id="ana-sporcu-sayi">50+</div>
             <div class="kurulis-etiket">Aktif Sporcu</div>
           </div>
           <div class="kurulis-item">
-            <div class="kurulis-sayi">7+</div>
+            <div class="kurulis-sayi" id="ana-turnuva">7+</div>
             <div class="kurulis-etiket">Turnuva</div>
           </div>
           <div class="kurulis-item">
-            <div class="kurulis-sayi">5+</div>
+            <div class="kurulis-sayi" id="ana-takim">5+</div>
             <div class="kurulis-etiket">Takım</div>
           </div>
         </div>
       </div>
 
       <!-- Foto -->
-      <div class="foto-grid">
-        <img src="foto1.jpg" alt="Vaveyla SK" onerror="this.src='https://placehold.co/800x350/8B0000/E8B84B?text=Vaveyla+SK'" onclick="acLightbox(anaFotolar,0)">
-        <img src="foto2.jpg" alt="Antrenman" onerror="this.src='https://placehold.co/400x300/6B0000/E8B84B?text=Antrenman'" onclick="acLightbox(anaFotolar,1)">
-        <img src="foto3.jpg" alt="Turnuva" onerror="this.src='https://placehold.co/400x300/4a0000/E8B84B?text=Turnuva'" onclick="acLightbox(anaFotolar,2)">
+      <div class="foto-grid" id="ana-foto-grid">
+        <img id="ana-foto-0" src="foto1.jpg" alt="Vaveyla SK" onerror="this.src='https://placehold.co/800x350/8B0000/E8B84B?text=Vaveyla+SK'" onclick="acLightbox(anaFotolar,0)">
+        <img id="ana-foto-1" src="foto2.jpg" alt="Antrenman" onerror="this.src='https://placehold.co/400x300/6B0000/E8B84B?text=Antrenman'" onclick="acLightbox(anaFotolar,1)">
+        <img id="ana-foto-2" src="foto3.jpg" alt="Turnuva" onerror="this.src='https://placehold.co/400x300/4a0000/E8B84B?text=Turnuva'" onclick="acLightbox(anaFotolar,2)">
       </div>
     </div>
 
@@ -477,7 +473,7 @@ body {
     <div class="mv-grid">
       <div class="mv-kart">
         <h3>🎯 Misyonumuz</h3>
-        <p>
+        <p id="ana-misyon">
           Körfez ilçesinde sporu yaygınlaştırmak, gençleri sağlıklı yaşama teşvik etmek
           ve voleybol sporunu toplumun her kesimine ulaştırmak. Sporcularımızı sadece
           sportif değil; sosyal, özgüvenli ve takım odaklı bireyler olarak yetiştirmek.
@@ -485,7 +481,7 @@ body {
       </div>
       <div class="mv-kart">
         <h3>🔭 Vizyonumuz</h3>
-        <p>
+        <p id="ana-vizyon">
           Kocaeli'nin öncü spor kulüplerinden biri olmak, ulusal düzeyde turnuvalara
           katılarak bölgede sporu kurumsallaştırmak. Altyapı yatırımlarıyla geleceğin
           sporcularını bugünden yetiştiren, örnek gösterilen bir kulüp olmak.
@@ -502,28 +498,28 @@ body {
         <div class="adres-ikon">📍</div>
         <div>
           <h4>Antrenman Salonu</h4>
-          <p>Körfez Spor Salonu<br>Körfez, Kocaeli</p>
+          <p id="ana-adres">Körfez Spor Salonu<br>Körfez, Kocaeli</p>
         </div>
       </div>
       <div class="adres-kart">
         <div class="adres-ikon">📞</div>
         <div>
           <h4>İletişim</h4>
-          <p>Kulüp yönetimine<br>ulaşmak için ara</p>
+          <p id="ana-telefon">Kulüp yönetimine<br>ulaşmak için ara</p>
         </div>
       </div>
       <div class="adres-kart">
         <div class="adres-ikon">📧</div>
         <div>
           <h4>E-posta</h4>
-          <p>vaveylask@gmail.com</p>
+          <p id="ana-eposta">vaveylask@gmail.com</p>
         </div>
       </div>
       <div class="adres-kart">
         <div class="adres-ikon">🕐</div>
         <div>
           <h4>Antrenman Saatleri</h4>
-          <p>Pazartesi – Cuma<br>16:00 – 20:00</p>
+          <p id="ana-saatler">Pazartesi – Cuma<br>16:00 – 20:00</p>
         </div>
       </div>
     </div>
@@ -635,7 +631,41 @@ function showPage(sayfa, btn) {
 }
 
 // ===== ANA SAYFA FOTOĞRAFLARİ =====
-const anaFotolar = ['foto1.jpg','foto2.jpg','foto3.jpg'];
+let anaFotolar = ['foto1.jpg','foto2.jpg','foto3.jpg'];
+
+async function loadAnaSayfa() {
+  try {
+    const snap = await db.ref('kulup/site').once('value');
+    const s = snap.val();
+    if (!s) return;
+
+    const set = (id, val) => { if (val) { const el = document.getElementById(id); if (el) el.textContent = val; } };
+    set('ana-hero-acik',   s.heroAciklama);
+    set('ana-hakkimizda',  s.hakkimizda);
+    set('ana-misyon',      s.misyon);
+    set('ana-vizyon',      s.vizyon);
+    set('ana-kurulis',     s.kurulis);
+    set('ana-sporcu-sayi', s.sporcuSayi);
+    set('ana-turnuva',     s.turnuva);
+    set('ana-takim',       s.takim);
+    set('ana-adres',       s.adres);
+    set('ana-telefon',     s.telefon);
+    set('ana-eposta',      s.eposta);
+    set('ana-saatler',     s.saatler);
+
+    if (s.fotolar && s.fotolar.length) {
+      anaFotolar = s.fotolar.map(f => f && f.url).filter(Boolean);
+      s.fotolar.forEach((f, i) => {
+        const img = document.getElementById('ana-foto-' + i);
+        if (img && f && f.url) {
+          img.src = f.url;
+          img.onclick = () => acLightbox(anaFotolar, i);
+        }
+      });
+    }
+  } catch(e) { /* Firebase yoksa varsayılanlar kalır */ }
+}
+loadAnaSayfa();
 
 // ===== LIGHTBOX =====
 let lbFotolar = [], lbIndex = 0;
