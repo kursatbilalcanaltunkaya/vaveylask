@@ -433,6 +433,9 @@
       <button class="nav-item admin-only" onclick="goTo('ziyaret')" id="nav-ziyaret">
         <span class="icon">📈</span> Ziyaretçiler
       </button>
+      <button class="nav-item admin-only" onclick="goTo('videolar')" id="nav-videolar">
+        <span class="icon">🎬</span> Videolar
+      </button>
       <button class="nav-item admin-only" onclick="goTo('urunler')" id="nav-urunler">
         <span class="icon">🛍️</span> Ürünler
       </button>
@@ -703,6 +706,22 @@
         </div>
       </div>
 
+      <!-- VİDEO YÖNETİMİ -->
+      <div id="screen-videolar" class="screen">
+        <div class="panel" style="margin-bottom:20px;">
+          <div class="panel-header">
+            <div class="panel-title">🎬 Video Yönetimi</div>
+            <button class="btn btn-primary" onclick="videoModalAc()">+ Video Ekle</button>
+          </div>
+          <div style="padding:20px;">
+            <p style="font-size:0.83em;color:var(--muted);margin-bottom:16px;">YouTube video linkini yapıştır, başlığını yaz. Videolar sitede TC doğrulamasıyla izlenebilir.</p>
+            <div id="video-admin-liste">
+              <div style="text-align:center;color:var(--muted);padding:30px;">⏳ Yükleniyor...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- ÜRÜN YÖNETİMİ -->
       <div id="screen-urunler" class="screen">
         <div class="panel" style="margin-bottom:20px;">
@@ -898,6 +917,47 @@
 </div>
 
 </div><!-- /app -->
+
+<!-- ─── VİDEO MODAL ──────────────────────────────────────── -->
+<div class="modal-overlay" id="video-modal-form">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-header">
+      <div class="modal-title" id="video-modal-title">Yeni Video Ekle</div>
+      <button class="btn btn-ghost" onclick="videoModalKapat()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="video-edit-id">
+      <div class="form-group">
+        <label class="form-label">YouTube Video Linki *</label>
+        <input type="text" id="video-link" class="form-input"
+          placeholder="https://youtu.be/xxxx veya https://www.youtube.com/watch?v=xxxx"
+          oninput="videoOnizleme()">
+        <div style="font-size:0.78em;color:var(--muted);margin-top:4px;">Unlisted (gizli link) videolar da çalışır.</div>
+      </div>
+      <div id="video-onizleme-wrap" style="display:none;margin-bottom:16px;">
+        <img id="video-onizleme-img" src="" alt="Önizleme"
+          style="width:100%;border-radius:8px;border:1px solid var(--border);">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Video Başlığı *</label>
+        <input type="text" id="video-baslik" class="form-input" placeholder="Örn: U16 Kız - Körfez Maçı 12.10.2026">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tarih</label>
+        <input type="date" id="video-tarih" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Açıklama (isteğe bağlı)</label>
+        <textarea id="video-aciklama" class="form-input" rows="2"
+          placeholder="Maç detayları, takımlar vb."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="videoModalKapat()">İptal</button>
+      <button class="btn btn-primary" onclick="kaydetVideo()">💾 Kaydet</button>
+    </div>
+  </div>
+</div>
 
 <!-- ─── ÜRÜN MODAL ──────────────────────────────────────── -->
 <div class="modal-overlay" id="urun-modal">
@@ -1159,7 +1219,7 @@ function doLogout() {
 /* ═══════════════════════════════════════════════════════
    NAVIGATION
 ═══════════════════════════════════════════════════════ */
-const PAGES = { sporcular:'Sporcular', yoklama:'Yoklama', istatistik:'Yoklama İstatistikleri', aidat:'Aidat Takibi', kasa:'Aidat Hatırlatma', mesaj:'Mesajlar', gruplar:'Grup Yönetimi', ziyaret:'Ziyaretçi İstatistikleri', urunler:'Ürün Yönetimi', site:'Site Ayarları', izleme:'Video İzleme Kayıtları' };
+const PAGES = { sporcular:'Sporcular', yoklama:'Yoklama', istatistik:'Yoklama İstatistikleri', aidat:'Aidat Takibi', kasa:'Aidat Hatırlatma', mesaj:'Mesajlar', gruplar:'Grup Yönetimi', ziyaret:'Ziyaretçi İstatistikleri', urunler:'Ürün Yönetimi', videolar:'Video Yönetimi', site:'Site Ayarları', izleme:'Video İzleme Kayıtları' };
 let currentPage = 'sporcular';
 
 async function loadKasa() { await loadHatirlatma(); }
@@ -1234,7 +1294,7 @@ async function loadHatirlatma() {
 
 function goTo(page) {
   if (!currentUser) return;
-  if (currentUser.role !== 'admin' && ['aidat','kasa','mesaj','ziyaret','urunler','site','izleme'].includes(page)) return;
+  if (currentUser.role !== 'admin' && ['aidat','kasa','mesaj','ziyaret','urunler','videolar','site','izleme'].includes(page)) return;
   currentPage = page;
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -1252,6 +1312,7 @@ function goTo(page) {
   if (page === 'gruplar') loadGruplar();
   if (page === 'ziyaret') loadZiyaret();
   if (page === 'urunler') loadUrunlerAdmin();
+  if (page === 'videolar') loadVideolarAdmin();
   if (page === 'site') loadSiteAyarlari();
   if (page === 'izleme') loadVideoIzleme();
   if (page === 'aidat')   loadAidat();
@@ -2857,6 +2918,127 @@ async function kaydetSiteAyarlari() {
   Object.keys(veri).forEach(k => { if (veri[k] === '') delete veri[k]; });
   await db.ref('kulup/site').set(veri);
   alert('✅ Site ayarları kaydedildi! Ana sayfada görünecek.');
+}
+
+// ===== VİDEO YÖNETİMİ (Admin) =====
+function ytIdCıkar(link) {
+  if (!link) return null;
+  // youtu.be/ID
+  let m = link.match(/youtu\.be\/([A-Za-z0-9_-]{11})/);
+  if (m) return m[1];
+  // youtube.com/watch?v=ID
+  m = link.match(/[?&]v=([A-Za-z0-9_-]{11})/);
+  if (m) return m[1];
+  // youtube.com/embed/ID
+  m = link.match(/embed\/([A-Za-z0-9_-]{11})/);
+  if (m) return m[1];
+  // Sadece ID girilmişse
+  if (/^[A-Za-z0-9_-]{11}$/.test(link.trim())) return link.trim();
+  return null;
+}
+
+function videoOnizleme() {
+  const link = document.getElementById('video-link').value.trim();
+  const vid = ytIdCıkar(link);
+  const wrap = document.getElementById('video-onizleme-wrap');
+  const img  = document.getElementById('video-onizleme-img');
+  if (vid) {
+    img.src = `https://img.youtube.com/vi/${vid}/mqdefault.jpg`;
+    wrap.style.display = 'block';
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+
+function videoModalAc(id) {
+  document.getElementById('video-edit-id').value   = id || '';
+  document.getElementById('video-link').value      = '';
+  document.getElementById('video-baslik').value    = '';
+  document.getElementById('video-tarih').value     = new Date().toISOString().slice(0,10);
+  document.getElementById('video-aciklama').value  = '';
+  document.getElementById('video-onizleme-wrap').style.display = 'none';
+  document.getElementById('video-modal-title').textContent = id ? 'Videoyu Düzenle' : 'Yeni Video Ekle';
+
+  if (id) {
+    db.ref('kulup/videolar/' + id).once('value').then(snap => {
+      const v = snap.val();
+      if (!v) return;
+      document.getElementById('video-link').value     = v.videoId ? `https://youtu.be/${v.videoId}` : '';
+      document.getElementById('video-baslik').value   = v.baslik  || '';
+      document.getElementById('video-tarih').value    = v.tarih   || '';
+      document.getElementById('video-aciklama').value = v.aciklama || '';
+      videoOnizleme();
+    });
+  }
+  document.getElementById('video-modal-form').classList.add('open');
+}
+
+function videoModalKapat() {
+  document.getElementById('video-modal-form').classList.remove('open');
+}
+
+async function kaydetVideo() {
+  const id      = document.getElementById('video-edit-id').value;
+  const link    = document.getElementById('video-link').value.trim();
+  const baslik  = document.getElementById('video-baslik').value.trim();
+  const tarih   = document.getElementById('video-tarih').value;
+  const aciklama = document.getElementById('video-aciklama').value.trim();
+
+  const videoId = ytIdCıkar(link);
+  if (!videoId) { alert('Geçerli bir YouTube video linki girin.'); return; }
+  if (!baslik)  { alert('Video başlığı zorunludur.'); return; }
+
+  const veri = { videoId, baslik, tarih, aciklama, eklendi: new Date().toISOString() };
+  if (id) {
+    await db.ref('kulup/videolar/' + id).update(veri);
+  } else {
+    await db.ref('kulup/videolar').push(veri);
+  }
+  videoModalKapat();
+  loadVideolarAdmin();
+}
+
+async function silVideo(id, baslik) {
+  if (!confirm(`"${baslik}" videosunu silmek istiyor musunuz?`)) return;
+  await db.ref('kulup/videolar/' + id).remove();
+  loadVideolarAdmin();
+}
+
+async function loadVideolarAdmin() {
+  const liste = document.getElementById('video-admin-liste');
+  liste.innerHTML = '<div style="text-align:center;color:var(--muted);padding:30px;">⏳ Yükleniyor...</div>';
+
+  const snap = await db.ref('kulup/videolar').once('value');
+  const data = snap.val();
+
+  if (!data) {
+    liste.innerHTML = '<div class="empty-state"><div class="empty-icon">🎬</div><p>Henüz video eklenmemiş.</p><p style="font-size:0.83em;color:var(--muted);">Sağ üstteki "+ Video Ekle" butonuyla ekle.</p></div>';
+    return;
+  }
+
+  const videolar = Object.entries(data).map(([id,v]) => ({id,...v}));
+  videolar.sort((a,b) => (b.tarih||'') > (a.tarih||'') ? 1 : -1);
+
+  let html = '<div style="display:flex;flex-direction:column;gap:12px;">';
+  videolar.forEach(v => {
+    const thumb = `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`;
+    const tarihGoster = v.tarih ? new Date(v.tarih).toLocaleDateString('tr-TR',{day:'2-digit',month:'long',year:'numeric'}) : '—';
+    html += `<div style="display:flex;gap:14px;align-items:center;background:var(--bg);border-radius:10px;padding:12px;border:1px solid var(--border);">
+      <img src="${thumb}" alt="${v.baslik}" style="width:100px;height:56px;object-fit:cover;border-radius:6px;flex-shrink:0;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;margin-bottom:2px;">${v.baslik}</div>
+        <div style="font-size:0.8em;color:var(--muted);">📅 ${tarihGoster}</div>
+        ${v.aciklama ? `<div style="font-size:0.8em;color:var(--muted);margin-top:2px;">${v.aciklama}</div>` : ''}
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0;">
+        <a href="https://youtu.be/${v.videoId}" target="_blank" class="btn btn-secondary btn-sm">▶ İzle</a>
+        <button class="btn btn-secondary btn-sm" onclick="videoModalAc('${v.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="silVideo('${v.id}','${v.baslik.replace(/'/g,"\\'")}')">🗑️</button>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  liste.innerHTML = html;
 }
 
 // ===== VIDEO İZLEME KAYITLARI =====
