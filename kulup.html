@@ -445,6 +445,9 @@
       <button class="nav-item admin-only" onclick="goTo('izleme')" id="nav-izleme">
         <span class="icon">🎬</span> Video İzleme
       </button>
+      <button class="nav-item admin-only" onclick="goTo('veligiris')" id="nav-veligiris">
+        <span class="icon">👨‍👧</span> Veli Girişleri
+      </button>
     </div>
 
     <div class="sidebar-footer">
@@ -850,6 +853,24 @@
         </div>
       </div>
 
+      <!-- VELİ GİRİŞLERİ -->
+      <div id="screen-veligiris" class="screen">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">👨‍👧 Veli Bilgilendirme Girişleri</div>
+            <button class="btn btn-secondary" onclick="loadVeliGirisler()">🔄 Yenile</button>
+          </div>
+          <div style="padding:16px;">
+            <p style="font-size:0.85em;color:var(--muted);margin-bottom:16px;">Veli Bilgilendirme Sistemi'ne hangi TC ile ne zaman girildiğini buradan takip edebilirsiniz.</p>
+            <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+              <input type="text" id="veligiris-arama" class="form-input" placeholder="🔍 Sporcu adı veya TC ara..." style="flex:1;min-width:200px;" oninput="veliGirisFiltrele()">
+              <button class="btn btn-secondary" onclick="veliGirisTemizle()" style="white-space:nowrap;">🗑️ Kayıtları Temizle</button>
+            </div>
+            <div id="veligiris-liste"></div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /content -->
   </main>
   <!-- Alt Navigasyon (Mobil) -->
@@ -1219,7 +1240,7 @@ function doLogout() {
 /* ═══════════════════════════════════════════════════════
    NAVIGATION
 ═══════════════════════════════════════════════════════ */
-const PAGES = { sporcular:'Sporcular', yoklama:'Yoklama', istatistik:'Yoklama İstatistikleri', aidat:'Aidat Takibi', kasa:'Aidat Hatırlatma', mesaj:'Mesajlar', gruplar:'Grup Yönetimi', ziyaret:'Ziyaretçi İstatistikleri', urunler:'Ürün Yönetimi', videolar:'Video Yönetimi', site:'Site Ayarları', izleme:'Video İzleme Kayıtları' };
+const PAGES = { sporcular:'Sporcular', yoklama:'Yoklama', istatistik:'Yoklama İstatistikleri', aidat:'Aidat Takibi', kasa:'Aidat Hatırlatma', mesaj:'Mesajlar', gruplar:'Grup Yönetimi', ziyaret:'Ziyaretçi İstatistikleri', urunler:'Ürün Yönetimi', videolar:'Video Yönetimi', site:'Site Ayarları', izleme:'Video İzleme Kayıtları', veligiris:'Veli Bilgilendirme Girişleri' };
 let currentPage = 'sporcular';
 
 async function loadKasa() { await loadHatirlatma(); }
@@ -1294,7 +1315,7 @@ async function loadHatirlatma() {
 
 function goTo(page) {
   if (!currentUser) return;
-  if (currentUser.role !== 'admin' && ['aidat','kasa','mesaj','ziyaret','urunler','videolar','site','izleme'].includes(page)) return;
+  if (currentUser.role !== 'admin' && ['aidat','kasa','mesaj','ziyaret','urunler','videolar','site','izleme','veligiris'].includes(page)) return;
   currentPage = page;
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -1315,6 +1336,7 @@ function goTo(page) {
   if (page === 'videolar') loadVideolarAdmin();
   if (page === 'site') loadSiteAyarlari();
   if (page === 'izleme') loadVideoIzleme();
+  if (page === 'veligiris') loadVeliGirisler();
   if (page === 'aidat')   loadAidat();
   if (page === 'kasa') {
     // Hat ay dropdown her seferinde doldur
@@ -3039,6 +3061,91 @@ async function loadVideolarAdmin() {
   });
   html += '</div>';
   liste.innerHTML = html;
+}
+
+// ===== VELİ BİLGİLENDİRME GİRİŞLERİ =====
+let tumVeliGirisler = [];
+
+async function loadVeliGirisler() {
+  const liste = document.getElementById('veligiris-liste');
+  liste.innerHTML = '<div class="loading">⏳ Yükleniyor...</div>';
+
+  const snap = await db.ref('kulup/veliGiris').once('value');
+  const data = snap.val();
+
+  if (!data) {
+    liste.innerHTML = '<div class="empty-state"><div class="empty-icon">👨‍👧</div><p>Henüz giriş kaydı yok.</p></div>';
+    return;
+  }
+
+  tumVeliGirisler = Object.entries(data).map(([key, v]) => ({ key, ...v }));
+  tumVeliGirisler.sort((a, b) => new Date(b.zaman) - new Date(a.zaman));
+  veliGirisRender(tumVeliGirisler);
+}
+
+function veliGirisRender(kayitlar) {
+  const liste = document.getElementById('veligiris-liste');
+  if (!kayitlar.length) {
+    liste.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><p>Arama sonucu bulunamadı.</p></div>';
+    return;
+  }
+
+  let html = `<table style="width:100%;border-collapse:collapse;font-size:0.88em;">
+    <thead>
+      <tr style="background:var(--bg);border-bottom:2px solid var(--border);">
+        <th style="text-align:left;padding:10px 12px;font-weight:600;">Sporcu</th>
+        <th style="text-align:left;padding:10px 12px;font-weight:600;">TC Kimlik No</th>
+        <th style="text-align:left;padding:10px 12px;font-weight:600;">Grup</th>
+        <th style="text-align:left;padding:10px 12px;font-weight:600;">Tarih / Saat</th>
+        <th style="text-align:left;padding:10px 12px;font-weight:600;"></th>
+      </tr>
+    </thead>
+    <tbody>`;
+
+  kayitlar.forEach(k => {
+    const tarih = k.zaman ? new Date(k.zaman).toLocaleString('tr-TR', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    }) : '—';
+    html += `<tr style="border-bottom:1px solid var(--border);">
+      <td style="padding:10px 12px;font-weight:600;">${k.sporcuAd || '—'}</td>
+      <td style="padding:10px 12px;font-family:monospace;letter-spacing:1px;">${k.tc || '—'}</td>
+      <td style="padding:10px 12px;color:var(--muted);">${k.grup || '—'}</td>
+      <td style="padding:10px 12px;color:var(--muted);white-space:nowrap;">${tarih}</td>
+      <td style="padding:10px 12px;">
+        <button onclick="tekVeliGirisSil('${k.key}')" style="background:none;border:none;color:#991B1B;cursor:pointer;font-size:1em;" title="Sil">🗑️</button>
+      </td>
+    </tr>`;
+  });
+
+  html += '</tbody></table>';
+  html += `<div style="margin-top:12px;font-size:0.82em;color:var(--muted);">Toplam ${kayitlar.length} giriş kaydı</div>`;
+  liste.innerHTML = html;
+}
+
+function veliGirisFiltrele() {
+  const q = document.getElementById('veligiris-arama').value.toLowerCase();
+  if (!q) { veliGirisRender(tumVeliGirisler); return; }
+  const filtre = tumVeliGirisler.filter(k =>
+    (k.sporcuAd || '').toLowerCase().includes(q) ||
+    (k.tc || '').includes(q) ||
+    (k.grup || '').toLowerCase().includes(q)
+  );
+  veliGirisRender(filtre);
+}
+
+async function tekVeliGirisSil(key) {
+  if (!confirm('Bu giriş kaydını silmek istiyor musunuz?')) return;
+  await db.ref('kulup/veliGiris/' + key).remove();
+  tumVeliGirisler = tumVeliGirisler.filter(k => k.key !== key);
+  veliGirisFiltrele();
+}
+
+async function veliGirisTemizle() {
+  if (!confirm('⚠️ TÜM veli giriş kayıtları silinecek! Emin misiniz?')) return;
+  await db.ref('kulup/veliGiris').remove();
+  tumVeliGirisler = [];
+  document.getElementById('veligiris-liste').innerHTML = '<div class="empty-state"><div class="empty-icon">👨‍👧</div><p>Kayıtlar temizlendi.</p></div>';
 }
 
 // ===== VIDEO İZLEME KAYITLARI =====
