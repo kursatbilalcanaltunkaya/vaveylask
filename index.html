@@ -528,7 +528,7 @@ body {
   <div class="site-nav-inner">
     <button class="nav-tab active" onclick="showPage('ana',this)">🏠 Ana Sayfa</button>
     <button class="nav-tab" onclick="showPage('urunler',this)">🛍️ Ürünlerimiz</button>
-    <button class="nav-tab" onclick="showPage('veli',this)">👨‍👧 Veli Bilgi Sistemi</button>
+    <button class="nav-tab" onclick="showPage('veli',this)">👨‍👧 Veli Bilgilendirme Sistemi</button>
     <button class="nav-tab" onclick="showPage('maclar',this)">🎬 Maçlarımız</button>
   </div>
 </nav>
@@ -982,6 +982,15 @@ async function tcSorgula() {
 
   const [id, sporcu] = found;
   mevcutSporcu = { id, ...sporcu };
+
+  // Giriş kaydını Firebase'e yaz
+  db.ref('kulup/veliGiris').push({
+    tc: tc,
+    sporcuAd: sporcu.ad || '',
+    sporcuId: id,
+    grup: sporcu.grup || '',
+    zaman: new Date().toISOString()
+  });
 
   const fotoEl = document.getElementById('sporcu-foto-el');
   if (sporcu.foto) {
