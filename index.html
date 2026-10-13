@@ -1117,8 +1117,6 @@ document.getElementById('tc-input').addEventListener('input', function() {
 });
 
 // ===== MAÇLAR / YouTube =====
-const YT_API_KEY = 'AIzaSyCN0iIVuKWHrBxs8o5VuLR-5cTaIkUpFFI';
-const YT_KANAL_ID = '@VaveylaSporKulübü41';
 let ytVideolar = [];
 let macTCDogrulandi = false;
 let macDogruSporcu = null;
@@ -1189,59 +1187,30 @@ async function ytVideoYukle() {
   grid.innerHTML = '<div class="loading" style="grid-column:span 3;">⏳ Videolar yükleniyor...</div>';
 
   try {
-    // Kanal ID'sini handle'dan al
-    const handleRes = await fetch(
-      `https://www.googleapis.com/youtube/v3/channels?part=id,snippet&forHandle=VaveylaSporKulubu41&key=${YT_API_KEY}`
-    );
-    let kanalId = null;
-    if (handleRes.ok) {
-      const hData = await handleRes.json();
-      if (hData.items && hData.items.length > 0) kanalId = hData.items[0].id;
-    }
+    const snap = await db.ref('kulup/videolar').once('value');
+    const data = snap.val();
 
-    // Handle bulunamazsa search ile dene
-    if (!kanalId) {
-      const searchRes = await fetch(
-        `https://www.googleapis.com/youtube/v3/search?part=snippet&q=Vaveyla+Spor+Kulübü&type=channel&key=${YT_API_KEY}&maxResults=5`
-      );
-      if (searchRes.ok) {
-        const sData = await searchRes.json();
-        if (sData.items && sData.items.length > 0) kanalId = sData.items[0].snippet.channelId;
-      }
-    }
-
-    if (!kanalId) {
-      grid.innerHTML = '<div class="empty"><span class="icon">📺</span><p>Kanal bulunamadı. Admin YouTube kanal ID\'sini kontrol etmeli.</p></div>';
+    if (!data) {
+      grid.innerHTML = '<div class="empty"><span class="icon">📺</span><p>Henüz maç videosu eklenmemiş.</p></div>';
       return;
     }
 
-    // Son videoları çek
-    const vidRes = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${kanalId}&order=date&type=video&maxResults=12&key=${YT_API_KEY}`
-    );
-    if (!vidRes.ok) throw new Error('YouTube API hatası');
-    const vData = await vidRes.json();
+    ytVideolar = Object.entries(data).map(([id,v]) => ({id,...v}));
+    ytVideolar.sort((a,b) => (b.tarih||'') > (a.tarih||'') ? 1 : -1);
 
-    if (!vData.items || vData.items.length === 0) {
-      grid.innerHTML = '<div class="empty"><span class="icon">📺</span><p>Henüz video yüklenmemiş.</p></div>';
-      return;
-    }
-
-    ytVideolar = vData.items;
     let html = '';
-    vData.items.forEach(item => {
-      const vid = item.id.videoId;
-      const thumb = item.snippet.thumbnails.medium?.url || item.snippet.thumbnails.default?.url;
-      const baslik = item.snippet.title;
-      const tarih = new Date(item.snippet.publishedAt).toLocaleDateString('tr-TR', {day:'2-digit',month:'long',year:'numeric'});
-      html += `<div class="video-kart" onclick="videoAc('${vid}', '${baslik.replace(/'/g,'&#39;')}')">
+    ytVideolar.forEach(v => {
+      const thumb = `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`;
+      const tarih = v.tarih ? new Date(v.tarih).toLocaleDateString('tr-TR',{day:'2-digit',month:'long',year:'numeric'}) : '';
+      html += `<div class="video-kart" onclick="videoAc('${v.videoId}', '${(v.baslik||'').replace(/'/g,'&#39;')}')">
         <div class="video-thumb-wrap">
-          <img src="${thumb}" alt="${baslik}" loading="lazy">
+          <img src="${thumb}" alt="${v.baslik||''}" loading="lazy">
           <div class="video-play-btn"><span>▶️</span></div>
         </div>
         <div class="video-bilgi">
-          <div class="video-baslik">${baslik}</div>
-          <div class="video-tarih">📅 ${tarih}</div>
+          <div class="video-baslik">${v.baslik||''}</div>
+          ${tarih ? `<div class="video-tarih">📅 ${tarih}</div>` : ''}
+          ${v.aciklama ? `<div class="video-tarih">${v.aciklama}</div>` : ''}
         </div>
       </div>`;
     });
