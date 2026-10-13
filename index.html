@@ -738,6 +738,13 @@ body {
 
     <!-- Video Listesi (TC doğrulandıktan sonra görünür) -->
     <div class="video-section" id="video-section">
+      <div style="margin-bottom:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <input type="text" id="video-arama" class="mac-tc-input"
+          placeholder="🔍 Maç ara... (takım, tarih, açıklama)"
+          oninput="videoFiltrele()"
+          style="flex:1;min-width:200px;max-width:500px;">
+        <span id="video-sayi" style="font-size:0.83em;color:var(--muted);white-space:nowrap;"></span>
+      </div>
       <div class="video-grid" id="video-grid">
         <div class="loading">⏳ Videolar yükleniyor...</div>
       </div>
@@ -1207,27 +1214,50 @@ async function ytVideoYukle() {
     ytVideolar = Object.entries(data).map(([id,v]) => ({id,...v}));
     ytVideolar.sort((a,b) => (b.tarih||'') > (a.tarih||'') ? 1 : -1);
 
-    let html = '';
-    ytVideolar.forEach(v => {
-      const thumb = `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`;
-      const tarih = v.tarih ? new Date(v.tarih).toLocaleDateString('tr-TR',{day:'2-digit',month:'long',year:'numeric'}) : '';
-      html += `<div class="video-kart" onclick="videoAc('${v.videoId}', '${(v.baslik||'').replace(/'/g,'&#39;')}')">
-        <div class="video-thumb-wrap">
-          <img src="${thumb}" alt="${v.baslik||''}" loading="lazy">
-          <div class="video-play-btn"><span>▶️</span></div>
-        </div>
-        <div class="video-bilgi">
-          <div class="video-baslik">${v.baslik||''}</div>
-          ${tarih ? `<div class="video-tarih">📅 ${tarih}</div>` : ''}
-          ${v.aciklama ? `<div class="video-tarih">${v.aciklama}</div>` : ''}
-        </div>
-      </div>`;
-    });
-    grid.innerHTML = html;
+    videoGridRender(ytVideolar);
 
   } catch(err) {
     grid.innerHTML = `<div class="empty"><span class="icon">⚠️</span><p>Videolar yüklenemedi: ${err.message}</p></div>`;
   }
+}
+
+function videoGridRender(liste) {
+  const grid = document.getElementById('video-grid');
+  const sayiEl = document.getElementById('video-sayi');
+  if (!liste || liste.length === 0) {
+    grid.innerHTML = '<div class="empty"><span class="icon">🔍</span><p>Arama sonucu bulunamadı.</p></div>';
+    if (sayiEl) sayiEl.textContent = '';
+    return;
+  }
+  if (sayiEl) sayiEl.textContent = liste.length + ' video';
+  let html = '';
+  liste.forEach(v => {
+    const thumb = `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`;
+    const tarih = v.tarih ? new Date(v.tarih).toLocaleDateString('tr-TR',{day:'2-digit',month:'long',year:'numeric'}) : '';
+    html += `<div class="video-kart" onclick="videoAc('${v.videoId}', '${(v.baslik||'').replace(/'/g,'&#39;')}')">
+      <div class="video-thumb-wrap">
+        <img src="${thumb}" alt="${v.baslik||''}" loading="lazy">
+        <div class="video-play-btn"><span>▶️</span></div>
+      </div>
+      <div class="video-bilgi">
+        <div class="video-baslik">${v.baslik||''}</div>
+        ${tarih ? `<div class="video-tarih">📅 ${tarih}</div>` : ''}
+        ${v.aciklama ? `<div class="video-tarih">${v.aciklama}</div>` : ''}
+      </div>
+    </div>`;
+  });
+  grid.innerHTML = html;
+}
+
+function videoFiltrele() {
+  const q = (document.getElementById('video-arama').value || '').toLowerCase().trim();
+  if (!q) { videoGridRender(ytVideolar); return; }
+  const filtre = ytVideolar.filter(v =>
+    (v.baslik||'').toLowerCase().includes(q) ||
+    (v.aciklama||'').toLowerCase().includes(q) ||
+    (v.tarih||'').includes(q)
+  );
+  videoGridRender(filtre);
 }
 
 function videoAc(videoId, baslik) {
