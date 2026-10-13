@@ -318,6 +318,131 @@ body {
 .empty .icon { font-size: 2em; display: block; margin-bottom: 8px; }
 .loading { text-align: center; padding: 30px; color: var(--muted); }
 
+/* ========= MAÇLAR ========= */
+.mac-wrap { max-width: 1100px; margin: 0 auto; padding: 32px 20px; }
+.mac-baslik { margin-bottom: 28px; }
+.mac-baslik h2 { font-size: 1.5em; font-weight: 800; color: var(--red); }
+.mac-baslik p  { color: var(--muted); margin-top: 4px; font-size: 0.9em; }
+
+/* TC Giriş Kartı */
+.mac-tc-kart {
+  background: var(--surface); border-radius: 14px;
+  border: 1px solid var(--border); padding: 28px 24px;
+  max-width: 460px; margin: 0 auto 32px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06); text-align: center;
+}
+.mac-tc-kart h3 { font-size: 1.1em; font-weight: 700; margin-bottom: 6px; color: var(--red); }
+.mac-tc-kart p  { font-size: 0.85em; color: var(--muted); margin-bottom: 18px; }
+.mac-tc-row { display: flex; gap: 10px; }
+.mac-tc-input {
+  flex: 1; padding: 12px 16px; border: 2px solid var(--border);
+  border-radius: 10px; font-size: 1em; outline: none; transition: border 0.2s;
+}
+.mac-tc-input:focus { border-color: var(--red); }
+.mac-tc-btn {
+  padding: 12px 22px; background: var(--red); color: white;
+  border: none; border-radius: 10px; font-weight: 700;
+  cursor: pointer; font-size: 0.95em; white-space: nowrap;
+  transition: background 0.2s;
+}
+.mac-tc-btn:hover { background: var(--red2); }
+.mac-tc-hata {
+  display: none; color: #991B1B; background: #FEE2E2;
+  border-radius: 8px; padding: 10px 14px; margin-top: 12px;
+  font-size: 0.85em; font-weight: 600;
+}
+.mac-tc-hata.goster { display: block; }
+.mac-hosgeldin {
+  display: none; color: #065F46; background: #D1FAE5;
+  border-radius: 8px; padding: 10px 14px; margin-top: 12px;
+  font-size: 0.85em; font-weight: 600;
+}
+.mac-hosgeldin.goster { display: block; }
+
+/* Video Grid */
+.video-section { display: none; }
+.video-section.aktif { display: block; }
+.video-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr));
+  gap: 20px;
+}
+.video-kart {
+  background: var(--surface); border-radius: 14px;
+  border: 1px solid var(--border); overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+.video-kart:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+.video-thumb-wrap { position: relative; padding-top: 56.25%; overflow: hidden; }
+.video-thumb-wrap img { position: absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.video-play-btn {
+  position: absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  background: rgba(0,0,0,0.35); transition: background 0.2s;
+}
+.video-kart:hover .video-play-btn { background: rgba(139,0,0,0.6); }
+.video-play-btn span { font-size: 2.5em; }
+.video-bilgi { padding: 14px 16px; }
+.video-baslik { font-weight: 700; font-size: 0.95em; margin-bottom: 4px; line-height: 1.4; }
+.video-tarih  { font-size: 0.78em; color: var(--muted); }
+
+/* Video Modal */
+.video-modal-overlay {
+  display: none; position: fixed; inset:0; z-index: 2000;
+  background: rgba(0,0,0,0.9); align-items: center; justify-content: center;
+  flex-direction: column;
+}
+.video-modal-overlay.acik { display: flex; }
+.video-modal-kapat {
+  position: absolute; top: 16px; right: 20px;
+  background: none; border: none; color: white;
+  font-size: 2em; cursor: pointer; line-height: 1; z-index: 10;
+}
+.video-modal-iframe {
+  width: min(860px, 95vw);
+  aspect-ratio: 16/9;
+  border: none; border-radius: 12px;
+}
+
+/* TC Giriş Modal */
+.tc-modal-overlay {
+  display: none; position: fixed; inset:0; z-index: 3000;
+  background: rgba(0,0,0,0.75); align-items: center; justify-content: center;
+}
+.tc-modal-overlay.acik { display: flex; }
+.tc-modal-kart {
+  background: white; border-radius: 16px; padding: 32px 28px;
+  max-width: 400px; width: 90%; text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.tc-modal-kart h3 { font-size: 1.2em; font-weight: 800; color: var(--red); margin-bottom: 8px; }
+.tc-modal-kart p  { font-size: 0.85em; color: var(--muted); margin-bottom: 20px; }
+.tc-modal-input {
+  width: 100%; padding: 13px 16px; border: 2px solid var(--border);
+  border-radius: 10px; font-size: 1em; text-align: center;
+  outline: none; transition: border 0.2s; margin-bottom: 12px;
+}
+.tc-modal-input:focus { border-color: var(--red); }
+.tc-modal-btn {
+  width: 100%; padding: 13px; background: var(--red); color: white;
+  border: none; border-radius: 10px; font-weight: 700; font-size: 1em;
+  cursor: pointer; transition: background 0.2s;
+}
+.tc-modal-btn:hover { background: var(--red2); }
+.tc-modal-iptal {
+  margin-top: 10px; background: none; border: none; color: var(--muted);
+  font-size: 0.85em; cursor: pointer; text-decoration: underline;
+}
+.tc-modal-hata {
+  display: none; color: #991B1B; background: #FEE2E2;
+  border-radius: 8px; padding: 10px; margin-top: 10px;
+  font-size: 0.85em; font-weight: 600;
+}
+.tc-modal-hata.goster { display: block; }
+
+@media (max-width: 760px) {
+  .video-grid { grid-template-columns: 1fr; }
+}
+
 /* ========= LIGHTBOX ========= */
 .lightbox {
   display: none; position: fixed; inset: 0; z-index: 1000;
@@ -404,6 +529,7 @@ body {
     <button class="nav-tab active" onclick="showPage('ana',this)">🏠 Ana Sayfa</button>
     <button class="nav-tab" onclick="showPage('urunler',this)">🛍️ Ürünlerimiz</button>
     <button class="nav-tab" onclick="showPage('veli',this)">👨‍👧 Veli Bilgi Sistemi</button>
+    <button class="nav-tab" onclick="showPage('maclar',this)">🎬 Maçlarımız</button>
   </div>
 </nav>
 
@@ -587,6 +713,63 @@ body {
   </div>
 </section>
 
+<!-- ========= MAÇLAR ========= -->
+<section class="page-section" id="page-maclar">
+  <div class="mac-wrap">
+    <div class="mac-baslik">
+      <h2>🎬 Maçlarımız</h2>
+      <p>Sporcularımızın maç videolarını izlemek için TC kimlik numaranızı girin</p>
+    </div>
+
+    <!-- TC Giriş Alanı -->
+    <div class="mac-tc-kart" id="mac-tc-kart">
+      <h3>🔐 Sporcu Doğrulama</h3>
+      <p>Videolara erişmek için kayıtlı TC kimlik numaranızı girin</p>
+      <div class="mac-tc-row">
+        <input type="number" id="mac-tc-input" class="mac-tc-input"
+          placeholder="TC Kimlik No (11 hane)"
+          oninput="if(this.value.length>11)this.value=this.value.slice(0,11)"
+          onkeydown="if(event.key==='Enter')macTCGiris()">
+        <button class="mac-tc-btn" onclick="macTCGiris()">Giriş</button>
+      </div>
+      <div class="mac-tc-hata" id="mac-tc-hata">❌ TC kimlik numarası bulunamadı. Lütfen tekrar deneyin.</div>
+      <div class="mac-hosgeldin" id="mac-hosgeldin"></div>
+    </div>
+
+    <!-- Video Listesi (TC doğrulandıktan sonra görünür) -->
+    <div class="video-section" id="video-section">
+      <div class="video-grid" id="video-grid">
+        <div class="loading">⏳ Videolar yükleniyor...</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TC Doğrulama Modal (video tıklanınca) -->
+<div class="tc-modal-overlay" id="tc-modal">
+  <div class="tc-modal-kart">
+    <h3>🔐 Sporcu Doğrulama</h3>
+    <p>Bu videoyu izlemek için TC kimlik numaranızı girin</p>
+    <input type="number" id="tc-modal-input" class="tc-modal-input"
+      placeholder="TC Kimlik No"
+      oninput="if(this.value.length>11)this.value=this.value.slice(0,11)"
+      onkeydown="if(event.key==='Enter')tcModalDogrula()">
+    <div class="tc-modal-hata" id="tc-modal-hata">❌ TC kimlik numarası bulunamadı.</div>
+    <button class="tc-modal-btn" onclick="tcModalDogrula()">İzle</button>
+    <br>
+    <button class="tc-modal-iptal" onclick="tcModalKapat()">İptal</button>
+  </div>
+</div>
+
+<!-- Video İzleme Modal -->
+<div class="video-modal-overlay" id="video-modal">
+  <button class="video-modal-kapat" onclick="videoKapat()">✕</button>
+  <iframe class="video-modal-iframe" id="video-iframe"
+    src="" allowfullscreen
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+  </iframe>
+</div>
+
 <!-- ========= LIGHTBOX ========= -->
 <div class="lightbox" id="lightbox" onclick="kapatLightbox(event)">
   <div class="lightbox-inner">
@@ -630,6 +813,7 @@ function showPage(sayfa, btn) {
   document.getElementById('page-' + sayfa).classList.add('active');
   if (btn) btn.classList.add('active');
   if (sayfa === 'urunler') loadUrunler();
+  if (sayfa === 'maclar') macSayfasiAc();
 }
 
 // ===== ANA SAYFA FOTOĞRAFLARİ =====
@@ -930,6 +1114,182 @@ async function loadVeliAidat() {
 
 document.getElementById('tc-input').addEventListener('input', function() {
   this.value = this.value.replace(/\D/g,'').slice(0,11);
+});
+
+// ===== MAÇLAR / YouTube =====
+const YT_API_KEY = 'AIzaSyCN0iIVuKWHrBxs8o5VuLR-5cTaIkUpFFI';
+const YT_KANAL_ID = '@VaveylaSporKulübü41';
+let ytVideolar = [];
+let macTCDogrulandi = false;
+let macDogruSporcu = null;
+let bekleyenVideoId = null;
+let tumTCler = null; // cache
+
+async function macSayfasiAc() {
+  // TC listesi zaten yüklüyse yeniden yükleme
+  if (!tumTCler) {
+    const snap = await db.ref('kulup/sporcular').once('value');
+    const data = snap.val() || {};
+    tumTCler = {};
+    Object.values(data).forEach(s => {
+      if (s.tc) tumTCler[String(s.tc).trim()] = s;
+    });
+  }
+  // Eğer zaten doğrulandıysa videoları göster
+  if (macTCDogrulandi) {
+    document.getElementById('mac-tc-kart').style.display = 'none';
+    document.getElementById('video-section').classList.add('aktif');
+    if (ytVideolar.length === 0) ytVideoYukle();
+  }
+}
+
+async function macTCGiris() {
+  const tc = document.getElementById('mac-tc-input').value.trim();
+  const hataEl = document.getElementById('mac-tc-hata');
+  const hosgeldinEl = document.getElementById('mac-hosgeldin');
+  hataEl.classList.remove('goster');
+  hosgeldinEl.classList.remove('goster');
+
+  if (tc.length !== 11) {
+    hataEl.textContent = '❌ TC kimlik numarası 11 haneli olmalıdır.';
+    hataEl.classList.add('goster');
+    return;
+  }
+
+  if (!tumTCler) {
+    const snap = await db.ref('kulup/sporcular').once('value');
+    const data = snap.val() || {};
+    tumTCler = {};
+    Object.values(data).forEach(s => {
+      if (s.tc) tumTCler[String(s.tc).trim()] = s;
+    });
+  }
+
+  const sporcu = tumTCler[tc];
+  if (!sporcu) {
+    hataEl.textContent = '❌ TC kimlik numarası bulunamadı. Lütfen kulüpte kayıtlı TC numaranızı girin.';
+    hataEl.classList.add('goster');
+    return;
+  }
+
+  macTCDogrulandi = true;
+  macDogruSporcu = sporcu;
+  hosgeldinEl.textContent = '✅ Hoş geldin, ' + (sporcu.ad || 'Sporcu') + '! Videoları izleyebilirsiniz.';
+  hosgeldinEl.classList.add('goster');
+
+  setTimeout(() => {
+    document.getElementById('mac-tc-kart').style.display = 'none';
+    document.getElementById('video-section').classList.add('aktif');
+    ytVideoYukle();
+  }, 1200);
+}
+
+async function ytVideoYukle() {
+  const grid = document.getElementById('video-grid');
+  grid.innerHTML = '<div class="loading" style="grid-column:span 3;">⏳ Videolar yükleniyor...</div>';
+
+  try {
+    // Kanal ID'sini handle'dan al
+    const handleRes = await fetch(
+      `https://www.googleapis.com/youtube/v3/channels?part=id,snippet&forHandle=VaveylaSporKulubu41&key=${YT_API_KEY}`
+    );
+    let kanalId = null;
+    if (handleRes.ok) {
+      const hData = await handleRes.json();
+      if (hData.items && hData.items.length > 0) kanalId = hData.items[0].id;
+    }
+
+    // Handle bulunamazsa search ile dene
+    if (!kanalId) {
+      const searchRes = await fetch(
+        `https://www.googleapis.com/youtube/v3/search?part=snippet&q=Vaveyla+Spor+Kulübü&type=channel&key=${YT_API_KEY}&maxResults=5`
+      );
+      if (searchRes.ok) {
+        const sData = await searchRes.json();
+        if (sData.items && sData.items.length > 0) kanalId = sData.items[0].snippet.channelId;
+      }
+    }
+
+    if (!kanalId) {
+      grid.innerHTML = '<div class="empty"><span class="icon">📺</span><p>Kanal bulunamadı. Admin YouTube kanal ID\'sini kontrol etmeli.</p></div>';
+      return;
+    }
+
+    // Son videoları çek
+    const vidRes = await fetch(
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${kanalId}&order=date&type=video&maxResults=12&key=${YT_API_KEY}`
+    );
+    if (!vidRes.ok) throw new Error('YouTube API hatası');
+    const vData = await vidRes.json();
+
+    if (!vData.items || vData.items.length === 0) {
+      grid.innerHTML = '<div class="empty"><span class="icon">📺</span><p>Henüz video yüklenmemiş.</p></div>';
+      return;
+    }
+
+    ytVideolar = vData.items;
+    let html = '';
+    vData.items.forEach(item => {
+      const vid = item.id.videoId;
+      const thumb = item.snippet.thumbnails.medium?.url || item.snippet.thumbnails.default?.url;
+      const baslik = item.snippet.title;
+      const tarih = new Date(item.snippet.publishedAt).toLocaleDateString('tr-TR', {day:'2-digit',month:'long',year:'numeric'});
+      html += `<div class="video-kart" onclick="videoAc('${vid}', '${baslik.replace(/'/g,'&#39;')}')">
+        <div class="video-thumb-wrap">
+          <img src="${thumb}" alt="${baslik}" loading="lazy">
+          <div class="video-play-btn"><span>▶️</span></div>
+        </div>
+        <div class="video-bilgi">
+          <div class="video-baslik">${baslik}</div>
+          <div class="video-tarih">📅 ${tarih}</div>
+        </div>
+      </div>`;
+    });
+    grid.innerHTML = html;
+
+  } catch(err) {
+    grid.innerHTML = `<div class="empty"><span class="icon">⚠️</span><p>Videolar yüklenemedi: ${err.message}</p></div>`;
+  }
+}
+
+function videoAc(videoId, baslik) {
+  // İzleme kaydı Firebase'e yaz
+  if (macDogruSporcu) {
+    const kayit = {
+      sporcuId: macDogruSporcu.id || '',
+      sporcuAd: macDogruSporcu.ad || '',
+      tc: macDogruSporcu.tc || '',
+      videoId,
+      baslik,
+      zaman: new Date().toISOString()
+    };
+    db.ref('kulup/videoIzleme').push(kayit);
+  }
+  // Videoyu aç
+  document.getElementById('video-iframe').src =
+    `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+  document.getElementById('video-modal').classList.add('acik');
+}
+
+function videoKapat() {
+  document.getElementById('video-modal').classList.remove('acik');
+  document.getElementById('video-iframe').src = '';
+}
+
+function tcModalKapat() {
+  document.getElementById('tc-modal').classList.remove('acik');
+  bekleyenVideoId = null;
+}
+
+// Escape ile kapat
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    videoKapat();
+    tcModalKapat();
+  }
+});
+document.getElementById('video-modal').addEventListener('click', function(e) {
+  if (e.target === this) videoKapat();
 });
 
 // ===== ZİYARET SAYACI =====
