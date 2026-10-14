@@ -503,7 +503,7 @@
                   <th>Veli</th>
                   <th>Veli Tel</th>
                   <th onclick="sortSporcu('dogumYili')">Doğum Yılı ↕</th>
-                  <th>Boy / Kilo</th>
+                  <th>TC Kimlik</th>
                   <th onclick="sortSporcu('kayit')">Kayıt Tarihi ↕</th>
                   <th onclick="sortSporcu('durum')">Durum ↕</th>
                   <th></th>
@@ -1560,7 +1560,7 @@ function renderSporcu() {
         <td>${s.veliAd||'—'}</td>
         <td>${s.veliTel||'—'}</td>
         <td>${dogumYili||'—'}</td>
-        <td>${s.boy?s.boy+'cm':'—'}${s.kilo?' / '+s.kilo+'kg':''}</td>
+        <td>${s.tc||'—'}</td>
         <td style="font-size:0.82em;">${s.kayit ? new Date(s.kayit).toLocaleDateString('tr-TR') : '—'}</td>
         <td>${badge}</td>
         <td>
