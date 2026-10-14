@@ -299,10 +299,10 @@ body {
 }
 .sporcu-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
 .sporcu-foto {
-  width: 64px; height: 64px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+  width: 90px; height: 90px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
   background: var(--gold); color: var(--red);
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.6em; font-weight: 700;
+  font-size: 2em; font-weight: 700;
 }
 .sporcu-adi  { font-size: 1.1em; font-weight: 700; }
 .sporcu-grup { font-size: 0.8em; color: var(--muted); margin-top: 2px; }
@@ -540,6 +540,11 @@ body {
   .hero h2         { font-size: 1.4em; }
   .lightbox-prev   { left: -36px; }
   .lightbox-next   { right: -36px; }
+}
+/* Tablet — 481px ile 900px arası */
+@media (min-width: 481px) and (max-width: 900px) {
+  .urun-resim-wrap { height: 200px; }
+  .urun-grid { grid-template-columns: repeat(2,1fr); gap: 18px; }
 }
 @media (max-width: 480px) {
   .urun-grid { grid-template-columns: 1fr; }
