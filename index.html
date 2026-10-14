@@ -216,23 +216,39 @@ body {
   transition: box-shadow 0.2s, transform 0.2s;
 }
 .urun-kart:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.12); transform: translateY(-3px); }
-.urun-resim-wrap { position: relative; }
+.urun-resim-wrap {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  background: var(--surface);
+}
 .urun-ana-img {
-  width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block;
+  grid-row: 1 / 4;
+  grid-column: 1;
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  border-radius: 8px;
   background: #f0e8e8;
+  min-height: 180px;
 }
-.urun-kucuk-imgs {
-  display: flex; gap: 4px; padding: 4px;
-  background: rgba(0,0,0,0.03);
+.urun-kucuk-wrap {
+  grid-column: 2;
+  grid-row: 1 / 4;
+  display: grid;
+  grid-template-rows: 1fr 1fr 1fr;
+  gap: 4px;
 }
-.urun-kucuk-imgs img {
-  flex: 1; aspect-ratio: 1; object-fit: cover;
-  border-radius: 4px; cursor: pointer; transition: opacity 0.2s;
-  border: 2px solid transparent;
+.urun-kucuk-wrap img {
+  width: 100%; height: 100%;
+  object-fit: cover; border-radius: 6px;
+  cursor: pointer; transition: opacity 0.2s;
+  border: 2px solid transparent; display: block;
 }
-.urun-kucuk-imgs img:hover  { opacity: 0.8; }
-.urun-kucuk-imgs img.aktif  { border-color: var(--red); }
-.urun-bilgi { padding: 16px; }
+.urun-kucuk-wrap img:hover { opacity: 0.8; }
+.urun-kucuk-wrap img.aktif { border-color: var(--red); }
+.urun-bilgi { padding: 14px 16px 16px; }
 .urun-adi { font-size: 0.97em; font-weight: 700; color: var(--text); margin-bottom: 6px; }
 .urun-acik { font-size: 0.8em; color: var(--muted); line-height: 1.55; }
 .urun-empty {
@@ -950,6 +966,14 @@ async function loadUrunler() {
     const kucukler = resimler.slice(1, 4);
     const uid = 'u_' + u.id;
 
+    const kucukHTML = [0,1,2].map(i => {
+      const r = kucukler[i];
+      if (r) return `<img src="${r}" class="${i===0?'aktif':''}"
+        onclick="secUrunResim('${uid}','${r}',this);event.stopPropagation()"
+        onerror="this.style.visibility='hidden'" alt="">`;
+      return `<img src="" style="visibility:hidden" alt="">`;
+    }).join('');
+
     html += `<div class="urun-kart" onclick="acUrunLightbox('${u.id}')">
       <div class="urun-resim-wrap">
         <img id="${uid}_ana" class="urun-ana-img"
@@ -957,13 +981,9 @@ async function loadUrunler() {
           alt="${u.ad||''}"
           onerror="this.src='https://placehold.co/400x300/8B0000/E8B84B?text=${encodeURIComponent(u.ad||'Ürün')}'"
         >
-        ${kucukler.length ? `<div class="urun-kucuk-imgs" onclick="event.stopPropagation()">
-          ${kucukler.map((r,i) => `<img src="${r}"
-            class="${i===0?'aktif':''}"
-            onclick="secUrunResim('${uid}','${r}',this)"
-            onerror="this.style.display='none'"
-            alt="">`).join('')}
-        </div>` : ''}
+        <div class="urun-kucuk-wrap" onclick="event.stopPropagation()">
+          ${kucukHTML}
+        </div>
       </div>
       <div class="urun-bilgi">
         <div class="urun-adi">${u.ad||'Ürün'}</div>
@@ -980,7 +1000,7 @@ async function loadUrunler() {
 
 function secUrunResim(uid, src, el) {
   document.getElementById(uid + '_ana').src = src;
-  el.closest('.urun-kucuk-imgs').querySelectorAll('img').forEach(i => i.classList.remove('aktif'));
+  el.closest('.urun-kucuk-wrap').querySelectorAll('img').forEach(i => i.classList.remove('aktif'));
   el.classList.add('aktif');
 }
 
