@@ -1183,7 +1183,7 @@ const PASSWORDS = {
 let currentUser = null;
 
 function getAvatarHtml(s, size) {
-  size = size || 36;
+  size = size || 52;
   if (s.foto) {
     return `<div style="width:${size}px;height:${size}px;border-radius:50%;overflow:hidden;flex-shrink:0;">
       <img src="${s.foto}" style="width:100%;height:100%;object-fit:cover;display:block;"></div>`;
@@ -1300,7 +1300,7 @@ async function loadHatirlatma() {
       .replace(/{ay}/g, ayAdi);
     var url = tel ? 'https://wa.me/'+tel+'?text='+encodeURIComponent(metin) : '';
     html += '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">';
-    html += getAvatarHtml(s,36);
+    html += getAvatarHtml(s,52);
     html += '<div style="flex:1;"><div style="font-weight:600;font-size:0.88em;">'+s.ad+'</div>';
     html += '<div style="font-size:0.75em;color:var(--muted);">'+(s.veliAd||'')+(s.veliTel?' — '+s.veliTel:'')+'</div></div>';
     if(url) html += '<a href="'+url+'" target="_blank" rel="noopener" style="background:#25D366;color:#fff;padding:8px 14px;border-radius:7px;font-size:0.82em;font-weight:700;text-decoration:none;white-space:nowrap;">💬 Gönder</a>';
@@ -1545,7 +1545,7 @@ function renderSporcu() {
     tbody.innerHTML = `<tr><td colspan="10"><div class="empty"><span class="icon">👤</span><p>Sporcu bulunamadı.</p></div></td></tr>`;
   } else {
     tbody.innerHTML = slice.map(s => {
-      const avatarHtml = getAvatarHtml(s, 38);
+      const avatarHtml = getAvatarHtml(s, 52);
       const dogumYili = s.dogum ? new Date(s.dogum).getFullYear() : (s.dogumYili || '');
       const badge = s.durum === 'Pasif'
         ? `<span class="badge badge-gray">Pasif</span>`
@@ -1867,7 +1867,7 @@ function renderYoklamaListe(liste) {
   container.innerHTML = liste.map(s => {
     const durum = yoklamaState[s.id];
     return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:12px 16px;display:flex;align-items:center;gap:12px;transition:border-color 0.15s;" id="yok-card-${s.id}">
-      ${getAvatarHtml(s, 36)}
+      ${getAvatarHtml(s, 52)}
       <div style="flex:1;">
         <div style="font-weight:500;font-size:0.9em;">${s.ad}</div>
         <div style="font-size:0.75em;color:var(--muted);">${s.veliTel||''}</div>
@@ -2169,7 +2169,7 @@ async function loadAidat() {
     const kayitTarih = s.kayit ? new Date(s.kayit).toLocaleDateString('tr-TR') : '—';
     const durumBadge = (!s.durum || s.durum==='Aktif') ? '<span class="badge badge-green">Aktif</span>' : '<span class="badge badge-gray">Pasif</span>';
     return `<tr data-sid="${s.id}">
-      <td style="cursor:pointer;" onclick="sporcuAidatModal('${s.id}')" title="Aidat geçmişi"><div class="cell-name">${getAvatarHtml(s,34)}<span style="font-weight:500;">${s.ad}</span></div></td>
+      <td style="cursor:pointer;" onclick="sporcuAidatModal('${s.id}')" title="Aidat geçmişi"><div class="cell-name">${getAvatarHtml(s,52)}<span style="font-weight:500;">${s.ad}</span></div></td>
       <td style="font-size:0.8em;color:var(--muted);">${s.grup||'—'}</td>
       <td style="font-weight:600;">${s.aidat?'₺'+s.aidat:'—'}</td>
       <td>
@@ -2324,7 +2324,7 @@ async function loadIstatistik() {
               </span>`
             ).join('');
             return `<tr style="cursor:pointer;" onclick="toggleDetay('${detayId}')">
-              <td><div class="cell-name">${getAvatarHtml(s,36)}
+              <td><div class="cell-name">${getAvatarHtml(s,52)}
                 <div><div style="font-weight:500;">${s.ad}</div>
                 <div style="font-size:0.72em;color:var(--muted);">detay için tıkla ▾</div></div>
               </div></td>
@@ -2698,8 +2698,8 @@ async function sporcuBilgiModal(sporcuId) {
 
   body.innerHTML = `
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid var(--gold);">
-      ${s.foto ? `<img src="${s.foto}" style="width:70px;height:70px;border-radius:50%;object-fit:cover;flex-shrink:0;">` : 
-        `<div style="width:70px;height:70px;border-radius:50%;background:var(--gold);color:var(--red);display:flex;align-items:center;justify-content:center;font-size:1.8em;font-weight:700;flex-shrink:0;">${(s.ad||'?')[0]}</div>`}
+      ${s.foto ? `<img src="${s.foto}" style="width:90px;height:90px;border-radius:50%;object-fit:cover;flex-shrink:0;">` :
+        `<div style="width:90px;height:90px;border-radius:50%;background:var(--gold);color:var(--red);display:flex;align-items:center;justify-content:center;font-size:2.1em;font-weight:700;flex-shrink:0;">${(s.ad||'?')[0]}</div>`}
       <div>
         <div style="font-size:1.1em;font-weight:800;color:var(--red);">${s.ad||''}</div>
         <div style="font-size:0.82em;color:var(--muted);">${s.grup||''}</div>
@@ -2745,7 +2745,7 @@ async function sporcuAidatModal(sporcuId) {
   const DLABEL = {'odedi':'Ödedi','ay-orta':'Ay Ortasında Geldi','indirimli':'İndirimli Ödedi','eksik':'Eksik Ödedi','bu-ay-odemeyecek':'Bu Ay Ödemeyecek','odemedi':'Ödemedi','odeyemeyecek':'Ödemeyecek'};
   const DBG = {'odedi':'#D1FAE5','ay-orta':'#FEF3C7','indirimli':'#DBEAFE','eksik':'#FFEDD5','bu-ay-odemeyecek':'#BFDBFE','odemedi':'#FEE2E2','odeyemeyecek':'#E5E7EB'};
   const DCOL = {'odedi':'#065F46','ay-orta':'#92400E','indirimli':'#1E40AF','eksik':'#9A3412','bu-ay-odemeyecek':'#1E3A5F','odemedi':'#991B1B','odeyemeyecek':'#374151'};
-  let html = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">' + getAvatarHtml(s,36) + '<div><div style="font-weight:700;">' + s.ad + '</div><div style="font-size:0.78em;color:var(--muted);">' + (s.grup||'') + '</div></div></div>';
+  let html = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">' + getAvatarHtml(s,52) + '<div><div style="font-weight:700;">' + s.ad + '</div><div style="font-size:0.78em;color:var(--muted);">' + (s.grup||'') + '</div></div></div>';
   let toplamOdenen = 0;
   let yil = parseInt(kayitAy.substring(0,4));
   let aym = parseInt(kayitAy.substring(4,6));
