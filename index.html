@@ -18,7 +18,10 @@ body {
   font-family: 'Segoe UI', system-ui, sans-serif;
   background: var(--bg); color: var(--text);
   min-height: 100vh; font-size: 14px;
+  display: flex; flex-direction: column;
 }
+.site-header, .site-nav, .bottom-nav { flex-shrink: 0; }
+.page-section.active { flex: 1; }
 
 /* ========= HEADER ========= */
 .site-header {
@@ -223,6 +226,7 @@ body {
   gap: 4px;
   padding: 4px;
   background: var(--surface);
+  height: 200px;
 }
 .urun-ana-img {
   grid-row: 1 / 4;
@@ -231,8 +235,6 @@ body {
   object-fit: cover; display: block;
   border-radius: 8px;
   background: #f0e8e8;
-  min-height: 130px;
-  max-height: 160px;
 }
 .urun-kucuk-wrap {
   grid-column: 2;
@@ -267,7 +269,7 @@ body {
   border: 1px solid var(--border);
 }
 .tc-card h2 { font-size: 1em; font-weight: 600; color: var(--red); margin-bottom:16px; }
-.tc-input-row { display: flex; gap: 10px; }
+.tc-input-row { display: flex; gap: 10px; flex-wrap: wrap; }
 .tc-input {
   flex: 1; border: 2px solid var(--border); border-radius: 10px;
   padding: 14px 18px; font-size: 1.2em; outline: none;
@@ -517,7 +519,7 @@ body {
   background: linear-gradient(135deg, var(--red), var(--red2));
   color: rgba(255,255,255,0.75);
   text-align: center; padding: 20px 16px;
-  font-size: 0.78em; margin-top: 40px;
+  font-size: 0.78em; margin-top: auto; flex-shrink: 0;
 }
 .site-footer strong { color: var(--gold); }
 
@@ -537,6 +539,8 @@ body {
   .urun-empty { grid-column: span 1; }
   .header-actions { gap: 5px; }
   .header-btn { padding: 6px 9px; font-size: 0.72em; }
+  .tc-input-row { flex-direction: column; }
+  .tc-btn { width: 100%; }
 }
 </style>
 </head>
