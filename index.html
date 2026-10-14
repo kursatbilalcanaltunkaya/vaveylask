@@ -231,7 +231,8 @@ body {
   object-fit: cover; display: block;
   border-radius: 8px;
   background: #f0e8e8;
-  min-height: 180px;
+  min-height: 130px;
+  max-height: 160px;
 }
 .urun-kucuk-wrap {
   grid-column: 2;
@@ -968,8 +969,8 @@ async function loadUrunler() {
 
     const kucukHTML = [0,1,2].map(i => {
       const r = kucukler[i];
-      if (r) return `<img src="${r}" class="${i===0?'aktif':''}"
-        onclick="secUrunResim('${uid}','${r}',this);event.stopPropagation()"
+      if (r) return `<img src="${r}"
+        onclick="acUrunLightbox('${u.id}',${i+1});event.stopPropagation()"
         onerror="this.style.visibility='hidden'" alt="">`;
       return `<img src="" style="visibility:hidden" alt="">`;
     }).join('');
@@ -998,17 +999,11 @@ async function loadUrunler() {
   urunler.forEach(u => { window._urunData[u.id] = u; });
 }
 
-function secUrunResim(uid, src, el) {
-  document.getElementById(uid + '_ana').src = src;
-  el.closest('.urun-kucuk-wrap').querySelectorAll('img').forEach(i => i.classList.remove('aktif'));
-  el.classList.add('aktif');
-}
-
-function acUrunLightbox(id) {
+function acUrunLightbox(id, idx) {
   const u = window._urunData && window._urunData[id];
   if (!u) return;
   const resimler = [u.resim1, u.resim2, u.resim3, u.resim4].filter(Boolean);
-  if (resimler.length) acLightbox(resimler, 0);
+  if (resimler.length) acLightbox(resimler, idx || 0);
 }
 
 // ===== VELİ BİLGİ SİSTEMİ =====
