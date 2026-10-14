@@ -68,30 +68,20 @@ body {
 .nav-tab:hover  { color: #fff; }
 .nav-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
 
-/* ========= MOBİL ALT NAV ========= */
+/* ========= MOBİL NAV 2. SATIR ========= */
 .bottom-nav { display: none; }
 @media (max-width: 600px) {
   .bottom-nav {
     display: flex;
-    position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
     background: var(--red2);
-    border-top: 2px solid rgba(255,255,255,0.15);
-    box-shadow: 0 -2px 12px rgba(0,0,0,0.3);
+    border-bottom: 2px solid rgba(255,255,255,0.1);
   }
   .bottom-nav .nav-tab {
-    flex: 1; display: flex; flex-direction: column; align-items: center;
-    padding: 8px 4px 10px; font-size: 0.7em; border-bottom: none;
-    border-top: 3px solid transparent; gap: 3px;
+    flex: 1; text-align: center;
   }
-  .bottom-nav .nav-tab.active {
-    border-top-color: var(--gold); border-bottom-color: transparent;
-  }
-  .bottom-nav .nav-tab .btn-icon { font-size: 1.5em; line-height: 1; }
   /* üst navdaki veli ve maç sekmelerini mobilde gizle */
   .site-nav .nav-tab-veli,
   .site-nav .nav-tab-mac { display: none; }
-  /* içerik alta yapışmasın diye boşluk */
-  body { padding-bottom: 62px; }
 }
 
 /* ========= SAYFALAR ========= */
@@ -559,14 +549,10 @@ body {
   </div>
 </nav>
 
-<!-- ========= MOBİL ALT NAV ========= -->
+<!-- ========= MOBİL 2. SATIR NAV ========= -->
 <nav class="bottom-nav">
-  <button class="nav-tab" onclick="showPage('veli',this)">
-    <span class="btn-icon">👨‍👧</span>Veli Sistemi
-  </button>
-  <button class="nav-tab" onclick="showPage('maclar',this)">
-    <span class="btn-icon">🎬</span>Maçlarımız
-  </button>
+  <button class="nav-tab nav-tab-veli2" onclick="showPage('veli',this)">👨‍👧 Veli Bilgilendirme Sistemi</button>
+  <button class="nav-tab nav-tab-mac2" onclick="showPage('maclar',this)">🎬 Maçlarımız</button>
 </nav>
 
 <!-- ========= ANA SAYFA ========= -->
