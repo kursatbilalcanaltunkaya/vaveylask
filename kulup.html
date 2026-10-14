@@ -37,7 +37,7 @@
   .layout { display: flex; min-height: 100vh; }
 
   .sidebar {
-    width: 245px;
+    width: 220px;
     background: var(--red);
     flex-shrink: 0;
     display: flex;
@@ -49,7 +49,7 @@
     transition: width 0.25s;
     overflow: hidden;
   }
-  .sidebar.collapsed { width: 56px; }
+  .sidebar.collapsed { width: 72px; }
   .sidebar.collapsed .nav-label,
   .sidebar.collapsed .sidebar-brand .logo,
   .sidebar.collapsed .sidebar-brand .sub,
@@ -59,7 +59,7 @@
   .sidebar.collapsed .btn-logout { display: none; }
   .sidebar.collapsed .nav-item { justify-content: center; padding: 10px; }
   .sidebar.collapsed .sidebar-brand { justify-content: center; }
-  .sidebar.collapsed + .main { margin-left: 56px; }
+  .sidebar.collapsed + .main { margin-left: 72px; }
 
   .sidebar-brand {
     padding: 24px 20px 20px;
@@ -106,7 +106,7 @@
 
   /* ── Main ────────────────────────────────────────────── */
   .main {
-    margin-left: 245px;
+    margin-left: 220px;
     transition: margin-left 0.25s;
     flex: 1;
     display: flex;
