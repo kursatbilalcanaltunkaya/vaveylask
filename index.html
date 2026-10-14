@@ -548,9 +548,21 @@ body {
   .header-btn { padding: 6px 9px; font-size: 0.72em; }
   .tc-input-row { flex-direction: column; }
   .tc-btn { width: 100%; }
-  .urun-resim-wrap { height: 180px; }
-  .urun-kucuk-wrap { gap: 2px; }
-  .urun-kucuk-wrap img { border-radius: 3px; }
+  .urun-resim-wrap {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    height: auto;
+  }
+  .urun-ana-img {
+    grid-row: 1; grid-column: 1;
+    height: 180px;
+  }
+  .urun-kucuk-wrap {
+    grid-row: 2; grid-column: 1;
+    grid-template-rows: none;
+    grid-template-columns: 1fr 1fr 1fr;
+    height: 70px;
+  }
 }
 </style>
 </head>
@@ -1262,7 +1274,7 @@ async function ytVideoYukle() {
     }
 
     ytVideolar = Object.entries(data).map(([id,v]) => ({id,...v}));
-    ytVideolar.sort((a,b) => (b.tarih||'') > (a.tarih||'') ? 1 : -1);
+    ytVideolar.sort((a,b) => (a.sira ?? 9999) - (b.sira ?? 9999) || ((b.tarih||'') > (a.tarih||'') ? 1 : -1));
 
     videoGridRender(ytVideolar);
 
