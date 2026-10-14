@@ -217,6 +217,7 @@ body {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: 16px; overflow: hidden; cursor: pointer;
   transition: box-shadow 0.2s, transform 0.2s;
+  display: flex; flex-direction: column;
 }
 .urun-kart:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.12); transform: translateY(-3px); }
 .urun-resim-wrap {
@@ -226,7 +227,7 @@ body {
   gap: 4px;
   padding: 4px;
   background: var(--surface);
-  height: 200px;
+  height: 260px;
 }
 .urun-ana-img {
   grid-row: 1 / 4;
@@ -990,7 +991,7 @@ async function loadUrunler() {
           ${kucukHTML}
         </div>
       </div>
-      <div class="urun-bilgi">
+      <div class="urun-bilgi" style="width:100%;">
         <div class="urun-adi">${u.ad||'Ürün'}</div>
         ${u.aciklama ? `<div class="urun-acik">${u.aciklama}</div>` : ''}
       </div>
