@@ -37,7 +37,7 @@
   .layout { display: flex; min-height: 100vh; }
 
   .sidebar {
-    width: 220px;
+    width: 245px;
     background: var(--red);
     flex-shrink: 0;
     display: flex;
@@ -106,7 +106,7 @@
 
   /* ── Main ────────────────────────────────────────────── */
   .main {
-    margin-left: 220px;
+    margin-left: 245px;
     transition: margin-left 0.25s;
     flex: 1;
     display: flex;
@@ -892,16 +892,40 @@
   </nav>
 
   <!-- Mobil Ek Menü -->
-  <div id="mobile-menu" style="display:none;position:fixed;bottom:60px;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:199;padding:12px;">
+  <div id="mobile-menu" style="display:none;position:fixed;bottom:60px;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:199;padding:12px;max-height:70vh;overflow-y:auto;">
     <button class="admin-only" onclick="goTo('mesaj');toggleMobileMenu()" 
       style="width:100%;margin-bottom:6px;padding:12px 16px;border-radius:8px;border:none;background:var(--bg);color:var(--text);font-size:0.9em;font-weight:500;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;">
       <span>💬</span> Mesajlar
     </button>
-    <button class="admin-only" onclick="goTo('gruplar');toggleMobileMenu()" 
+    <button class="admin-only" onclick="goTo('gruplar');toggleMobileMenu()"
       style="width:100%;margin-bottom:6px;padding:12px 16px;border-radius:8px;border:none;background:var(--bg);color:var(--text);font-size:0.9em;font-weight:500;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;">
       <span>🗂️</span> Gruplar
     </button>
-    <button onclick="doLogout()" 
+    <button class="admin-only" onclick="goTo('ziyaret');toggleMobileMenu()"
+      style="width:100%;margin-bottom:6px;padding:12px 16px;border-radius:8px;border:none;background:var(--bg);color:var(--text);font-size:0.9em;font-weight:500;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;">
+      <span>👁️</span> Ziyaretçiler
+    </button>
+    <button class="admin-only" onclick="goTo('videolar');toggleMobileMenu()"
+      style="width:100%;margin-bottom:6px;padding:12px 16px;border-radius:8px;border:none;background:var(--bg);color:var(--text);font-size:0.9em;font-weight:500;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;">
+      <span>🎬</span> Videolar
+    </button>
+    <button class="admin-only" onclick="goTo('urunler');toggleMobileMenu()"
+      style="width:100%;margin-bottom:6px;padding:12px 16px;border-radius:8px;border:none;background:var(--bg);color:var(--text);font-size:0.9em;font-weight:500;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;">
+      <span>🛍️</span> Ürünler
+    </button>
+    <button class="admin-only" onclick="goTo('site');toggleMobileMenu()"
+      style="width:100%;margin-bottom:6px;padding:12px 16px;border-radius:8px;border:none;background:var(--bg);color:var(--text);font-size:0.9em;font-weight:500;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;">
+      <span>⚙️</span> Site Ayarları
+    </button>
+    <button class="admin-only" onclick="goTo('izleme');toggleMobileMenu()"
+      style="width:100%;margin-bottom:6px;padding:12px 16px;border-radius:8px;border:none;background:var(--bg);color:var(--text);font-size:0.9em;font-weight:500;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;">
+      <span>📺</span> Video İzleme
+    </button>
+    <button class="admin-only" onclick="goTo('veligiris');toggleMobileMenu()"
+      style="width:100%;margin-bottom:6px;padding:12px 16px;border-radius:8px;border:none;background:var(--bg);color:var(--text);font-size:0.9em;font-weight:500;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;">
+      <span>👨‍👧</span> Veli Girişleri
+    </button>
+    <button onclick="doLogout()"
       style="width:100%;padding:12px 16px;border-radius:8px;border:none;background:#FEE2E2;color:#991B1B;font-size:0.9em;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;">
       <span>🚪</span> Çıkış Yap
     </button>
