@@ -68,6 +68,32 @@ body {
 .nav-tab:hover  { color: #fff; }
 .nav-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
 
+/* ========= MOBİL ALT NAV ========= */
+.bottom-nav { display: none; }
+@media (max-width: 600px) {
+  .bottom-nav {
+    display: flex;
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+    background: var(--red2);
+    border-top: 2px solid rgba(255,255,255,0.15);
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.3);
+  }
+  .bottom-nav .nav-tab {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    padding: 8px 4px 10px; font-size: 0.7em; border-bottom: none;
+    border-top: 3px solid transparent; gap: 3px;
+  }
+  .bottom-nav .nav-tab.active {
+    border-top-color: var(--gold); border-bottom-color: transparent;
+  }
+  .bottom-nav .nav-tab .btn-icon { font-size: 1.5em; line-height: 1; }
+  /* üst navdaki veli ve maç sekmelerini mobilde gizle */
+  .site-nav .nav-tab-veli,
+  .site-nav .nav-tab-mac { display: none; }
+  /* içerik alta yapışmasın diye boşluk */
+  body { padding-bottom: 62px; }
+}
+
 /* ========= SAYFALAR ========= */
 .page-section { display: none; }
 .page-section.active { display: block; }
@@ -528,9 +554,19 @@ body {
   <div class="site-nav-inner">
     <button class="nav-tab active" onclick="showPage('ana',this)">🏠 Ana Sayfa</button>
     <button class="nav-tab" onclick="showPage('urunler',this)">🛍️ Ürünlerimiz</button>
-    <button class="nav-tab" onclick="showPage('veli',this)">👨‍👧 Veli Bilgilendirme Sistemi</button>
-    <button class="nav-tab" onclick="showPage('maclar',this)">🎬 Maçlarımız</button>
+    <button class="nav-tab nav-tab-veli" onclick="showPage('veli',this)">👨‍👧 Veli Bilgilendirme Sistemi</button>
+    <button class="nav-tab nav-tab-mac" onclick="showPage('maclar',this)">🎬 Maçlarımız</button>
   </div>
+</nav>
+
+<!-- ========= MOBİL ALT NAV ========= -->
+<nav class="bottom-nav">
+  <button class="nav-tab" onclick="showPage('veli',this)">
+    <span class="btn-icon">👨‍👧</span>Veli Sistemi
+  </button>
+  <button class="nav-tab" onclick="showPage('maclar',this)">
+    <span class="btn-icon">🎬</span>Maçlarımız
+  </button>
 </nav>
 
 <!-- ========= ANA SAYFA ========= -->
@@ -556,7 +592,7 @@ body {
     <div class="hakkimizda-grid">
       <div>
         <span class="section-label">Hakkımızda</span>
-        <h2 class="section-title">Büyük Hedefler,<br>Sağlam Temeller</h2>
+        <h2 class="section-title">Büyük Hedefler, Sağlam Temeller</h2>
         <p class="section-text" id="ana-hakkimizda">
           Körfez Vaveyla Spor Kulübü, Kocaeli'nin Körfez ilçesinde spor sevgisini
           gençlere aşılamak amacıyla kurulmuştur. Voleybol branşında faaliyet gösteren
@@ -812,6 +848,13 @@ function showPage(sayfa, btn) {
   document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + sayfa).classList.add('active');
   if (btn) btn.classList.add('active');
+  // Alt nav ve üst nav senkronizasyonu
+  document.querySelectorAll('.site-nav .nav-tab-veli, .site-nav .nav-tab-mac').forEach(b => {
+    if ((sayfa === 'veli' && b.classList.contains('nav-tab-veli')) ||
+        (sayfa === 'maclar' && b.classList.contains('nav-tab-mac'))) {
+      b.classList.add('active');
+    }
+  });
   if (sayfa === 'urunler') loadUrunler();
   if (sayfa === 'maclar') macSayfasiAc();
 }
