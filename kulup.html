@@ -554,7 +554,7 @@
           </button>
           <button id="ist-tab-btn-son10" onclick="switchIstTab('son10')"
             style="padding:10px 22px;border:none;background:none;cursor:pointer;font-size:0.9em;font-weight:600;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;">
-            🗓️ Son 10 Yoklama
+            🗓️ Son 16 Yoklama
           </button>
         </div>
 
@@ -581,7 +581,7 @@
         <div id="ist-tab-son10" style="display:none;">
           <div class="panel" style="margin-bottom:16px;">
             <div class="panel-header">
-              <div class="panel-title">Son 10 Yoklama</div>
+              <div class="panel-title">Son 16 Yoklama</div>
               <div class="toolbar">
                 <select class="filter" id="son10-grup" onchange="loadSon10()">
                   <option value="">Grup seçin...</option>
@@ -1316,6 +1316,7 @@ async function loadHatirlatma() {
   const kayitlar = snap.val() || {};
   const liste = sporcular.filter(function(s) {
     if (s.durum === 'Pasif') return false;
+    if (s.aidatOdemeyecek) return false; // burslu - aidat almıyor
     if (grup && s.grup !== grup) return false;
     return true;
   });
@@ -2284,7 +2285,7 @@ async function loadSon10() {
 
   // Tüm yoklama günlerini sırala, son 10'u al
   const tumGunler = Object.keys(tumYoklama).sort();
-  const son10 = tumGunler.slice(-10);
+  const son10 = tumGunler.slice(-16);
 
   if (!son10.length) {
     body.innerHTML = `<div class="empty"><span class="icon">📅</span><p>Bu grup için henüz yoklama kaydı yok.</p></div>`;
