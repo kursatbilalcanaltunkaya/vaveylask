@@ -2319,7 +2319,13 @@ async function loadSon10() {
       <tbody>`;
 
   liste.forEach(s => {
+    // Bu sporcunun bu grupta ilk kaydının olduğu tarihi bul (true veya false olarak işaretlenmiş)
+    const ilkKayitGun = tumGunler.find(gun => tumYoklama[gun] && s.id in tumYoklama[gun]);
     const satirlar = son10.map(gun => {
+      // Sporcu bu grupta henüz yoksa (ilk kayıttan önce) → gri boş hücre
+      if (ilkKayitGun && gun < ilkKayitGun) {
+        return `<td style="text-align:center;background:#f3f4f6;"></td>`;
+      }
       const val = tumYoklama[gun]?.[s.id];
       if (val === true)  return `<td style="text-align:center;font-size:1.1em;">✅</td>`;
       if (val === false) return `<td style="text-align:center;font-size:1.1em;">❌</td>`;
