@@ -1057,14 +1057,30 @@ async function tcSorgula() {
   const [id, sporcu] = found;
   mevcutSporcu = { id, ...sporcu };
 
-  // Giriş kaydını Firebase'e yaz
-  db.ref('kulup/veliGiris').push({
-    tc: tc,
-    sporcuAd: sporcu.ad || '',
-    sporcuId: id,
-    grup: sporcu.grup || '',
-    zaman: new Date().toISOString()
-  });
+  // Giriş kaydını Firebase'e yaz (2 dakika içinde aynı TC'den tekrar yazma — çift tıklama koruması)
+  const simdi = new Date();
+  const simdiMs = simdi.getTime();
+  const girisSnap = await db.ref('kulup/veliGiris')
+    .orderByChild('tc').equalTo(tc).limitToLast(1).once('value');
+  let ciftKayit = false;
+  if (girisSnap.exists()) {
+    girisSnap.forEach(child => {
+      const kayit = child.val();
+      if (kayit.zaman) {
+        const fark = simdiMs - new Date(kayit.zaman).getTime();
+        if (fark < 2 * 60 * 1000) ciftKayit = true; // 2 dakika içindeyse yazma
+      }
+    });
+  }
+  if (!ciftKayit) {
+    db.ref('kulup/veliGiris').push({
+      tc: tc,
+      sporcuAd: sporcu.ad || '',
+      sporcuId: id,
+      grup: sporcu.grup || '',
+      zaman: simdi.toISOString()
+    });
+  }
 
   const fotoEl = document.getElementById('sporcu-foto-el');
   if (sporcu.foto) {
