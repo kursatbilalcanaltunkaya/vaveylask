@@ -1318,6 +1318,11 @@ async function loadHatirlatma() {
     if (s.durum === 'Pasif') return false;
     if (s.aidatOdemeyecek) return false; // burslu - aidat almıyor
     if (grup && s.grup !== grup) return false;
+    // Seçili ay, sporcunun kayıt tarihinden önceyse dahil etme
+    if (s.kayit) {
+      const kayitAy = s.kayit.substring(0, 7); // "YYYY-MM"
+      if (ay < kayitAy) return false;
+    }
     return true;
   });
   const odemeyen = liste.filter(function(s) {
