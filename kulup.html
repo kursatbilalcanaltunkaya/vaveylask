@@ -1401,10 +1401,11 @@ function goTo(page) {
     const ha = document.getElementById('hat-ay');
     if (ha) {
       ha.innerHTML = '';
+      const _now2=new Date(), _y2=_now2.getFullYear(), _m2=_now2.getMonth()+1;
       for (let i=0;i<12;i++) {
-        const d2=new Date(); d2.setMonth(d2.getMonth()-i);
-        const val=d2.getFullYear()+'-'+String(d2.getMonth()+1).padStart(2,'0');
-        const label=d2.toLocaleDateString('tr-TR',{month:'long',year:'numeric'});
+        let y=_y2, m=_m2-i; while(m<=0){m+=12;y--;}
+        const val=y+'-'+String(m).padStart(2,'0');
+        const label=new Date(y,m-1,1).toLocaleDateString('tr-TR',{month:'long',year:'numeric'});
         ha.innerHTML+=`<option value="${val}">${label}</option>`;
       }
     }
@@ -1466,11 +1467,15 @@ function fillIstDropdowns() {
   }
   const ia = document.getElementById('ist-ay');
   if (ia) {
-    ia.innerHTML = '<option value="2026">📅 Tüm 2026</option>';
-    for (let i = 0; i < 12; i++) {
-      const d = new Date(); d.setMonth(d.getMonth() - i);
-      const val = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
-      const label = d.toLocaleDateString('tr-TR',{month:'long',year:'numeric'});
+    const now = new Date();
+    const bugunYil = now.getFullYear();
+    const bugunAy  = now.getMonth() + 1; // 1-12
+    ia.innerHTML = `<option value="${bugunYil}">📅 Tüm ${bugunYil}</option>`;
+    for (let i = 0; i < 24; i++) {
+      let y = bugunYil, m = bugunAy - i;
+      while (m <= 0) { m += 12; y--; }
+      const val   = y + '-' + String(m).padStart(2,'0');
+      const label = new Date(y, m-1, 1).toLocaleDateString('tr-TR',{month:'long',year:'numeric'});
       ia.innerHTML += `<option value="${val}">${label}</option>`;
     }
   }
@@ -1487,11 +1492,12 @@ async function fillAidatAylar() {
   
   // Son 24 ayı oluştur
   const aylar = new Map(); // val -> label
+  const _nowA = new Date(), _yA = _nowA.getFullYear(), _mA = _nowA.getMonth()+1;
   for (let i = 0; i < 24; i++) {
-    const d = new Date(); d.setMonth(d.getMonth() - i);
-    const val = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+    let y = _yA, m = _mA - i; while (m <= 0) { m += 12; y--; }
+    const val = y + '-' + String(m).padStart(2,'0');
     const key = val.replace('-','');
-    const label = d.toLocaleDateString('tr-TR', {month:'long', year:'numeric'});
+    const label = new Date(y, m-1, 1).toLocaleDateString('tr-TR', {month:'long', year:'numeric'});
     aylar.set(val, label);
     dbAylar.delete(key); // zaten eklendi
   }
