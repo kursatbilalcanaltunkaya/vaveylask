@@ -740,7 +740,7 @@ body {
       <div class="tc-input-row">
         <input type="number" id="tc-input" class="tc-input" placeholder="TC Kimlik No" maxlength="11"
           oninput="if(this.value.length>11)this.value=this.value.slice(0,11)">
-        <button class="tc-btn" onclick="tcSorgula()">Sorgula</button>
+        <button class="tc-btn" id="sorgula-btn" onclick="tcSorgula()">Sorgula</button>
       </div>
       <div class="tc-error" id="tc-error">TC kimlik numarası bulunamadı.</div>
     </div>
@@ -1041,18 +1041,29 @@ function acUrunLightbox(id, idx) {
 let mevcutSporcu = null;
 
 async function tcSorgula() {
+  const btn = document.getElementById('sorgula-btn');
+  if (btn && btn.disabled) return; // çift tıklama engeli
+  if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
   const tc = document.getElementById('tc-input').value.trim();
   const err = document.getElementById('tc-error');
   const kart = document.getElementById('sporcu-kart');
   err.style.display = 'none';
   kart.style.display = 'none';
-  if (!tc || tc.length < 10) { err.style.display='block'; err.textContent='Geçerli bir TC giriniz.'; return; }
+  if (!tc || tc.length < 10) {
+    err.style.display='block'; err.textContent='Geçerli bir TC giriniz.';
+    if (btn) { btn.disabled = false; btn.textContent = 'Sorgula'; }
+    return;
+  }
 
   const snap = await db.ref('kulup/sporcular').once('value');
   const data = snap.val() || {};
   const found = Object.entries(data).find(([id,s]) => s.tc === tc);
 
-  if (!found) { err.style.display='block'; err.textContent='Bu TC kimlik numarasına ait sporcu bulunamadı.'; return; }
+  if (!found) {
+    err.style.display='block'; err.textContent='Bu TC kimlik numarasına ait sporcu bulunamadı.';
+    if (btn) { btn.disabled = false; btn.textContent = 'Sorgula'; }
+    return;
+  }
 
   const [id, sporcu] = found;
   mevcutSporcu = { id, ...sporcu };
@@ -1097,6 +1108,7 @@ async function tcSorgula() {
   fillAySelect();
   loadVeliYoklama();
   loadVeliAidat();
+  if (btn) { btn.disabled = false; btn.textContent = 'Sorgula'; }
 }
 
 document.getElementById('tc-input').addEventListener('keydown', function(e) {
@@ -1106,10 +1118,11 @@ document.getElementById('tc-input').addEventListener('keydown', function(e) {
 function fillAySelect() {
   const sel = document.getElementById('yok-ay-sel');
   sel.innerHTML = '';
+  const _n=new Date(), _y=_n.getFullYear(), _m=_n.getMonth()+1;
   for (let i = 0; i < 12; i++) {
-    const d = new Date(); d.setMonth(d.getMonth() - i);
-    const val = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
-    const label = d.toLocaleDateString('tr-TR', {month:'long', year:'numeric'});
+    let y=_y, m=_m-i; while(m<=0){m+=12;y--;}
+    const val = y+'-'+String(m).padStart(2,'0');
+    const label = new Date(y,m-1,1).toLocaleDateString('tr-TR', {month:'long', year:'numeric'});
     sel.innerHTML += '<option value="'+val+'">'+label+'</option>';
   }
 }
